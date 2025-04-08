@@ -1,10 +1,1 @@
-{
-  "/_app": "pages/_app.js",
-  "/_error": "pages/_error.js",
-  "/_document": "pages/_document.js",
-  "/dashboard": "pages/dashboard.js",
-  "/appointments": "pages/appointments.js",
-  "/api/doctors": "pages/api/doctors.js",
-  "/": "pages/index.js",
-  "/appointments/new": "pages/appointments/new.js"
-}
+{"/_app":"pages/_app.js","/_document":"pages/_document.js","/about":"pages/about.html","/_error":"pages/_error.js","/api/appointments/cancel/[id]":"pages/api/appointments/cancel/[id].js","/api/auth/login":"pages/api/auth/login.js","/api/appointments/[id]":"pages/api/appointments/[id].js","/api/appointments":"pages/api/appointments.js","/api/auth/register":"pages/api/auth/register.js","/api/doctors/[id]":"pages/api/doctors/[id].js","/api/auth/test-token":"pages/api/auth/test-token.js","/api/doctors/availability/[id]":"pages/api/doctors/availability/[id].js","/api/doctors":"pages/api/doctors.js","/api/test-db":"pages/api/test-db.js","/api/doctors/specializations":"pages/api/doctors/specializations.js","/api/test-mongo":"pages/api/test-mongo.js","/api/user/profile":"pages/api/user/profile.js","/api/test-connection":"pages/api/test-connection.js","/appointments/[id]":"pages/appointments/[id].html","/appointments":"pages/appointments.html","/auth/debug":"pages/auth/debug.html","/appointments/new":"pages/appointments/new.html","/auth/login":"pages/auth/login.html","/auth/register":"pages/auth/register.html","/contact":"pages/contact.html","/dashboard":"pages/dashboard.html","/":"pages/index.html","/medical-records":"pages/medical-records.html","/prescriptions":"pages/prescriptions.html","/test-login":"pages/test-login.html","/profile":"pages/profile.html","/404":"pages/404.html"}
