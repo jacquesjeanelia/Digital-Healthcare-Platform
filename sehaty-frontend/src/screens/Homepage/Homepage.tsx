@@ -14,7 +14,7 @@ export const Homepage = (): JSX.Element => {
       title: "General Medicine",
       description: "Primary healthcare services for all ages.",
       icon: (
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#a818fc" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#4caf96" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
           <path d="M18 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2z"></path>
           <path d="M12 6v12"></path>
           <path d="M6 12h12"></path>
@@ -25,7 +25,7 @@ export const Homepage = (): JSX.Element => {
       title: "Pediatrics",
       description: "Specialized healthcare for children",
       icon: (
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#a818fc" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#4caf96" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
           <path d="M9 9h1h1"></path>
           <path d="M14 9h1h1"></path>
           <path d="M10 13c.5 1 1.5 1 2 0"></path>
@@ -40,7 +40,7 @@ export const Homepage = (): JSX.Element => {
       title: "Dentistry",
       description: "Complete dental care services",
       icon: (
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#a818fc" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#4caf96" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
           <path d="M12 5.5c-1.7-.7-3.4-.7-5-.7-2.3 0-4.3.3-5.6 1-1 .4-1.4 1.4-1.4 2.8 0 1.6.5 3 1.4 4.2 2 2.7 8.2 7.5 10.6 9.5 2.4-2 8.6-6.8 10.6-9.5.9-1.2 1.4-2.6 1.4-4.2 0-1.4-.4-2.4-1.4-2.8-1.3-.7-3.3-1-5.6-1-1.6 0-3.3 0-5 .7"></path>
           <path d="m7 10 3 1.5L12 10l2 1.5L17 10"></path>
         </svg>
@@ -50,7 +50,7 @@ export const Homepage = (): JSX.Element => {
       title: "Dermatology",
       description: "Skin, hair and nail treatments",
       icon: (
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#a818fc" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#4caf96" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
           <path d="M6 12a6 6 0 0 0 12 0"></path>
           <path d="M6 12a6 6 0 0 1 12 0"></path>
           <path d="M2 9h2"></path>
@@ -95,7 +95,7 @@ export const Homepage = (): JSX.Element => {
       title: "Search",
       description: "Find clinics and doctors by specialty or location",
       icon: (
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#a818fc" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#4caf96" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
           <circle cx="11" cy="11" r="8"></circle>
           <path d="m21 21-4.3-4.3"></path>
         </svg>
@@ -106,7 +106,7 @@ export const Homepage = (): JSX.Element => {
       title: "Book",
       description: "Select your preferred date and time slot",
       icon: (
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#a818fc" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#4caf96" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
           <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
           <line x1="16" y1="2" x2="16" y2="6"></line>
           <line x1="8" y1="2" x2="8" y2="6"></line>
@@ -125,7 +125,7 @@ export const Homepage = (): JSX.Element => {
       title: "Visit",
       description: "Attend your appointment and receive care",
       icon: (
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#a818fc" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#4caf96" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
           <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
           <polyline points="22 4 12 14.01 9 11.01"></polyline>
         </svg>
@@ -139,7 +139,7 @@ export const Homepage = (): JSX.Element => {
         <main className="flex flex-col w-full items-center gap-[50px] bg-white dark:bg-gray-900 px-4 md:px-6">
           {/* Hero Section */}
           <section className="flex flex-col items-center justify-center w-full bg-white dark:bg-gray-900">
-            <div className="flex flex-col md:flex-row h-auto md:h-[410px] w-full max-w-[1280px] items-start gap-[46px] bg-[#a918fd0d] dark:bg-[#a918fd19] rounded-3xl p-6 md:p-0">
+            <div className="flex flex-col md:flex-row h-auto md:h-[410px] w-full max-w-[1280px] items-start gap-[46px] bg-[#4caf9620] dark:bg-[#4caf9640] rounded-3xl p-6 md:p-0">
               <div className="flex flex-col w-full md:w-[298px] h-auto md:h-[278px] items-start gap-6 p-5">
                 <h2 className="self-stretch font-['Inter',Helvetica] font-bold text-blue-900 dark:text-white text-[28px] md:text-[35px] tracking-[-0.70px] leading-[40px] md:leading-[50.4px]">
                   Your trusted
@@ -153,10 +153,10 @@ export const Homepage = (): JSX.Element => {
 
                 <Button
                   variant="ghost"
-                  className="inline-flex items-start bg-[#a918fd0d] dark:bg-[#a918fd19] rounded-lg gap-2.5 px-5 py-4 hover:bg-[#a918fd1a]"
+                  className="inline-flex items-start bg-[#4caf9620] dark:bg-[#4caf9640] rounded-lg gap-2.5 px-5 py-4 hover:bg-[#4caf9630]"
                   onClick={() => navigate("/doctors")}
                 >
-                  <span className="font-['Inter',Helvetica] font-bold text-[#a818fc] text-[15px]">
+                  <span className="font-['Inter',Helvetica] font-bold text-[#4caf96] text-[15px]">
                     Learn More →
                   </span>
                 </Button>
@@ -177,7 +177,7 @@ export const Homepage = (): JSX.Element => {
                 className="h-10 bg-[#f8f8f7] dark:bg-gray-800 dark:text-white rounded-xl text-[#00000080] text-sm w-full"
                 placeholder="Find clinics, doctors and services"
               />
-              <Button className="w-full md:w-[99px] h-10 bg-[#a818fc] rounded-lg text-white font-bold">
+              <Button className="w-full md:w-[99px] h-10 bg-[#4caf96] rounded-lg text-white font-bold">
                 Search
               </Button>
             </div>
@@ -207,7 +207,7 @@ export const Homepage = (): JSX.Element => {
                         {specialty.description}
                       </p>
                       <Button 
-                        className="w-[110px] h-8 bg-[#a818fc] rounded-lg text-white font-bold text-sm"
+                        className="w-[110px] h-8 bg-[#4caf96] rounded-lg text-white font-bold text-sm"
                         onClick={() => navigate("/doctors")}
                       >
                         Find Doctors
@@ -252,7 +252,7 @@ export const Homepage = (): JSX.Element => {
           </section>
 
           <Button 
-            className="w-[136px] h-10 bg-[#a818fc] rounded-lg text-white"
+            className="w-[136px] h-10 bg-[#4caf96] rounded-lg text-white"
             onClick={() => navigate("/doctors")}
           >
             View All Clinics
@@ -269,10 +269,10 @@ export const Homepage = (): JSX.Element => {
                 {howItWorksSteps.map((step, index) => (
                   <Card
                     key={index}
-                    className="flex flex-col w-full h-[205px] bg-[#a918fd1a] dark:bg-[#311c5e] rounded-2xl border-none"
+                    className="flex flex-col w-full h-[205px] bg-[#4caf9620] dark:bg-[#4caf9640] rounded-2xl border-none"
                   >
                     <CardContent className="flex flex-col items-start gap-[3px] p-6">
-                      <div className="w-9 h-9 bg-[#a918fd0d] dark:bg-[#4d2d8b] rounded-[18px] flex items-center justify-center">
+                      <div className="w-9 h-9 bg-[#4caf9620] dark:bg-[#4caf9640] rounded-[18px] flex items-center justify-center">
                         {step.icon}
                       </div>
                       <span className="font-['Inter',Helvetica] font-medium text-neutral-950 dark:text-white text-sm leading-6">

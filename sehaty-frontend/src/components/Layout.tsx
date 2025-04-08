@@ -15,6 +15,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
   const { user, isAuthenticated, logout } = useAuth();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+  const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
   const userMenuRef = useRef<HTMLDivElement>(null);
 
   // Close mobile menu when changing routes
@@ -139,16 +140,65 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
             {isAuthenticated ? (
               <>
                 {/* Notification Icon */}
-                <button
-                  className="p-2 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-white hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors relative"
-                  aria-label="Notifications"
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9" />
-                    <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0" />
-                  </svg>
-                  <span className="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full"></span>
-                </button>
+                <div className="relative">
+                  <button
+                    className="p-2 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-white hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors relative"
+                    aria-label="Notifications"
+                    onClick={() => setIsNotificationsOpen(!isNotificationsOpen)}
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9" />
+                      <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0" />
+                    </svg>
+                    <span className="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full"></span>
+                  </button>
+                  
+                  {isNotificationsOpen && (
+                    <div className="absolute right-0 mt-2 w-80 bg-white dark:bg-gray-800 rounded-md shadow-lg border border-gray-200 dark:border-gray-700 z-20">
+                      <div className="p-3 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
+                        <p className="font-medium text-gray-800 dark:text-white">Notifications</p>
+                        <span className="bg-[#4caf96] text-white text-xs px-2 py-1 rounded-full">3 new</span>
+                      </div>
+                      <div className="max-h-80 overflow-y-auto">
+                        {[
+                          {
+                            title: "Appointment Confirmed",
+                            description: "Your appointment with Dr. Sarah has been confirmed",
+                            time: "Just now"
+                          },
+                          {
+                            title: "Prescription Renewed",
+                            description: "Your prescription for Amoxicillin has been renewed",
+                            time: "2 hours ago"
+                          },
+                          {
+                            title: "Lab Results Ready",
+                            description: "Your recent lab results are now available",
+                            time: "Yesterday"
+                          }
+                        ].map((notification, index) => (
+                          <div key={index} className="p-3 border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700">
+                            <div className="flex items-start gap-3">
+                              <div className="w-8 h-8 bg-[#4caf9620] dark:bg-[#4caf9640] rounded-full flex items-center justify-center text-[#4caf96] flex-shrink-0">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                  <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9" />
+                                </svg>
+                              </div>
+                              <div>
+                                <p className="font-medium text-gray-800 dark:text-white text-sm">{notification.title}</p>
+                                <p className="text-gray-600 dark:text-gray-400 text-xs mt-1">{notification.description}</p>
+                                <p className="text-[#4caf96] text-xs mt-1">{notification.time}</p>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                      <div className="p-3 text-center">
+                        <button className="text-sm text-[#4caf96] hover:underline">View all notifications</button>
+                      </div>
+                    </div>
+                  )}
+                </div>
 
                 {/* User Account with Dropdown */}
                 <div className="relative" ref={userMenuRef}>
@@ -179,6 +229,15 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                           }}
                         >
                           Dashboard
+                        </button>
+                        <button 
+                          className="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+                          onClick={() => {
+                            navigate('/appointments');
+                            setIsUserMenuOpen(false);
+                          }}
+                        >
+                          My Appointments
                         </button>
                         <button 
                           className="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
@@ -396,14 +455,14 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                     <circle cx="12" cy="10" r="3"></circle>
                   </svg>
                   <span className="text-gray-600 dark:text-gray-300 text-sm">
-                    King Fahd Road, Riyadh, <br />Kingdom of Saudi Arabia
+                    Cairo, Egypt
                   </span>
                 </li>
                 <li className="flex items-center gap-2">
                   <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-[#4caf96]">
                     <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
                   </svg>
-                  <span className="text-gray-600 dark:text-gray-300 text-sm">+966 123 456 7890</span>
+                  {/* Phone number removed */}
                 </li>
                 <li className="flex items-center gap-2">
                   <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-[#4caf96]">

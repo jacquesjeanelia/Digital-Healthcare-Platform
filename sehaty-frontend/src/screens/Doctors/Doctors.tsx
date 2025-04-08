@@ -148,7 +148,7 @@ export const Doctors = (): JSX.Element => {
                 <input
                   type="checkbox"
                   id="available"
-                  className="w-4 h-4 accent-[#a818fc]"
+                  className="w-4 h-4 accent-[#4caf96]"
                   checked={availableOnly}
                   onChange={() => setAvailableOnly(!availableOnly)}
                 />
@@ -208,7 +208,7 @@ export const Doctors = (): JSX.Element => {
                               </div>
                             </div>
                             
-                            <p className="text-[#a818fc] text-sm font-medium">{doctor.specialty}</p>
+                            <p className="text-[#4caf96] text-sm font-medium">{doctor.specialty}</p>
                             
                             <div className="grid grid-cols-2 gap-2 mt-1">
                               <div className="flex items-center gap-1">
@@ -231,7 +231,7 @@ export const Doctors = (): JSX.Element => {
                             
                             <div className="mt-2 flex gap-2">
                               <Button 
-                                className="flex-1 h-9 bg-[#a818fc] text-white font-bold text-sm rounded-lg hover:bg-[#8a14d4]"
+                                className="flex-1 h-9 bg-[#4caf96] text-white font-bold text-sm rounded-lg hover:bg-[#3d9d86]"
                                 onClick={() => {
                                   // Check if user is logged in
                                   const token = localStorage.getItem('token');
@@ -248,7 +248,7 @@ export const Doctors = (): JSX.Element => {
                               </Button>
                               <Button 
                                 variant="ghost" 
-                                className="h-9 px-3 bg-[#a918fd0d] text-[#a818fc] font-bold text-sm rounded-lg hover:bg-[#a918fd1a]"
+                                className="h-9 px-3 bg-[#4caf9620] text-[#4caf96] font-bold text-sm rounded-lg hover:bg-[#4caf9630]"
                                 onClick={() => {
                                   alert('View profile for ' + doctor.name);
                                 }}
@@ -297,7 +297,7 @@ export const Doctors = (): JSX.Element => {
                       variant={currentPage === number ? "default" : "ghost"}
                       className={`h-8 w-8 p-0 text-sm ${
                         currentPage === number 
-                          ? "bg-[#a818fc] text-white"
+                          ? "bg-[#4caf96] text-white"
                           : "text-gray-800 dark:text-white"
                       }`}
                       onClick={() => paginate(number)}

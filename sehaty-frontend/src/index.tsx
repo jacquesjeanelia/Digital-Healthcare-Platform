@@ -8,6 +8,7 @@ import { Doctors } from "./screens/Doctors";
 import { Services } from "./screens/Services";
 import { Login, Register, DoctorLogin } from "./screens/Auth";
 import { Dashboard } from "./screens/Dashboard";
+import { Appointments } from "./screens/Appointments";
 import { Layout } from "./components/Layout";
 import { AuthProvider } from "./lib/AuthContext";
 
@@ -23,6 +24,7 @@ createRoot(document.getElementById("app") as HTMLElement).render(
           
           {/* Dashboard routes with layout */}
           <Route path="/dashboard" element={<Layout><Dashboard /></Layout>} />
+          <Route path="/appointments" element={<Layout><Appointments /></Layout>} />
           
           {/* Main routes with standard layout */}
           <Route path="/" element={<Layout><Homepage /></Layout>} />
