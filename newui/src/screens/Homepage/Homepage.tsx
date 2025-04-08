@@ -3,25 +3,66 @@ import { Button } from "../../components/ui/button";
 import { Card, CardContent } from "../../components/ui/card";
 import { Input } from "../../components/ui/input";
 import { Separator } from "../../components/ui/separator";
+import { useNavigate } from "react-router-dom";
 
 export const Homepage = (): JSX.Element => {
+  const navigate = useNavigate();
+  
   // Data for specialty cards
   const specialties = [
     {
       title: "General Medicine",
       description: "Primary healthcare services for all ages.",
+      icon: (
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#a818fc" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M18 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2z"></path>
+          <path d="M12 6v12"></path>
+          <path d="M6 12h12"></path>
+        </svg>
+      ),
     },
     {
       title: "Pediatrics",
       description: "Specialized healthcare for children",
+      icon: (
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#a818fc" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M9 9h1h1"></path>
+          <path d="M14 9h1h1"></path>
+          <path d="M10 13c.5 1 1.5 1 2 0"></path>
+          <path d="M8 20v1h8v-1"></path>
+          <path d="M12 17v3"></path>
+          <path d="M19 12c0-4.4-3.6-8-8-8s-8 3.6-8 8c0 1.6.5 3 1.3 4.2.8 1.2 2 2.2 3.5 2.8"></path>
+          <path d="M17.2 16.2c.5.2 1 .3 1.6.3 2.2 0 4-1.8 4-4s-1.8-4-4-4"></path>
+        </svg>
+      ),
     },
     {
       title: "Dentistry",
       description: "Complete dental care services",
+      icon: (
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#a818fc" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M12 5.5c-1.7-.7-3.4-.7-5-.7-2.3 0-4.3.3-5.6 1-1 .4-1.4 1.4-1.4 2.8 0 1.6.5 3 1.4 4.2 2 2.7 8.2 7.5 10.6 9.5 2.4-2 8.6-6.8 10.6-9.5.9-1.2 1.4-2.6 1.4-4.2 0-1.4-.4-2.4-1.4-2.8-1.3-.7-3.3-1-5.6-1-1.6 0-3.3 0-5 .7"></path>
+          <path d="m7 10 3 1.5L12 10l2 1.5L17 10"></path>
+        </svg>
+      ),
     },
     {
       title: "Dermatology",
       description: "Skin, hair and nail treatments",
+      icon: (
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#a818fc" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M6 12a6 6 0 0 0 12 0"></path>
+          <path d="M6 12a6 6 0 0 1 12 0"></path>
+          <path d="M2 9h2"></path>
+          <path d="M20 9h2"></path>
+          <path d="M12 2v2"></path>
+          <path d="M12 13v2"></path>
+          <path d="m4.93 4.93 1.41 1.41"></path>
+          <path d="m17.66 17.66 1.41 1.41"></path>
+          <path d="m17.66 4.93-1.41 1.41"></path>
+          <path d="m4.93 17.66 1.41-1.41"></path>
+        </svg>
+      ),
     },
   ];
 
@@ -53,85 +94,54 @@ export const Homepage = (): JSX.Element => {
       step: "Step 1",
       title: "Search",
       description: "Find clinics and doctors by specialty or location",
+      icon: (
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#a818fc" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <circle cx="11" cy="11" r="8"></circle>
+          <path d="m21 21-4.3-4.3"></path>
+        </svg>
+      ),
     },
     {
       step: "Step 2",
       title: "Book",
       description: "Select your preferred date and time slot",
+      icon: (
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#a818fc" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+          <line x1="16" y1="2" x2="16" y2="6"></line>
+          <line x1="8" y1="2" x2="8" y2="6"></line>
+          <line x1="3" y1="10" x2="21" y2="10"></line>
+          <path d="M8 14h.01"></path>
+          <path d="M12 14h.01"></path>
+          <path d="M16 14h.01"></path>
+          <path d="M8 18h.01"></path>
+          <path d="M12 18h.01"></path>
+          <path d="M16 18h.01"></path>
+        </svg>
+      ),
     },
     {
       step: "Step 3",
       title: "Visit",
       description: "Attend your appointment and receive care",
+      icon: (
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#a818fc" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+          <polyline points="22 4 12 14.01 9 11.01"></polyline>
+        </svg>
+      ),
     },
   ];
 
   return (
-    <div className="bg-white flex flex-row justify-center w-full min-h-screen">
-      <div className="bg-white w-full max-w-[1550px] relative">
-        <header className="flex items-center w-full h-[58px] fixed top-0 left-0 right-0 bg-white border-b border-[#f0f0f0] z-10">
-          <div className="w-full max-w-[1280px] mx-auto flex items-center justify-between px-4 md:px-6">
-            <div className="relative h-[60px] flex items-center">
-              <h1 className="font-['Montserrat',Helvetica] font-extrabold text-[#a818fc] text-[22px] text-center">
-                Sehaty
-              </h1>
-            </div>
-
-            <nav className="hidden md:flex items-center justify-center gap-[5px]">
-              <Button
-                variant="ghost"
-                className="font-['Montserrat',Helvetica] font-bold hover:bg-gray-100"
-              >
-                Home
-              </Button>
-              <Button
-                variant="ghost"
-                className="font-['Montserrat',Helvetica] font-medium hover:bg-gray-100"
-              >
-                Browse Clinics
-              </Button>
-              <Button
-                variant="ghost"
-                className="font-['Montserrat',Helvetica] font-medium hover:bg-gray-100"
-              >
-                Services
-              </Button>
-              <Button
-                variant="ghost"
-                className="font-['Montserrat',Helvetica] font-medium hover:bg-gray-100"
-                onClick={() => window.location.href = '/about'}
-              >
-                About Us
-              </Button>
-              <Button
-                variant="ghost"
-                className="font-['Montserrat',Helvetica] font-medium hover:bg-gray-100"
-                onClick={() => window.location.href = '/contact'}
-              >
-                Contact Us
-              </Button>
-            </nav>
-
-            <div className="flex items-center gap-[15px]">
-              <Button
-                variant="ghost"
-                className="h-7 bg-[#a918fd0d] text-[#a818fc] font-bold text-sm rounded-lg hover:bg-[#a918fd1a]"
-              >
-                Login
-              </Button>
-              <Button className="h-7 bg-[#a818fc] text-white font-bold text-sm rounded-lg hover:bg-[#8a14d4]">
-                Sign Up
-              </Button>
-            </div>
-          </div>
-        </header>
-
-        <main className="flex flex-col w-full items-center gap-[50px] pt-[57px] bg-white px-4 md:px-6">
+    <div className="bg-white dark:bg-gray-900 flex flex-row justify-center w-full min-h-screen">
+      <div className="bg-white dark:bg-gray-900 w-full max-w-[1550px] relative">
+        <main className="flex flex-col w-full items-center gap-[50px] bg-white dark:bg-gray-900 px-4 md:px-6">
           {/* Hero Section */}
-          <section className="flex flex-col items-center justify-center w-full bg-white">
-            <div className="flex flex-col md:flex-row h-auto md:h-[410px] w-full max-w-[1280px] items-start gap-[46px] bg-[#a918fd0d] rounded-3xl p-6 md:p-0">
+          <section className="flex flex-col items-center justify-center w-full bg-white dark:bg-gray-900">
+            <div className="flex flex-col md:flex-row h-auto md:h-[410px] w-full max-w-[1280px] items-start gap-[46px] bg-[#a918fd0d] dark:bg-[#a918fd19] rounded-3xl p-6 md:p-0">
               <div className="flex flex-col w-full md:w-[298px] h-auto md:h-[278px] items-start gap-6 p-5">
-                <h2 className="self-stretch font-['Inter',Helvetica] font-bold text-blue-900 text-[28px] md:text-[35px] tracking-[-0.70px] leading-[40px] md:leading-[50.4px]">
+                <h2 className="self-stretch font-['Inter',Helvetica] font-bold text-blue-900 dark:text-white text-[28px] md:text-[35px] tracking-[-0.70px] leading-[40px] md:leading-[50.4px]">
                   Your trusted
                   <br />
                   partner in
@@ -143,7 +153,8 @@ export const Homepage = (): JSX.Element => {
 
                 <Button
                   variant="ghost"
-                  className="inline-flex items-start bg-[#a918fd0d] rounded-lg gap-2.5 px-5 py-4 hover:bg-[#a918fd1a]"
+                  className="inline-flex items-start bg-[#a918fd0d] dark:bg-[#a918fd19] rounded-lg gap-2.5 px-5 py-4 hover:bg-[#a918fd1a]"
+                  onClick={() => navigate("/doctors")}
                 >
                   <span className="font-['Inter',Helvetica] font-bold text-[#a818fc] text-[15px]">
                     Learn More →
@@ -163,7 +174,7 @@ export const Homepage = (): JSX.Element => {
           <section className="flex items-center justify-center w-full">
             <div className="flex flex-col md:flex-row items-center gap-4 md:gap-[26px] w-full max-w-[725px]">
               <Input
-                className="h-10 bg-[#f8f8f7] rounded-xl text-[#00000080] text-sm w-full"
+                className="h-10 bg-[#f8f8f7] dark:bg-gray-800 dark:text-white rounded-xl text-[#00000080] text-sm w-full"
                 placeholder="Find clinics, doctors and services"
               />
               <Button className="w-full md:w-[99px] h-10 bg-[#a818fc] rounded-lg text-white font-bold">
@@ -175,7 +186,7 @@ export const Homepage = (): JSX.Element => {
           {/* Popular Specialties Section */}
           <section className="flex flex-col items-center justify-center w-full">
             <div className="flex flex-col items-center justify-center gap-[38px] w-full max-w-[1280px]">
-              <h2 className="font-['Inter',Helvetica] text-blue-900 text-[28px] text-center">
+              <h2 className="font-['Inter',Helvetica] text-blue-900 dark:text-white text-[28px] text-center">
                 Popular Specialties
               </h2>
 
@@ -183,17 +194,22 @@ export const Homepage = (): JSX.Element => {
                 {specialties.map((specialty, index) => (
                   <Card
                     key={index}
-                    className="flex flex-col w-full h-[230px] bg-[#f0edff] rounded-2xl border-none"
+                    className="flex flex-col w-full h-[230px] bg-[#f0edff] dark:bg-[#311c5e] rounded-2xl border-none"
                   >
                     <CardContent className="flex flex-col items-start gap-[11px] p-5">
-                      <div className="w-[45px] h-[45px] bg-[#e9e5ff] rounded-[32px] shadow-[10px_10px_24px_-4px_#0000004c]" />
-                      <h3 className="self-stretch h-[26px] font-h2-clinics text-neutral-950 text-[length:var(--h2-clinics-font-size)] tracking-[var(--h2-clinics-letter-spacing)] leading-[var(--h2-clinics-line-height)]">
+                      <div className="w-[45px] h-[45px] bg-[#e9e5ff] dark:bg-[#4d2d8b] rounded-[32px] shadow-[10px_10px_24px_-4px_#0000004c] flex items-center justify-center">
+                        {specialty.icon}
+                      </div>
+                      <h3 className="self-stretch h-[26px] font-['Inter',Helvetica] font-bold text-neutral-950 dark:text-white text-lg tracking-[-0.36px]">
                         {specialty.title}
                       </h3>
-                      <p className="self-stretch h-[39px] font-['Inter',Helvetica] text-gray-500 text-sm leading-[22px]">
+                      <p className="self-stretch h-[39px] font-['Inter',Helvetica] text-gray-500 dark:text-gray-300 text-sm leading-[22px]">
                         {specialty.description}
                       </p>
-                      <Button className="w-[110px] h-8 bg-[#a818fc] rounded-lg text-white font-bold text-sm">
+                      <Button 
+                        className="w-[110px] h-8 bg-[#a818fc] rounded-lg text-white font-bold text-sm"
+                        onClick={() => navigate("/doctors")}
+                      >
                         Find Doctors
                       </Button>
                     </CardContent>
@@ -205,12 +221,12 @@ export const Homepage = (): JSX.Element => {
 
           {/* Top Rated Clinics Section */}
           <section className="flex flex-col w-full md:w-[820px] items-center justify-center">
-            <h2 className="font-['Inter',Helvetica] text-blue-900 text-[28px] text-center">
+            <h2 className="font-['Inter',Helvetica] text-blue-900 dark:text-white text-[28px] text-center">
               Top Rated Clinics
             </h2>
 
             <div className="flex flex-col items-start py-5 w-full">
-              <Card className="w-full border border-[#838383] rounded-[16px] overflow-hidden">
+              <Card className="w-full border border-[#838383] dark:border-gray-700 rounded-[16px] overflow-hidden dark:bg-gray-800">
                 {topRatedClinics.map((clinic, index) => (
                   <React.Fragment key={index}>
                     <CardContent className="flex items-center gap-1 p-2.5">
@@ -220,29 +236,32 @@ export const Homepage = (): JSX.Element => {
                         src={clinic.image}
                       />
                       <div className="font-['Inter',Helvetica] text-sm leading-6">
-                        <span className="font-medium text-black block">
+                        <span className="font-medium text-black dark:text-white block">
                           {clinic.name}
                         </span>
-                        <span className="text-[#00000080]">
+                        <span className="text-[#00000080] dark:text-gray-300">
                           {clinic.specialty} • {clinic.rating} ★
                         </span>
                       </div>
                     </CardContent>
-                    {index < topRatedClinics.length - 1 && <Separator />}
+                    {index < topRatedClinics.length - 1 && <Separator className="dark:bg-gray-700" />}
                   </React.Fragment>
                 ))}
               </Card>
             </div>
           </section>
 
-          <Button className="w-[136px] h-10 bg-[#a818fc] rounded-lg text-white">
+          <Button 
+            className="w-[136px] h-10 bg-[#a818fc] rounded-lg text-white"
+            onClick={() => navigate("/doctors")}
+          >
             View All Clinics
           </Button>
 
           {/* How It Works Section */}
           <section className="flex flex-col items-center justify-center w-full">
             <div className="flex flex-col items-center justify-center gap-9 w-full max-w-[1280px]">
-              <h2 className="font-['Inter',Helvetica] text-blue-900 text-[28px] text-center">
+              <h2 className="font-['Inter',Helvetica] text-blue-900 dark:text-white text-[28px] text-center">
                 How It Works
               </h2>
 
@@ -250,17 +269,19 @@ export const Homepage = (): JSX.Element => {
                 {howItWorksSteps.map((step, index) => (
                   <Card
                     key={index}
-                    className="flex flex-col w-full h-[205px] bg-[#a918fd1a] rounded-2xl border-none"
+                    className="flex flex-col w-full h-[205px] bg-[#a918fd1a] dark:bg-[#311c5e] rounded-2xl border-none"
                   >
                     <CardContent className="flex flex-col items-start gap-[3px] p-6">
-                      <div className="w-9 h-9 bg-[#a918fd0d] rounded-[18px]" />
-                      <span className="font-['Inter',Helvetica] font-medium text-neutral-950 text-sm leading-6">
+                      <div className="w-9 h-9 bg-[#a918fd0d] dark:bg-[#4d2d8b] rounded-[18px] flex items-center justify-center">
+                        {step.icon}
+                      </div>
+                      <span className="font-['Inter',Helvetica] font-medium text-neutral-950 dark:text-white text-sm leading-6">
                         {step.step}
                       </span>
-                      <h3 className="font-['Inter',Helvetica] text-neutral-950 text-xl leading-7">
+                      <h3 className="font-['Inter',Helvetica] text-neutral-950 dark:text-white text-xl leading-7">
                         {step.title}
                       </h3>
-                      <p className="font-['Inter',Helvetica] text-gray-500 text-sm leading-[22px]">
+                      <p className="font-['Inter',Helvetica] text-gray-500 dark:text-gray-300 text-sm leading-[22px]">
                         {step.description}
                       </p>
                     </CardContent>
@@ -270,12 +291,6 @@ export const Homepage = (): JSX.Element => {
             </div>
           </section>
         </main>
-
-        <footer className="w-full h-[57px] bg-[#a818fc] flex items-center justify-center mt-12">
-          <div className="font-['Inter',Helvetica] text-white text-sm text-center">
-            © 2025 Sehaty. All rights reserved.
-          </div>
-        </footer>
       </div>
     </div>
   );
