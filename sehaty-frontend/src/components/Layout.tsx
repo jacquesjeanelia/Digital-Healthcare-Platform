@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Button } from "./ui/button";
 import { useTheme } from "../lib/utils";
+import { useAuth } from "../lib/AuthContext";
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -11,15 +12,40 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
   const location = useLocation();
   const navigate = useNavigate();
   const { darkMode, toggleDarkMode } = useTheme();
+  const { user, isAuthenticated, logout } = useAuth();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+  const userMenuRef = useRef<HTMLDivElement>(null);
 
   // Close mobile menu when changing routes
   useEffect(() => {
     setIsMenuOpen(false);
+    setIsUserMenuOpen(false);
   }, [location.pathname]);
+
+  // Handle click outside to close user menu
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (userMenuRef.current && !userMenuRef.current.contains(event.target as Node)) {
+        setIsUserMenuOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   // Check if path is active for navigation
   const isActive = (path: string) => location.pathname === path;
+
+  // Handle logout
+  const handleLogout = () => {
+    logout();
+    navigate("/");
+    setIsUserMenuOpen(false);
+  };
 
   return (
     <div className={`flex flex-col min-h-screen ${darkMode ? "dark" : ""}`}>
@@ -88,7 +114,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
             {/* Dark Mode Toggle */}
             <button
               onClick={toggleDarkMode}
-              className="p-2 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-white"
+              className="p-2 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-white hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
               aria-label="Toggle Dark Mode"
             >
               {darkMode ? (
@@ -110,19 +136,87 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
               )}
             </button>
 
-            <Button
-              variant="ghost"
-              className="h-7 bg-[#4caf9620] text-[#4caf96] font-bold text-sm rounded-lg hover:bg-[#4caf9630]"
-              onClick={() => navigate('/auth/login')}
-            >
-              Login
-            </Button>
-            <Button 
-              className="h-7 bg-[#4caf96] text-white font-bold text-sm rounded-lg hover:bg-[#3d9d86]"
-              onClick={() => navigate('/auth/register')}
-            >
-              Sign Up
-            </Button>
+            {isAuthenticated ? (
+              <>
+                {/* Notification Icon */}
+                <button
+                  className="p-2 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-white hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors relative"
+                  aria-label="Notifications"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9" />
+                    <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0" />
+                  </svg>
+                  <span className="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full"></span>
+                </button>
+
+                {/* User Account with Dropdown */}
+                <div className="relative" ref={userMenuRef}>
+                  <button 
+                    className="p-2 rounded-full bg-[#4caf9620] text-[#4caf96] hover:bg-[#4caf9630] transition-colors"
+                    onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
+                    aria-label="User Account"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
+                      <circle cx="12" cy="7" r="4" />
+                    </svg>
+                  </button>
+
+                  {/* User Dropdown Menu */}
+                  {isUserMenuOpen && (
+                    <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-md shadow-lg border border-gray-200 dark:border-gray-700 z-20">
+                      <div className="p-3 border-b border-gray-200 dark:border-gray-700">
+                        <p className="font-medium text-gray-800 dark:text-white">{user?.name}</p>
+                        <p className="text-sm text-gray-500 dark:text-gray-400">{user?.email}</p>
+                      </div>
+                      <div className="py-1">
+                        <button 
+                          className="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+                          onClick={() => {
+                            navigate('/dashboard');
+                            setIsUserMenuOpen(false);
+                          }}
+                        >
+                          Dashboard
+                        </button>
+                        <button 
+                          className="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+                          onClick={() => {
+                            navigate('/profile');
+                            setIsUserMenuOpen(false);
+                          }}
+                        >
+                          Profile
+                        </button>
+                        <button 
+                          className="w-full text-left px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-gray-100 dark:hover:bg-gray-700"
+                          onClick={handleLogout}
+                        >
+                          Logout
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </>
+            ) : (
+              <>
+                <Button
+                  variant="ghost"
+                  className="h-7 bg-[#4caf9620] text-[#4caf96] font-bold text-sm rounded-lg hover:bg-[#4caf9630] transition-colors"
+                  onClick={() => navigate('/auth/login')}
+                >
+                  Login
+                </Button>
+                <Button 
+                  className="h-7 bg-[#4caf96] text-white font-bold text-sm rounded-lg hover:bg-[#3d9d86] transition-colors"
+                  onClick={() => navigate('/auth/register')}
+                >
+                  Sign Up
+                </Button>
+              </>
+            )}
           </div>
         </div>
       </header>
@@ -165,6 +259,16 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
           >
             Contact Us
           </Button>
+          
+          {isAuthenticated && (
+            <Button
+              variant="ghost"
+              className={`w-full justify-start font-['Montserrat',Helvetica] ${isActive('/dashboard') ? 'font-bold' : 'font-medium'} hover:bg-gray-100 dark:hover:bg-gray-800 ${isActive('/dashboard') ? 'text-[#4caf96]' : 'text-gray-800 dark:text-white'}`}
+              onClick={() => navigate('/dashboard')}
+            >
+              Dashboard
+            </Button>
+          )}
         </nav>
       </div>
 

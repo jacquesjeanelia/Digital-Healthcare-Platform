@@ -47,17 +47,17 @@ export const DoctorLogin = (): JSX.Element => {
           </p>
         </div>
 
-        <Card className="border-[#a818fc] dark:border-[#a818fc] dark:bg-gray-800">
+        <Card className="border-[#4caf96] dark:border-[#4caf96] dark:bg-gray-800">
           <CardContent className="p-6">
-            <div className="bg-[#a918fd0d] dark:bg-[#a918fd19] rounded-lg p-4 mb-6 flex items-center">
-              <div className="w-10 h-10 bg-[#a818fc] rounded-full flex items-center justify-center mr-4">
+            <div className="bg-[#4caf960d] dark:bg-[#4caf9619] rounded-lg p-4 mb-6 flex items-center">
+              <div className="w-10 h-10 bg-[#4caf96] rounded-full flex items-center justify-center mr-4">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
                   <circle cx="12" cy="7" r="4"></circle>
                 </svg>
               </div>
               <div>
-                <h3 className="font-bold text-[#a818fc]">Doctor Access Only</h3>
+                <h3 className="font-bold text-[#4caf96]">Doctor Access Only</h3>
                 <p className="text-sm text-gray-600 dark:text-gray-400">This portal is exclusively for verified healthcare providers</p>
               </div>
             </div>
@@ -104,20 +104,20 @@ export const DoctorLogin = (): JSX.Element => {
                   <input
                     id="remember"
                     type="checkbox"
-                    className="h-4 w-4 accent-[#a818fc]"
+                    className="h-4 w-4 accent-[#4caf96]"
                   />
                   <label htmlFor="remember" className="ml-2 text-sm text-gray-600 dark:text-gray-400">
                     Remember me
                   </label>
                 </div>
-                <a href="#" className="text-sm text-[#a818fc] hover:underline">
+                <a href="#" className="text-sm text-[#4caf96] hover:underline">
                   Forgot password?
                 </a>
               </div>
 
               <Button
                 type="submit"
-                className="w-full h-10 bg-[#a818fc] text-white font-bold rounded-lg hover:bg-[#8a14d4]"
+                className="w-full h-10 bg-[#4caf96] text-white font-bold rounded-lg hover:bg-[#3d9d86]"
                 disabled={isLoading}
               >
                 {isLoading ? "Logging in..." : "Sign in to Portal"}
@@ -126,7 +126,7 @@ export const DoctorLogin = (): JSX.Element => {
 
             <div className="mt-6 text-center">
               <p className="text-sm text-gray-600 dark:text-gray-400">
-                Not registered as a provider? <a href="#" className="text-[#a818fc] hover:underline">Contact admin</a>
+                Not registered as a provider? <a href="#" className="text-[#4caf96] hover:underline">Contact admin</a>
               </p>
             </div>
 
@@ -145,9 +145,9 @@ export const DoctorLogin = (): JSX.Element => {
         <div className="flex flex-col items-center mt-8 text-sm text-gray-500 dark:text-gray-400">
           <p className="mb-2">Secured login for healthcare providers</p>
           <div className="flex space-x-4">
-            <a href="/contact" className="hover:text-[#a818fc]">Help</a>
-            <a href="/about" className="hover:text-[#a818fc]">Privacy</a>
-            <a href="/about" className="hover:text-[#a818fc]">Terms</a>
+            <a href="/contact" className="hover:text-[#4caf96]">Help</a>
+            <a href="/about" className="hover:text-[#4caf96]">Privacy</a>
+            <a href="/about" className="hover:text-[#4caf96]">Terms</a>
           </div>
         </div>
       </div>

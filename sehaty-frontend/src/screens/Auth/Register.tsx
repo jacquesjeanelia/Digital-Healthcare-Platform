@@ -3,9 +3,11 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "../../components/ui/button";
 import { Card, CardContent } from "../../components/ui/card";
 import { Input } from "../../components/ui/input";
+import { useAuth } from "../../lib/AuthContext";
 
 export const Register = (): JSX.Element => {
   const navigate = useNavigate();
+  const { register, isLoading: authLoading } = useAuth();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -14,7 +16,7 @@ export const Register = (): JSX.Element => {
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleRegister = (e: React.FormEvent) => {
+  const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
     setIsLoading(true);
@@ -42,17 +44,15 @@ export const Register = (): JSX.Element => {
       return;
     }
 
-    // Mock registration
-    setTimeout(() => {
-      if (name && email && password && birthdate) {
-        // Simulate successful registration
-        setIsLoading(false);
-        navigate("/auth/login");
-      } else {
-        setError("Please fill out all fields");
-        setIsLoading(false);
-      }
-    }, 1000);
+    try {
+      // Register using auth context
+      await register(name, email, password);
+      navigate("/");
+    } catch (err) {
+      setError("Registration failed. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -160,18 +160,18 @@ export const Register = (): JSX.Element => {
                 <input
                   id="terms"
                   type="checkbox"
-                  className="h-4 w-4 accent-[#a818fc]"
+                  className="h-4 w-4 accent-[#4caf96]"
                   required
                 />
                 <label htmlFor="terms" className="ml-2 text-sm text-gray-600 dark:text-gray-400">
-                  I agree to the <a href="#" className="text-[#a818fc] hover:underline">Terms of Service</a> and <a href="#" className="text-[#a818fc] hover:underline">Privacy Policy</a>
+                  I agree to the <a href="#" className="text-[#4caf96] hover:underline">Terms of Service</a> and <a href="#" className="text-[#4caf96] hover:underline">Privacy Policy</a>
                 </label>
               </div>
 
               <Button
                 type="submit"
-                className="w-full h-10 bg-[#a818fc] text-white font-bold rounded-lg hover:bg-[#8a14d4]"
-                disabled={isLoading}
+                className="w-full h-10 bg-[#4caf96] text-white font-bold rounded-lg hover:bg-[#3d9d86] transition-colors"
+                disabled={isLoading || authLoading}
               >
                 {isLoading ? "Creating Account..." : "Sign Up"}
               </Button>
@@ -182,7 +182,7 @@ export const Register = (): JSX.Element => {
                 Already have an account?{" "}
                 <button 
                   onClick={() => navigate("/auth/login")} 
-                  className="text-[#a818fc] hover:underline"
+                  className="text-[#4caf96] hover:underline"
                 >
                   Log in
                 </button>
@@ -201,10 +201,10 @@ export const Register = (): JSX.Element => {
             <div className="space-y-3">
               <Button
                 variant="outline"
-                className="w-full border-gray-300 dark:border-gray-700 flex items-center justify-center gap-2"
+                className="w-full border-gray-300 dark:border-gray-700 flex items-center justify-center gap-2 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
                 onClick={() => navigate("/auth/doctor-login")}
               >
-                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-[#a818fc]">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-[#4caf96]">
                   <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
                   <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
                 </svg>

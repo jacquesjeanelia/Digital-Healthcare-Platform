@@ -3,33 +3,29 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "../../components/ui/button";
 import { Card, CardContent } from "../../components/ui/card";
 import { Input } from "../../components/ui/input";
+import { useAuth } from "../../lib/AuthContext";
 
 export const Login = (): JSX.Element => {
   const navigate = useNavigate();
+  const { login, isLoading: authLoading } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
     setIsLoading(true);
 
-    // TODO: Implement actual login functionality
-    // This is just a placeholder for demonstration
-    setTimeout(() => {
-      if (email && password) {
-        // Mock successful login
-        setIsLoading(false);
-        // Store token
-        localStorage.setItem("token", "mock-token");
-        navigate("/");
-      } else {
-        setError("Please enter your credentials");
-        setIsLoading(false);
-      }
-    }, 1000);
+    try {
+      await login(email, password);
+      navigate("/");
+    } catch (err) {
+      setError("Invalid email or password. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -91,21 +87,21 @@ export const Login = (): JSX.Element => {
                   <input
                     id="remember"
                     type="checkbox"
-                    className="h-4 w-4 accent-[#a818fc]"
+                    className="h-4 w-4 accent-[#4caf96]"
                   />
                   <label htmlFor="remember" className="ml-2 text-sm text-gray-600 dark:text-gray-400">
                     Remember me
                   </label>
                 </div>
-                <a href="#" className="text-sm text-[#a818fc] hover:underline">
+                <a href="#" className="text-sm text-[#4caf96] hover:underline">
                   Forgot password?
                 </a>
               </div>
 
               <Button
                 type="submit"
-                className="w-full h-10 bg-[#a818fc] text-white font-bold rounded-lg hover:bg-[#8a14d4]"
-                disabled={isLoading}
+                className="w-full h-10 bg-[#4caf96] text-white font-bold rounded-lg hover:bg-[#3d9d86] transition-colors"
+                disabled={isLoading || authLoading}
               >
                 {isLoading ? "Logging in..." : "Log in"}
               </Button>
@@ -116,7 +112,7 @@ export const Login = (): JSX.Element => {
                 Don't have an account?{" "}
                 <button 
                   onClick={() => navigate("/auth/register")} 
-                  className="text-[#a818fc] hover:underline"
+                  className="text-[#4caf96] hover:underline"
                 >
                   Sign up
                 </button>
@@ -135,10 +131,10 @@ export const Login = (): JSX.Element => {
             <div className="space-y-3">
               <Button
                 variant="outline"
-                className="w-full border-gray-300 dark:border-gray-700 flex items-center justify-center gap-2"
+                className="w-full border-gray-300 dark:border-gray-700 flex items-center justify-center gap-2 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
                 onClick={() => navigate("/auth/doctor-login")}
               >
-                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-[#a818fc]">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-[#4caf96]">
                   <path d="M3 15v4c0 1.1.9 2 2 2h14a2 2 0 0 0 2-2v-4M17 9l-5 5-5-5M12 12.8V2.5"></path>
                 </svg>
                 <span>Login as Healthcare Provider</span>
@@ -148,9 +144,9 @@ export const Login = (): JSX.Element => {
         </Card>
 
         <div className="flex justify-center mt-8 space-x-4 text-sm text-gray-500 dark:text-gray-400">
-          <a href="/about" className="hover:text-[#a818fc]">Privacy Policy</a>
+          <a href="/about" className="hover:text-[#4caf96]">Privacy Policy</a>
           <span>•</span>
-          <a href="/contact" className="hover:text-[#a818fc]">Terms of Service</a>
+          <a href="/contact" className="hover:text-[#4caf96]">Terms of Service</a>
         </div>
       </div>
     </div>
