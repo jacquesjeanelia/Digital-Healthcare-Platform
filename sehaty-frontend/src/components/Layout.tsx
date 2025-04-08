@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { Button } from "./ui/button";
 import { useTheme } from "../lib/utils";
 import { useAuth } from "../lib/AuthContext";
+import { PreviewBanner } from "./PreviewBanner";
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -487,6 +488,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
           </div>
         </div>
       </footer>
+      <PreviewBanner />
     </div>
   );
 }; 
