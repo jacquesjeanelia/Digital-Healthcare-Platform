@@ -1,4 +1,4 @@
-import mongoose, { Schema, Document, Types } from 'mongoose';
+import mongoose, { Schema, Document } from 'mongoose';
 import { MedicalRecord, Medication, TestResult, Attachment } from './MedicalRecord';
 
 interface IMedicalRecord extends Omit<MedicalRecord, 'id'>, Document {}
@@ -34,9 +34,9 @@ const attachmentSchema = new Schema<IAttachment>({
 });
 
 const medicalRecordSchema = new Schema<IMedicalRecord>({
-  patientId: { type: Types.ObjectId, ref: 'User', required: true },
-  doctorId: { type: Types.ObjectId, ref: 'User', required: true },
-  appointmentId: { type: Types.ObjectId, ref: 'Appointment' },
+  patientId: { type: String, ref: 'User', required: true },
+  doctorId: { type: String, ref: 'User', required: true },
+  appointmentId: { type: String, ref: 'Appointment' },
   date: { type: Date, required: true },
   diagnosis: { type: String, required: true },
   symptoms: [{ type: String, required: true }],
