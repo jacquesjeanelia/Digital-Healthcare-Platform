@@ -8,12 +8,13 @@ export function cn(...inputs: ClassValue[]) {
 
 export const useTheme = () => {
   const [darkMode, setDarkMode] = useState(() => {
-    // Initialize from localStorage or system preference
+    // Initialize from localStorage only, default to light mode
     const savedTheme = localStorage.getItem("theme");
     if (savedTheme) {
       return savedTheme === "dark";
     }
-    return window.matchMedia("(prefers-color-scheme: dark)").matches;
+    // Default to light mode
+    return false;
   });
 
   useEffect(() => {
