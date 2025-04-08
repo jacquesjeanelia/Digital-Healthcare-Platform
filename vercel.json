@@ -3,7 +3,12 @@
   "builds": [
     {
       "src": "package.json",
-      "use": "@vercel/next"
+      "use": "@vercel/next",
+      "config": {
+        "installCommand": "npm install",
+        "buildCommand": "npm run build",
+        "outputDirectory": ".next"
+      }
     }
   ],
   "routes": [
@@ -13,6 +18,7 @@
     }
   ],
   "github": {
-    "silent": true
+    "silent": true,
+    "autoJobCancelation": true
   }
 } 
