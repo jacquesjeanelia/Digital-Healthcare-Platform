@@ -47,7 +47,7 @@ export default async function handler(
 
     // Compare password
     console.log('Comparing passwords...');
-    const isValidPassword = await bcrypt.compare(password, user.password);
+    const isValidPassword = await bcrypt.compare(password as string, user.password as string);
     
     if (!isValidPassword) {
       console.log('Invalid password for user:', user._id.toString());
