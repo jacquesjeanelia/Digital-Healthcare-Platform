@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Change Information</title>
+    <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+    <header>
+        <h1>Change Your Information</h1>
+    </header>
+
+    <section id="change-info-section">
+        <h2>Current Information</h2>
+
+        <!-- Current Information -->
+        <div id="currentInfo">
+            <p><strong>Name:</strong> <span id="currentName">John Doe</span></p>
+            <p><strong>Age:</strong> <span id="currentAge">30</span></p>
+            <p><strong>Email:</strong> <span id="currentEmail">johndoe@example.com</span></p>
+        </div>
+
+        <!-- Update Information Form -->
+        <h3>Update Your Information</h3>
+        <form id="updateInfoForm">
+            <!-- Name Input -->
+            <div class="form-group">
+                <label for="newName">Name:</label>
+                <input type="text" id="newName" name="newName" placeholder="Enter your new name">
+            </div>
+
+            <!-- Age Input -->
+            <div class="form-group">
+                <label for="newAge">Age:</label>
+                <input type="number" id="newAge" name="newAge" placeholder="Enter your new age" min="0">
+            </div>
+
+            <!-- Email Input -->
+            <div class="form-group">
+                <label for="newEmail">Email:</label>
+                <input type="email" id="newEmail" name="newEmail" placeholder="Enter your new email">
+            </div>
+
+            <!-- Submit Button -->
+            <button class="button save-button" type="submit">Save Changes</button>
+        </form>
+
+        <!-- Back Button -->
+        <button class="button back-button" onclick="goBack()">Back to Patient Page</button>
+    </section>
+
+    <!-- JavaScript -->
+    <script>
+        function goBack() {
+            window.history.back(); // Navigate back to the previous page
+        }
+
+        document.getElementById('updateInfoForm').addEventListener('submit', function(event) {
+            event.preventDefault(); // Prevent form submission
+
+            // Get updated values or keep current values if fields are empty
+            const updatedName = document.getElementById('newName').value || document.getElementById('currentName').textContent;
+            const updatedAge = document.getElementById('newAge').value || document.getElementById('currentAge').textContent;
+            const updatedEmail = document.getElementById('newEmail').value || document.getElementById('currentEmail').textContent;
+
+            // Update current information display
+            document.getElementById('currentName').textContent = updatedName;
+            document.getElementById('currentAge').textContent = updatedAge;
+            document.getElementById('currentEmail').textContent = updatedEmail;
+
+            alert('Your information has been updated successfully!');
+        });
+    </script>
+</body>
+</html>

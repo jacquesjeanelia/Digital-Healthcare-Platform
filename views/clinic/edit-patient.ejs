@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Patient</title>
+    <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+    <header>
+        <h1>Edit Patient</h1>
+    </header>
+
+    <section id="edit-patient-section">
+        <h2>Patient Information</h2>
+
+        <!-- Patient Name -->
+        <p><strong>Name:</strong> <span id="patientName">John Doe</span></p>
+
+        <!-- Patient Medical History -->
+        <p><strong>Medical History:</strong> Hypertension, Allergy: Penicillin</p>
+
+        <!-- Change Reservation -->
+        <h3>Change Reservation</h3>
+        <form id="changeReservationForm">
+            <div class="reservation-slot">
+                <label for="reservationDate">New Reservation Date:</label>
+                <input type="date" id="reservationDate" name="reservationDate" required>
+            </div>
+            <div class="reservation-slot">
+                <label for="reservationTime">New Reservation Time:</label>
+                <input type="time" id="reservationTime" name="reservationTime" required>
+            </div>
+
+            <!-- Save Button -->
+            <button class="button save-button" type="submit">Save Changes</button>
+        </form>
+
+        <!-- Cancel Reservation -->
+        <h3>Cancel Reservation</h3>
+        <button class="button cancel-button" onclick="goBack()">Cancel Reservation</button>
+        <!-- Back Button -->
+        <button class="button back-button" onclick="goBack()">Back to Main Menu</button>
+
+    </section>
+
+    <!-- JavaScript -->
+    <script>
+        function goBack() {
+            window.history.back(); // Navigate back to the previous page
+        }
+
+        function cancelReservation() {
+            const patientName = document.getElementById('patientName').textContent;
+            const confirmation = confirm(`Are you sure you want to cancel the reservation for ${patientName}?`);
+            
+            if (confirmation) {
+                alert(`The reservation for ${patientName} has been canceled.`);
+                // Redirect or perform additional actions here
+            }
+        }
+
+        document.getElementById('changeReservationForm').addEventListener('submit', function(event) {
+            event.preventDefault(); // Prevent form submission
+
+            const newReservation = {
+                date: document.getElementById('reservationDate').value,
+                time: document.getElementById('reservationTime').value
+            };
+
+            console.log('Updated Reservation:', newReservation);
+            alert('The reservation has been updated successfully!');
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Patient Sign-Up</title>
+    <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+    <header>
+        <h1>Patient Sign-Up</h1>
+    </header>
+
+    <section id="sign-up-section">
+        <h2>Sign-Up Form</h2>
+        <form id="patientSignUpForm">
+            <!-- Name Input -->
+            <div class="form-group">
+                <label for="patientName">Name:</label>
+                <input type="text" id="patientName" name="patientName" placeholder="Enter your name" required>
+            </div>
+
+            <!-- Age Input -->
+            <div class="form-group">
+                <label for="patientAge">Age:</label>
+                <input type="number" id="patientAge" name="patientAge" placeholder="Enter your age" min="0" required>
+            </div>
+
+            <!-- Email Input -->
+            <div class="form-group">
+                <label for="email">Email:</label>
+                <input type="email" id="email" name="email" placeholder="Enter your email" required>
+            </div>
+
+            <!-- Medical Records Upload -->
+            <div class="form-group">
+                <label for="medicalRecords">Upload Medical Records (PDF):</label>
+                <input type="file" id="medicalRecords" name="medicalRecords" accept=".pdf" required>
+            </div>
+
+            <!-- Submit Button -->
+            <button class="button submit-button" type="submit">Sign Up</button>
+        </form>
+
+        <!-- Back Button -->
+        <button class="button back-button" onclick="goBack()">Back to Main Page</button>
+    </section>
+
+    <!-- JavaScript -->
+    <script>
+        function goBack() {
+            window.history.back(); // Navigate back to the previous page
+        }
+
+        document.getElementById('patientSignUpForm').addEventListener('submit', function(event) {
+            event.preventDefault(); // Prevent form submission
+
+            const patientData = {
+                name: document.getElementById('patientName').value,
+                age: document.getElementById('patientAge').value,
+                email: document.getElementById('email').value,
+                medicalRecords: document.getElementById('medicalRecords').files[0]?.name || 'No file uploaded'
+            };
+
+            console.log('Patient Data:', patientData);
+            alert(`Thank you, ${patientData.name}. Your sign-up is complete!`);
+        });
+    </script>
+</body>
+</html>

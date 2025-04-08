@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Patient Log-In</title>
+    <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+    <header>
+        <h1>Patient Log-In</h1>
+    </header>
+
+    <section id="log-in-section">
+        <h2>Log-In Form</h2>
+        <form id="logInForm">
+            <!-- Email Input -->
+            <div class="form-group">
+                <label for="email">Email:</label>
+                <input type="email" id="email" name="email" placeholder="Enter your email" required>
+            </div>
+
+            <!-- Password Input -->
+            <div class="form-group">
+                <label for="password">Password:</label>
+                <input type="password" id="password" name="password" placeholder="Enter your password" required>
+            </div>
+
+            <!-- Submit Button -->
+            <a href="patient.ejs" class="button submit-button" type="submit">Log In</a>
+
+        </form>
+
+        <!-- Sign-Up Button -->
+        <p>Don't have an account? 
+            <a href="signup.ejs" class="button signup-button">Sign Up</a>
+        </p>
+
+        <!-- Back Button -->
+        <button class="button back-button" onclick="goBack()">Back to Main Page</button>
+    </section>
+
+    <!-- JavaScript -->
+    <script>
+        function goBack() {
+            window.history.back(); // Navigate back to the previous page
+        }
+
+        document.getElementById('logInForm').addEventListener('submit', function(event) {
+            event.preventDefault(); // Prevent form submission
+
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            console.log('Log-In Data:', { email, password });
+            alert('Log-In successful!');
+        });
+    </script>
+</body>
+</html>

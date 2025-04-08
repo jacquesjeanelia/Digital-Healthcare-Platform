@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Patient Page</title>
+    <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+    <header>
+        <h1>Welcome, [Patient Name]</h1>
+    </header>
+
+    <section id="patient-section">
+        <!-- Current Reservations -->
+        <h2>Your Current Reservations</h2>
+        <ul id="reservationsList">
+            <li><strong>Date:</strong> April 15, 2025 - General Checkup</li>
+            <li><strong>Date:</strong> May 10, 2025 - Cardiologist Follow-up</li>
+        </ul>
+
+        <!-- Buttons -->
+        <div class="button-container">
+            <!-- Browse Clinics Button -->
+            <button class="button browse-button" onclick="browseClinics()">Browse Clinics</button>
+
+            <!-- Change Information Button -->
+            <button class="button change-info-button" onclick="changeInformation()">Change Information</button>
+        </div>
+    </section>
+
+    <!-- JavaScript -->
+    <script>
+        function browseClinics() {
+            // Redirect to clinic browsing page
+            window.location.href = "browse.ejs";
+        }
+
+        function changeInformation() {
+            // Redirect to change information page
+            window.location.href = "info.ejs";
+        }
+
+        // Example of dynamically populating reservations (if needed)
+        const reservations = [
+            { date: "April 15, 2025", reason: "General Checkup" },
+            { date: "May 10, 2025", reason: "Cardiologist Follow-up" }
+        ];
+
+        const reservationsList = document.getElementById("reservationsList");
+        reservationsList.innerHTML = ""; // Clear existing list items
+        reservations.forEach(reservation => {
+            const listItem = document.createElement("li");
+            listItem.innerHTML = `<strong>Date:</strong> ${reservation.date} - ${reservation.reason}`;
+            reservationsList.appendChild(listItem);
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,175 @@
+/* General Styles */
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f4f4f4;
+}
+
+header {
+    background-color: #007BFF;
+    color: white;
+    padding: 20px;
+    text-align: center;
+}
+
+section {
+    margin: 20px;
+    padding: 20px;
+    background-color: white;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+h2, h3 {
+    text-align: center;
+    color: #333;
+}
+
+p {
+    font-size: 16px;
+}
+
+/* Form Styles */
+form {
+    display: flex;
+    flex-direction: column;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    font-weight: bold;
+}
+
+.form-group input[type=text],
+.form-group input[type=email],
+.form-group input[type=password],
+.form-group input[type=number],
+.form-group input[type=file],
+.form-group input[type=time],
+.form-group input[type=date] {
+    width: 100%;
+    padding: 10px;
+    margin-top: 5px;
+}
+
+/* List Styles */
+ul {
+    list-style-type: none;
+    padding-left: 0;
+}
+
+ul li {
+    margin-bottom: 15px;
+}
+
+/* Button Styles */
+.button, button {
+    display: inline-block;
+    padding: 10px 20px;
+    color: white;
+    border-radius: 5px;
+    border: none;
+    cursor: pointer;
+}
+
+/* Blue Buttons */
+.submit-button,
+.save-button, button {
+    background-color: #007BFF; /* Blue */
+}
+
+.submit-button:hover,
+.save-button:hover {
+    background-color: #0056b3; /* Darker Blue */
+}
+
+/* Green Buttons */
+.signup-button,
+.square-button {
+    background-color: #28a745; /* Green */
+    color: white;
+}
+
+.signup-button:hover,
+.square-button:hover {
+    background-color: #218838; /* Darker Green */
+}
+
+/* Red Buttons */
+.cancel-button,
+.remove-button {
+    background-color: #dc3545; /* Red */
+}
+
+.cancel-button:hover,
+.remove-button:hover {
+    background-color: #c82333; /* Darker Red */
+}
+
+/* Gray Buttons */
+.back-button,
+.square-button-edit {
+    background-color: #6c757d; /* Gray */
+}
+
+.back-button:hover,
+.square-button-edit:hover {
+    background-color: #5a6268; /* Darker Gray */
+}
+
+/* Square Button Styles for Clinic Pages */
+.square-button-view,
+.square-button-edit {
+    display: inline-block;
+    width: 60px;
+    height: 30px;
+    margin-left: 10px;
+}
+
+/* Link Container for Main Page Navigation */
+.link-container {
+    display: flex;
+    justify-content: center;
+    gap: 20px; /* Space between buttons */
+}
+
+/* Navigation Buttons on Main Page */
+.link-button {
+    display: inline-block;
+    padding: 15px 30px;
+    color: white;
+    background-color: #007BFF; /* Blue */
+    text-decoration: none; /* Remove underline */
+    border-radius: 5px;
+    font-size: 16px;
+}
+
+.link-button:hover {
+    background-color: #0056b3; /* Darker Blue */
+}
+
+a{
+    text-decoration: none;
+}
+
+/* Link Styles */
+.clinic-link {
+    text-decoration: none;
+    color: #007BFF; /* Blue color for links */
+    font-weight: bold;
+}
+
+.clinic-link:hover {
+    text-decoration: underline; /* Underline on hover for better UX */
+}
+
+/* Top Back Button Styles */
+.top-back-button {
+    position: absolute; /* Position it relative to the page */
+    top: 20px; /* Distance from the top */
+    left: 20px; /* Distance from the left */
+}

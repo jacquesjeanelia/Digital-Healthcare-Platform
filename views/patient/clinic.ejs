@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clinic Home Page</title>
+    <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+    <header>
+        <h1>Clinic Details</h1>
+    </header>
+    <button class="button back-button top-back-button" onclick="goBack()">Back to Browse Clinics</button>
+
+
+    <!-- Working Hours Section -->
+    <section id="working-hours">
+        <h2>Working Hours</h2>
+        <p>Monday to Friday: 8:00 AM - 8:00 PM</p>
+        <p>Saturday: 9:00 AM - 5:00 PM</p>
+        <p>Sunday: Closed</p>
+    </section>
+
+    <!-- Doctors Section -->
+    <section id="doctors">
+        <h2>Our Doctors</h2>
+        <ul>
+            <li>
+                Dr. John Smith - General Practitioner
+                <a href="/clinic/view-doctor.ejs">
+                    <button class="square-button">View</button>
+                </a>
+            </li>
+            <li>
+                Dr. Emily Johnson - Pediatrician
+                <a href="/clinic/view-doctor.ejs">
+                    <button class="square-button">View</button>
+                </a>
+            </li>
+            <li>
+                Dr. Michael Brown - Cardiologist
+                <a href="/clinic/view-doctor.ejs">
+                    <button class="square-button">View</button>
+                </a>
+            </li>
+            <li>
+                Dr. Sarah Davis - Dermatologist
+                <a href="/clinic/view-doctor.ejs">
+                    <button class="square-button">View</button>
+                </a>
+            </li>
+        </ul>
+    </section>
+
+    <!-- Patients Queue Section -->
+    <section id="patients-queue">
+        <h2>10 Patients in Queue</h2>
+    </section>
+
+        <!-- JavaScript -->
+        <script>
+            function goBack() {
+                window.history.back(); // Navigate back to the previous page
+            }
+        </script>
+        
+</body>
+</html>

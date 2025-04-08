@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Browse Clinics</title>
+    <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+    <header>
+        <h1>Browse Clinics</h1>
+    </header>
+
+    <section id="clinics-section">
+        <h2>Available Clinics</h2>
+        <ul id="clinicsList">
+            <!-- Clinic Links -->
+            <li><a href="clinic.ejs" class="clinic-link">General Medicine Clinic</a></li>
+            <li><a href="clinic.ejs" class="clinic-link">Dental Care Clinic</a></li>
+            <li><a href="clinic.ejs" class="clinic-link">Eye Care Center</a></li>
+            <li><a href="clinic.ejs" class="clinic-link">Dermatology Clinic</a></li>
+            <li><a href="clinic.ejs" class="clinic-link">Pediatrics Clinic</a></li>
+        </ul>
+
+        <!-- Back Button -->
+        <button class="button back-button" onclick="goBack()">Back to Patient Page</button>
+    </section>
+
+    <!-- JavaScript -->
+    <script>
+        function goBack() {
+            window.history.back(); // Navigate back to the previous page
+        }
+    </script>
+</body>
+</html>

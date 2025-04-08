@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modify Working Hours</title>
+    <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+    <header>
+        <h1>Modify Working Hours</h1>
+    </header>
+
+    <section id="working-hours-form">
+        <h2>Set Working Hours</h2>
+        <form id="workingHoursForm">
+            <!-- Monday -->
+            <div class="day-slot">
+                <label for="mondayStart">Monday:</label>
+                <input type="time" id="mondayStart" name="mondayStart" required>
+                to
+                <input type="time" id="mondayEnd" name="mondayEnd" required>
+            </div>
+
+            <!-- Tuesday -->
+            <div class="day-slot">
+                <label for="tuesdayStart">Tuesday:</label>
+                <input type="time" id="tuesdayStart" name="tuesdayStart" required>
+                to
+                <input type="time" id="tuesdayEnd" name="tuesdayEnd" required>
+            </div>
+
+            <!-- Wednesday -->
+            <div class="day-slot">
+                <label for="wednesdayStart">Wednesday:</label>
+                <input type="time" id="wednesdayStart" name="wednesdayStart" required>
+                to
+                <input type="time" id="wednesdayEnd" name="wednesdayEnd" required>
+            </div>
+
+            <!-- Thursday -->
+            <div class="day-slot">
+                <label for="thursdayStart">Thursday:</label>
+                <input type="time" id="thursdayStart" name="thursdayStart" required>
+                to
+                <input type="time" id="thursdayEnd" name="thursdayEnd" required>
+            </div>
+
+            <!-- Friday -->
+            <div class="day-slot">
+                <label for="fridayStart">Friday:</label>
+                <input type="time" id="fridayStart" name="fridayStart" required>
+                to
+                <input type="time" id="fridayEnd" name="fridayEnd" required>
+            </div>
+
+            <!-- Saturday -->
+            <div class="day-slot">
+                <label for="saturdayStart">Saturday:</label>
+                <input type="time" id="saturdayStart" name="saturdayStart">
+                to
+                <input type="time" id="saturdayEnd" name="saturdayEnd">
+            </div>
+
+            <!-- Sunday -->
+            <div class="day-slot">
+                <label for="sundayStart">Sunday:</label>
+                <input type="time" id="sundayStart" name="sundayStart">
+                to
+                <input type="time" id="sundayEnd" name="sundayEnd">
+            </div>
+
+            <!-- Submit Button -->
+            <button class="button submit-button" type="submit" onclick="goBack()">Save</button>
+
+        </form>
+    </section>
+
+    <!-- JavaScript -->
+    <script>
+        function goBack() {
+            window.history.back(); // Navigate back to the previous page
+        }
+        document.getElementById('workingHoursForm').addEventListener('submit', function(event) {
+            event.preventDefault(); // Prevent form submission
+
+            const workingHours = {
+                monday: `${document.getElementById('mondayStart').value} - ${document.getElementById('mondayEnd').value}`,
+                tuesday: `${document.getElementById('tuesdayStart').value} - ${document.getElementById('tuesdayEnd').value}`,
+                wednesday: `${document.getElementById('wednesdayStart').value} - ${document.getElementById('wednesdayEnd').value}`,
+                thursday: `${document.getElementById('thursdayStart').value} - ${document.getElementById('thursdayEnd').value}`,
+                friday: `${document.getElementById('fridayStart').value} - ${document.getElementById('fridayEnd').value}`,
+                saturday: `${document.getElementById('saturdayStart').value || 'Closed'} - ${document.getElementById('saturdayEnd').value || 'Closed'}`,
+                sunday: `${document.getElementById('sundayStart').value || 'Closed'} - ${document.getElementById('sundayEnd').value || 'Closed'}`,
+            };
+
+            console.log('Working Hours Saved:', workingHours);
+            alert('Working hours have been saved successfully!');
+        });
+    </script>
+</body>
+</html>

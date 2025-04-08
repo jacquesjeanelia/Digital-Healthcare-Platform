@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>View Doctor</title>
+    <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+    <header>
+        <h1>Doctor Details</h1>
+    </header>
+
+    <section id="doctor-details">
+        <h2>Doctor Information</h2>
+        <div class="doctor-info">
+            <!-- Doctor's Name -->
+            <p><strong>Name:</strong> <span id="doctorName">Dr. John Smith</span></p>
+
+            <!-- Doctor's Field -->
+            <p><strong>Field:</strong> <span id="doctorField">General Practitioner</span></p>
+
+            <!-- Doctor's Working Hours -->
+            <h3>Working Hours</h3>
+            <ul id="workingHoursList">
+                <li><strong>Monday:</strong> 9:00 AM - 5:00 PM</li>
+                <li><strong>Tuesday:</strong> 9:00 AM - 5:00 PM</li>
+                <li><strong>Wednesday:</strong> 9:00 AM - 5:00 PM</li>
+                <li><strong>Thursday:</strong> 9:00 AM - 5:00 PM</li>
+                <li><strong>Friday:</strong> 9:00 AM - 5:00 PM</li>
+                <li><strong>Saturday:</strong> Closed</li>
+                <li><strong>Sunday:</strong> Closed</li>
+            </ul>
+        </div>
+
+        <!-- Back Button -->
+        <button class="button" onclick="goBack()">Back to Main Menu</button>
+    </section>
+
+    <!-- JavaScript -->
+    <script>
+        function goBack() {
+            window.history.back(); // Navigate back to the previous page
+        }
+
+        // Example of dynamically populating doctor details (if needed)
+        // This can be replaced with data fetched from a server or database
+        const doctorData = {
+            name: "Dr. John Smith",
+            field: "General Practitioner",
+            workingHours: {
+                monday: "9:00 AM - 5:00 PM",
+                tuesday: "9:00 AM - 5:00 PM",
+                wednesday: "9:00 AM - 5:00 PM",
+                thursday: "9:00 AM - 5:00 PM",
+                friday: "9:00 AM - 5:00 PM",
+                saturday: "Closed",
+                sunday: "Closed"
+            }
+        };
+
+        // Populate the page with doctor data
+        document.getElementById("doctorName").textContent = doctorData.name;
+        document.getElementById("doctorField").textContent = doctorData.field;
+
+        const workingHoursList = document.getElementById("workingHoursList");
+        workingHoursList.innerHTML = ""; // Clear existing list items
+        for (const [day, hours] of Object.entries(doctorData.workingHours)) {
+            const listItem = document.createElement("li");
+            listItem.innerHTML = `<strong>${capitalizeFirstLetter(day)}:</strong> ${hours}`;
+            workingHoursList.appendChild(listItem);
+        }
+
+        // Helper function to capitalize the first letter of a string
+        function capitalizeFirstLetter(string) {
+            return string.charAt(0).toUpperCase() + string.slice(1);
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>View Patient</title>
+    <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+    <header>
+        <h1>Patient Details</h1>
+    </header>
+
+    <section id="patient-details">
+        <h2>Patient Information</h2>
+        <div class="patient-info">
+            <!-- Patient's Name -->
+            <p><strong>Name:</strong> <span id="patientName">John Doe</span></p>
+
+            <!-- Patient's Medical History -->
+            <h3>Medical History</h3>
+            <ul id="medicalHistoryList">
+                <li>Allergy: Penicillin</li>
+                <li>Condition: Hypertension</li>
+                <li>Vaccination: COVID-19 (Completed)</li>
+            </ul>
+
+            <!-- Upcoming Appointments -->
+            <h3>Upcoming Appointments</h3>
+            <ul id="appointmentsList">
+                <li><strong>Date:</strong> April 15, 2025 - General Checkup</li>
+                <li><strong>Date:</strong> May 10, 2025 - Cardiologist Follow-up</li>
+            </ul>
+        </div>
+
+        <!-- Back Button -->
+        <button class="button" onclick="goBack()">Back to Patients List</button>
+    </section>
+
+    <!-- JavaScript -->
+    <script>
+        function goBack() {
+            window.history.back(); // Navigate back to the previous page
+        }
+
+        // Example of dynamically populating patient details (if needed)
+        const patientData = {
+            name: "John Doe",
+            medicalHistory: [
+                "Allergy: Penicillin",
+                "Condition: Hypertension",
+                "Vaccination: COVID-19 (Completed)"
+            ],
+            appointments: [
+                { date: "April 15, 2025", reason: "General Checkup" },
+                { date: "May 10, 2025", reason: "Cardiologist Follow-up" }
+            ]
+        };
+
+        // Populate the page with patient data
+        document.getElementById("patientName").textContent = patientData.name;
+
+        const medicalHistoryList = document.getElementById("medicalHistoryList");
+        medicalHistoryList.innerHTML = ""; // Clear existing list items
+        patientData.medicalHistory.forEach(item => {
+            const listItem = document.createElement("li");
+            listItem.textContent = item;
+            medicalHistoryList.appendChild(listItem);
+        });
+
+        const appointmentsList = document.getElementById("appointmentsList");
+        appointmentsList.innerHTML = ""; // Clear existing list items
+        patientData.appointments.forEach(appointment => {
+            const listItem = document.createElement("li");
+            listItem.innerHTML = `<strong>Date:</strong> ${appointment.date} - ${appointment.reason}`;
+            appointmentsList.appendChild(listItem);
+        });
+    </script>
+</body>
+</html>
