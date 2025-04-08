@@ -35,8 +35,8 @@ export default function Login() {
           const data = await response.json();
           
           if (response.ok && data.valid) {
-            console.log('Login: Token is valid, redirecting to dashboard');
-            router.push('/dashboard');
+            console.log('Login: Token is valid, redirecting to homepage');
+            router.push('/');
           } else {
             console.log('Login: Token is invalid, clearing it', data);
             localStorage.removeItem('token');
@@ -100,9 +100,9 @@ export default function Login() {
       // Show success state before redirect
       setLoginSuccess(true);
       
-      // Redirect to dashboard after a delay to ensure token is stored and prevent flickering
+      // Redirect to homepage after a delay to ensure token is stored and prevent flickering
       setTimeout(() => {
-        router.push('/dashboard');
+        router.push('/');
       }, 1000);
     } catch (err: any) {
       console.error('Login: Login error:', err);
@@ -116,18 +116,18 @@ export default function Login() {
     return (
       <div className={styles.container}>
         <Head>
-          <title>Login Successful - Digital Healthcare Platform</title>
+          <title>Login Successful - Sehaty</title>
         </Head>
         <main className={styles.main}>
           <div className={styles.formContainer} style={{ textAlign: 'center' }}>
             <h1 className={styles.title}>Login Successful</h1>
-            <p>Redirecting to dashboard...</p>
+            <p>Redirecting to homepage...</p>
             <div style={{ 
               margin: '20px auto', 
               width: '40px', 
               height: '40px', 
               border: '4px solid #f3f3f3',
-              borderTop: '4px solid #3498db',
+              borderTop: '4px solid #a818fc',
               borderRadius: '50%',
               animation: 'spin 1s linear infinite'
             }} />
@@ -146,7 +146,7 @@ export default function Login() {
   return (
     <div className={styles.container}>
       <Head>
-        <title>Login - Digital Healthcare Platform</title>
+        <title>Login - Sehaty</title>
         <meta name="description" content="Login to your account" />
       </Head>
 
@@ -187,23 +187,21 @@ export default function Login() {
               type="submit" 
               className={styles.button}
               disabled={loading}
+              style={{ 
+                backgroundColor: '#a818fc', 
+                borderRadius: '8px',
+              }}
             >
               {loading ? 'Logging in...' : 'Login'}
             </button>
           </form>
 
-          <p className={styles.formFooter}>
+          <p className={styles.switch}>
             Don't have an account?{' '}
             <Link href="/auth/register" className={styles.link}>
               Register here
             </Link>
           </p>
-          
-          <div style={{ marginTop: '20px', textAlign: 'center' }}>
-            <Link href="/auth/debug" className={styles.link}>
-              Debug Authentication
-            </Link>
-          </div>
         </div>
       </main>
     </div>

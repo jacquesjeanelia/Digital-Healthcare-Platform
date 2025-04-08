@@ -10,7 +10,7 @@ export default function Register() {
     name: '',
     email: '',
     password: '',
-    confirmPassword: '',
+    passwordConfirm: '',
     role: 'patient',
     phoneNumber: '',
     dateOfBirth: '',
@@ -24,6 +24,7 @@ export default function Register() {
   });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [registerSuccess, setRegisterSuccess] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -36,78 +37,96 @@ export default function Register() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
-
-    // Validate passwords match
-    if (formData.password !== formData.confirmPassword) {
-      setError('Passwords do not match');
+    
+    // Validation
+    if (formData.password !== formData.passwordConfirm) {
+      setError("Passwords don't match");
       return;
     }
-
-    // Validate doctor-specific fields if role is doctor
-    if (formData.role === 'doctor') {
-      if (!formData.specialization || !formData.license || !formData.yearsOfExperience) {
-        setError('Please fill in all required doctor fields');
-        return;
-      }
+    
+    if (formData.password.length < 6) {
+      setError("Password must be at least 6 characters");
+      return;
     }
-
-    // Validate age (user must be at least 18 years old)
-    if (formData.dateOfBirth) {
-      const birthDate = new Date(formData.dateOfBirth);
-      const today = new Date();
-      let age = today.getFullYear() - birthDate.getFullYear();
-      const monthDiff = today.getMonth() - birthDate.getMonth();
-      
-      // Adjust age if birthday hasn't occurred yet this year
-      if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
-        age--;
-      }
-      
-      if (age < 18) {
-        setError('You must be at least 18 years old to register');
-        return;
-      }
-    }
-
+    
     setLoading(true);
-
+    
     try {
       const response = await fetch('/api/auth/register', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData),
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: formData.name,
+          email: formData.email,
+          password: formData.password,
+          role: formData.role,
+        }),
       });
-
+      
       const data = await response.json();
-
+      
       if (!response.ok) {
         throw new Error(data.message || 'Registration failed');
       }
-
-      // Store the token in localStorage
+      
+      // Store the token
       localStorage.setItem('token', data.token);
       
-      // Redirect to dashboard
-      router.push('/dashboard');
+      // Show success state
+      setRegisterSuccess(true);
+      
+      // Redirect to homepage
+      setTimeout(() => {
+        router.push('/');
+      }, 1000);
     } catch (err: any) {
-      setError(err.message);
-    } finally {
+      console.error('Registration error:', err);
+      setError(err.message || 'An unexpected error occurred');
       setLoading(false);
     }
   };
 
+  if (registerSuccess) {
+    return (
+      <div className={styles.container}>
+        <Head>
+          <title>Registration Successful - Sehaty</title>
+        </Head>
+        <main className={styles.main}>
+          <div className={styles.formContainer} style={{ textAlign: 'center' }}>
+            <h1 className={styles.title}>Registration Successful</h1>
+            <p>Redirecting to homepage...</p>
+            <div style={{ 
+              margin: '20px auto', 
+              width: '40px', 
+              height: '40px', 
+              border: '4px solid #f3f3f3',
+              borderTop: '4px solid #a818fc',
+              borderRadius: '50%',
+              animation: 'spin 1s linear infinite'
+            }} />
+            <style jsx>{`
+              @keyframes spin {
+                0% { transform: rotate(0deg); }
+                100% { transform: rotate(360deg); }
+              }
+            `}</style>
+          </div>
+        </main>
+      </div>
+    );
+  }
+
   return (
     <div className={styles.container}>
       <Head>
-        <title>Register - Digital Healthcare Platform</title>
-        <meta name="description" content="Create a new account" />
+        <title>Sign Up - Sehaty</title>
+        <meta name="description" content="Create your Sehaty account" />
       </Head>
 
       <main className={styles.main}>
         <div className={styles.formContainer}>
-          <h1 className={styles.title}>Create Account</h1>
+          <h1 className={styles.title}>Create an Account</h1>
           
           {error && <div className={styles.error}>{error}</div>}
           
@@ -152,12 +171,12 @@ export default function Register() {
             </div>
 
             <div className={styles.formGroup}>
-              <label htmlFor="confirmPassword">Confirm Password</label>
+              <label htmlFor="passwordConfirm">Confirm Password</label>
               <input
                 type="password"
-                id="confirmPassword"
-                name="confirmPassword"
-                value={formData.confirmPassword}
+                id="passwordConfirm"
+                name="passwordConfirm"
+                value={formData.passwordConfirm}
                 onChange={handleChange}
                 required
                 className={styles.input}
@@ -165,135 +184,39 @@ export default function Register() {
             </div>
 
             <div className={styles.formGroup}>
-              <label htmlFor="role">I am a</label>
-              <select
-                id="role"
-                name="role"
-                value={formData.role}
-                onChange={handleChange}
-                required
-                className={styles.input}
-              >
-                <option value="patient">Patient</option>
-                <option value="doctor">Doctor</option>
-              </select>
+              <p style={{ marginBottom: '5px' }}>Account Type</p>
+              <div style={{ display: 'flex', gap: '15px' }}>
+                <label>
+                  <input
+                    type="radio"
+                    name="role"
+                    value="patient"
+                    checked={formData.role === 'patient'}
+                    onChange={handleChange}
+                  /> Patient
+                </label>
+                <label>
+                  <input
+                    type="radio"
+                    name="role"
+                    value="doctor"
+                    checked={formData.role === 'doctor'}
+                    onChange={handleChange}
+                  /> Doctor
+                </label>
+              </div>
             </div>
-
-            <div className={styles.formGroup}>
-              <label htmlFor="phoneNumber">Phone Number</label>
-              <input
-                type="tel"
-                id="phoneNumber"
-                name="phoneNumber"
-                value={formData.phoneNumber}
-                onChange={handleChange}
-                className={styles.input}
-              />
-            </div>
-
-            <div className={styles.formGroup}>
-              <label htmlFor="dateOfBirth">Date of Birth</label>
-              <input
-                type="date"
-                id="dateOfBirth"
-                name="dateOfBirth"
-                value={formData.dateOfBirth}
-                onChange={handleChange}
-                className={styles.input}
-              />
-            </div>
-
-            <div className={styles.formGroup}>
-              <label htmlFor="gender">Gender</label>
-              <select
-                id="gender"
-                name="gender"
-                value={formData.gender}
-                onChange={handleChange}
-                className={styles.input}
-              >
-                <option value="">Prefer not to say</option>
-                <option value="male">Male</option>
-                <option value="female">Female</option>
-                <option value="other">Other</option>
-              </select>
-            </div>
-
-            {/* Doctor-specific fields */}
-            {formData.role === 'doctor' && (
-              <>
-                <div className={styles.formGroup}>
-                  <label htmlFor="specialization">Specialization *</label>
-                  <input
-                    type="text"
-                    id="specialization"
-                    name="specialization"
-                    value={formData.specialization}
-                    onChange={handleChange}
-                    required
-                    className={styles.input}
-                  />
-                </div>
-
-                <div className={styles.formGroup}>
-                  <label htmlFor="license">Medical License Number *</label>
-                  <input
-                    type="text"
-                    id="license"
-                    name="license"
-                    value={formData.license}
-                    onChange={handleChange}
-                    required
-                    className={styles.input}
-                  />
-                </div>
-
-                <div className={styles.formGroup}>
-                  <label htmlFor="yearsOfExperience">Years of Experience *</label>
-                  <input
-                    type="number"
-                    id="yearsOfExperience"
-                    name="yearsOfExperience"
-                    value={formData.yearsOfExperience}
-                    onChange={handleChange}
-                    required
-                    min="0"
-                    className={styles.input}
-                  />
-                </div>
-
-                <div className={styles.formGroup}>
-                  <label htmlFor="hospital">Hospital/Clinic</label>
-                  <input
-                    type="text"
-                    id="hospital"
-                    name="hospital"
-                    value={formData.hospital}
-                    onChange={handleChange}
-                    className={styles.input}
-                  />
-                </div>
-
-                <div className={styles.formGroup}>
-                  <label htmlFor="department">Department</label>
-                  <input
-                    type="text"
-                    id="department"
-                    name="department"
-                    value={formData.department}
-                    onChange={handleChange}
-                    className={styles.input}
-                  />
-                </div>
-              </>
-            )}
 
             <button 
               type="submit" 
               className={styles.button}
               disabled={loading}
+              style={{ 
+                backgroundColor: '#a818fc', 
+                borderRadius: '8px',
+              }}
             >
-              {loading ? 'Creating Account...' : 'Create Account'}
+              {loading ? 'Creating Account...' : 'Sign Up'}
             </button>
           </form>
 
