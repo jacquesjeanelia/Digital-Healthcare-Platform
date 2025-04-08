@@ -3,6 +3,7 @@ import { Button } from "../../components/ui/button";
 import { Card, CardContent } from "../../components/ui/card";
 import { Input } from "../../components/ui/input";
 import { Separator } from "../../components/ui/separator";
+import { useNavigate } from "react-router-dom";
 
 // Sample doctor data
 const DOCTORS = [
@@ -13,7 +14,6 @@ const DOCTORS = [
     experience: "15 years",
     rating: 4.9,
     patients: 1500,
-    image: "/doctor1.png",
     available: true,
   },
   {
@@ -23,7 +23,6 @@ const DOCTORS = [
     experience: "8 years",
     rating: 4.7,
     patients: 950,
-    image: "/doctor2.png",
     available: true,
   },
   {
@@ -33,7 +32,6 @@ const DOCTORS = [
     experience: "12 years",
     rating: 4.8,
     patients: 1200,
-    image: "/doctor3.png",
     available: false,
   },
   {
@@ -43,7 +41,6 @@ const DOCTORS = [
     experience: "10 years",
     rating: 4.6,
     patients: 870,
-    image: "/doctor4.png",
     available: true,
   },
   {
@@ -53,7 +50,6 @@ const DOCTORS = [
     experience: "7 years",
     rating: 4.5,
     patients: 650,
-    image: "/doctor5.png",
     available: true,
   },
   {
@@ -63,7 +59,6 @@ const DOCTORS = [
     experience: "9 years",
     rating: 4.8,
     patients: 780,
-    image: "/doctor6.png",
     available: false,
   },
 ];
@@ -82,6 +77,7 @@ const SPECIALTIES = [
 ];
 
 export const Doctors = (): JSX.Element => {
+  const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedSpecialty, setSelectedSpecialty] = useState("All Specialties");
   const [availableOnly, setAvailableOnly] = useState(false);
@@ -183,14 +179,12 @@ export const Doctors = (): JSX.Element => {
                   >
                     <CardContent className="p-0">
                       <div className="flex flex-col md:flex-row">
-                        <div className="w-full md:w-[120px] h-[120px] bg-gray-200 dark:bg-gray-700 relative">
-                          <div className="w-full h-full flex items-center justify-center">
-                            {/* Doctor image placeholder */}
-                            <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" className="text-gray-400">
-                              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                              <circle cx="12" cy="7" r="4"></circle>
-                            </svg>
-                          </div>
+                        <div className="w-full md:w-[120px] h-[120px] bg-gray-200 dark:bg-gray-700 relative flex items-center justify-center">
+                          <img 
+                            src="/logo-colored.svg" 
+                            alt={doctor.name} 
+                            className="w-16 h-16 opacity-40"
+                          />
                           
                           {doctor.available && (
                             <div className="absolute top-2 left-2 flex items-center gap-1">
@@ -238,12 +232,26 @@ export const Doctors = (): JSX.Element => {
                             <div className="mt-2 flex gap-2">
                               <Button 
                                 className="flex-1 h-9 bg-[#a818fc] text-white font-bold text-sm rounded-lg hover:bg-[#8a14d4]"
+                                onClick={() => {
+                                  // Check if user is logged in
+                                  const token = localStorage.getItem('token');
+                                  if (token) {
+                                    // Navigate to booking page
+                                    alert('Book appointment with ' + doctor.name);
+                                  } else {
+                                    // Redirect to login
+                                    navigate('/auth/login');
+                                  }
+                                }}
                               >
                                 Book Appointment
                               </Button>
                               <Button 
                                 variant="ghost" 
                                 className="h-9 px-3 bg-[#a918fd0d] text-[#a818fc] font-bold text-sm rounded-lg hover:bg-[#a918fd1a]"
+                                onClick={() => {
+                                  alert('View profile for ' + doctor.name);
+                                }}
                               >
                                 View Profile
                               </Button>
