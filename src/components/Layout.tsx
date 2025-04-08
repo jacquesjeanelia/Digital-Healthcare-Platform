@@ -1,6 +1,7 @@
 import Head from 'next/head';
 import Link from 'next/link';
-import { ReactNode, useState } from 'react';
+import { ReactNode, useState, useEffect } from 'react';
+import { useRouter } from 'next/router';
 import styles from '@/styles/Layout.module.css';
 
 interface LayoutProps {
@@ -9,12 +10,36 @@ interface LayoutProps {
   description?: string;
 }
 
+// SafeLink component that preserves authentication state
+const SafeLink = ({ href, className, children }: { href: string; className?: string; children: ReactNode }) => {
+  const router = useRouter();
+  
+  const handleClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    e.preventDefault();
+    // Use router.push instead of direct link to preserve state
+    router.push(href);
+  };
+  
+  return (
+    <a href={href} onClick={handleClick} className={className}>
+      {children}
+    </a>
+  );
+};
+
 export default function Layout({
   children,
   title = 'Sehaty',
   description = 'Your trusted digital healthcare companion',
 }: LayoutProps) {
   const [isNavOpen, setIsNavOpen] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  
+  // Check authentication status on client-side only
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    setIsLoggedIn(!!token);
+  }, []);
 
   return (
     <div className={styles.container}>
@@ -27,9 +52,9 @@ export default function Layout({
 
       <header className={styles.header}>
         <div className={styles.logo}>
-          <Link href="/">
+          <SafeLink href="/">
             <span>Sehaty</span>
-          </Link>
+          </SafeLink>
         </div>
 
         <button
@@ -43,21 +68,35 @@ export default function Layout({
         </button>
 
         <nav className={`${styles.nav} ${isNavOpen ? styles.active : ''}`}>
-          <Link href="/" className={styles.navLink}>
+          <SafeLink href="/" className={styles.navLink}>
             Home
-          </Link>
-          <Link href="/appointments" className={styles.navLink}>
+          </SafeLink>
+          <SafeLink href="/appointments" className={styles.navLink}>
             Appointments
-          </Link>
-          <Link href="/doctors" className={styles.navLink}>
+          </SafeLink>
+          <SafeLink href="/doctors" className={styles.navLink}>
             Find Doctors
-          </Link>
-          <Link href="/auth/login" className={styles.navLink}>
-            Login
-          </Link>
-          <Link href="/auth/register" className={styles.navLink}>
-            Register
-          </Link>
+          </SafeLink>
+          
+          {!isLoggedIn ? (
+            <>
+              <Link href="/auth/login" className={styles.navLink}>
+                Login
+              </Link>
+              <Link href="/auth/register" className={styles.navLink}>
+                Register
+              </Link>
+            </>
+          ) : (
+            <>
+              <SafeLink href="/dashboard" className={styles.navLink}>
+                Dashboard
+              </SafeLink>
+              <SafeLink href="/profile" className={styles.navLink}>
+                Profile
+              </SafeLink>
+            </>
+          )}
         </nav>
       </header>
 
