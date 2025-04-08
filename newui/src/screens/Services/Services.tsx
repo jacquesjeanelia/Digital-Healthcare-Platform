@@ -87,7 +87,7 @@ const SERVICES = [
 
 export const Services = (): JSX.Element => {
   return (
-    <div className="bg-[#f2ebde] dark:bg-gray-900 flex flex-row justify-center w-full min-h-screen">
+    <div className="bg-[#f8f5f2] dark:bg-gray-900 flex flex-row justify-center w-full min-h-screen">
       <div className="w-full max-w-[1280px] relative pt-[75px] px-4 md:px-6">
         <div className="flex flex-col gap-8">
           {/* Hero Section */}
@@ -105,7 +105,7 @@ export const Services = (): JSX.Element => {
             {SERVICES.map((service) => (
               <Card key={service.id} className="border border-gray-200 dark:border-gray-700 dark:bg-gray-800 overflow-hidden h-full bg-white">
                 <CardContent className="p-6 flex flex-col h-full">
-                  <div className="w-12 h-12 bg-[#3db7b51a] dark:bg-[#3db7b540] rounded-lg flex items-center justify-center mb-4 text-[#3db7b5]">
+                  <div className="w-12 h-12 bg-[#4caf9630] dark:bg-[#4caf9640] rounded-lg flex items-center justify-center mb-4 text-[#4caf96]">
                     {service.icon}
                   </div>
                   <h3 className="font-['Montserrat',Helvetica] font-bold text-[#1f4156] dark:text-white text-xl mb-2">
@@ -114,10 +114,10 @@ export const Services = (): JSX.Element => {
                   <p className="text-gray-600 dark:text-gray-300 flex-grow mb-4">
                     {service.description}
                   </p>
-                  <div className="mt-auto pt-4">
+                  <div className="mt-auto">
                     <Button
                       variant="ghost"
-                      className="w-full justify-center bg-[#3db7b51a] text-[#3db7b5] font-bold text-sm rounded-lg hover:bg-[#3db7b530] h-10"
+                      className="w-full justify-center bg-[#4caf9620] text-[#4caf96] font-bold text-sm rounded-lg hover:bg-[#4caf9630] h-10"
                     >
                       Learn More
                     </Button>
@@ -128,7 +128,7 @@ export const Services = (): JSX.Element => {
           </div>
 
           {/* CTA Section */}
-          <div className="bg-[#3db7b51a] dark:bg-[#3db7b540] rounded-xl p-8 mt-8 flex flex-col md:flex-row items-center justify-between gap-6">
+          <div className="bg-[#4caf9620] dark:bg-[#4caf9640] rounded-xl p-8 mt-8 flex flex-col md:flex-row items-center justify-between gap-6">
             <div className="flex flex-col gap-3 max-w-xl">
               <h2 className="font-['Montserrat',Helvetica] font-bold text-[#1f4156] dark:text-white text-2xl">
                 Ready to experience better healthcare?
@@ -138,7 +138,7 @@ export const Services = (): JSX.Element => {
               </p>
             </div>
             <Button 
-              className="h-10 px-6 bg-[#3db7b5] text-white font-bold text-sm rounded-lg hover:bg-[#35a3a1] whitespace-nowrap"
+              className="h-10 px-6 bg-[#4caf96] text-white font-bold text-sm rounded-lg hover:bg-[#3d9d86] whitespace-nowrap"
             >
               Get Started
             </Button>
