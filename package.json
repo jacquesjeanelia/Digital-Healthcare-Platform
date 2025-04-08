@@ -1,0 +1,16 @@
+{
+  "name": "sehaty-digital-healthcare-platform",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": [
+    "sehaty-frontend"
+  ],
+  "scripts": {
+    "dev": "cd sehaty-frontend && npm run dev",
+    "build": "cd sehaty-frontend && npm run build",
+    "vercel-build": "cd sehaty-frontend && npm install && npm run build"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  }
+} 
