@@ -2,7 +2,7 @@ import Head from 'next/head';
 import Link from 'next/link';
 import { ReactNode, useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
-import styles from '@/styles/Layout.module.css';
+import { Button } from './ui/button';
 
 interface LayoutProps {
   children: ReactNode;
@@ -10,30 +10,13 @@ interface LayoutProps {
   description?: string;
 }
 
-// SafeLink component that preserves authentication state
-const SafeLink = ({ href, className, children }: { href: string; className?: string; children: ReactNode }) => {
-  const router = useRouter();
-  
-  const handleClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
-    e.preventDefault();
-    // Use router.push instead of direct link to preserve state
-    router.push(href);
-  };
-  
-  return (
-    <a href={href} onClick={handleClick} className={className}>
-      {children}
-    </a>
-  );
-};
-
 export default function Layout({
   children,
   title = 'Sehaty',
   description = 'Your trusted digital healthcare companion',
 }: LayoutProps) {
-  const [isNavOpen, setIsNavOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const router = useRouter();
   
   // Check authentication status on client-side only
   useEffect(() => {
@@ -42,7 +25,7 @@ export default function Layout({
   }, []);
 
   return (
-    <div className={styles.container}>
+    <div className="flex flex-col min-h-screen">
       <Head>
         <title>{title}</title>
         <meta name="description" content={description} />
@@ -50,60 +33,97 @@ export default function Layout({
         <meta name="viewport" content="width=device-width, initial-scale=1" />
       </Head>
 
-      <header className={styles.header}>
-        <div className={styles.logo}>
-          <SafeLink href="/">
-            <span>Sehaty</span>
-          </SafeLink>
+      <header className="flex items-center w-full h-[58px] fixed top-0 left-0 right-0 bg-white border-b border-[#f0f0f0] z-10">
+        <div className="w-full max-w-[1280px] mx-auto flex items-center justify-between px-4 md:px-6">
+          <div className="relative h-[60px] flex items-center">
+            <h1 className="font-['Montserrat',Helvetica] font-extrabold text-[#a818fc] text-[22px] text-center">
+              Sehaty
+            </h1>
+          </div>
+
+          <nav className="hidden md:flex items-center justify-center gap-[5px]">
+            <Button
+              variant="ghost"
+              className="font-['Montserrat',Helvetica] font-bold hover:bg-gray-100"
+              onClick={() => router.push('/')}
+            >
+              Home
+            </Button>
+            <Button
+              variant="ghost"
+              className="font-['Montserrat',Helvetica] font-medium hover:bg-gray-100"
+              onClick={() => router.push('/doctors')}
+            >
+              Browse Doctors
+            </Button>
+            <Button
+              variant="ghost"
+              className="font-['Montserrat',Helvetica] font-medium hover:bg-gray-100"
+              onClick={() => router.push('/appointments')}
+            >
+              Appointments
+            </Button>
+            <Button
+              variant="ghost"
+              className="font-['Montserrat',Helvetica] font-medium hover:bg-gray-100"
+              onClick={() => router.push('/about')}
+            >
+              About Us
+            </Button>
+            <Button
+              variant="ghost"
+              className="font-['Montserrat',Helvetica] font-medium hover:bg-gray-100"
+              onClick={() => router.push('/contact')}
+            >
+              Contact Us
+            </Button>
+          </nav>
+
+          <div className="flex items-center gap-[15px]">
+            {!isLoggedIn ? (
+              <>
+                <Button
+                  variant="ghost"
+                  className="h-7 bg-[#a918fd0d] text-[#a818fc] font-bold text-sm rounded-lg hover:bg-[#a918fd1a]"
+                  onClick={() => router.push('/auth/login')}
+                >
+                  Login
+                </Button>
+                <Button 
+                  className="h-7 bg-[#a818fc] text-white font-bold text-sm rounded-lg hover:bg-[#8a14d4]"
+                  onClick={() => router.push('/auth/register')}
+                >
+                  Sign Up
+                </Button>
+              </>
+            ) : (
+              <>
+                <Button
+                  variant="ghost"
+                  className="font-medium hover:bg-gray-100"
+                  onClick={() => router.push('/dashboard')}
+                >
+                  Dashboard
+                </Button>
+                <Button
+                  variant="ghost"
+                  className="font-medium hover:bg-gray-100"
+                  onClick={() => router.push('/profile')}
+                >
+                  Profile
+                </Button>
+              </>
+            )}
+          </div>
         </div>
-
-        <button
-          className={styles.menuButton}
-          onClick={() => setIsNavOpen(!isNavOpen)}
-          aria-label="Toggle menu"
-        >
-          <span></span>
-          <span></span>
-          <span></span>
-        </button>
-
-        <nav className={`${styles.nav} ${isNavOpen ? styles.active : ''}`}>
-          <SafeLink href="/" className={styles.navLink}>
-            Home
-          </SafeLink>
-          <SafeLink href="/appointments" className={styles.navLink}>
-            Appointments
-          </SafeLink>
-          <SafeLink href="/doctors" className={styles.navLink}>
-            Find Doctors
-          </SafeLink>
-          
-          {!isLoggedIn ? (
-            <>
-              <Link href="/auth/login" className={styles.navLink}>
-                Login
-              </Link>
-              <Link href="/auth/register" className={styles.navLink}>
-                Register
-              </Link>
-            </>
-          ) : (
-            <>
-              <SafeLink href="/dashboard" className={styles.navLink}>
-                Dashboard
-              </SafeLink>
-              <SafeLink href="/profile" className={styles.navLink}>
-                Profile
-              </SafeLink>
-            </>
-          )}
-        </nav>
       </header>
 
-      <main className={styles.main}>{children}</main>
+      <main className="flex-grow pt-[58px]">{children}</main>
 
-      <footer className={styles.footer}>
-        <p>&copy; {new Date().getFullYear()} Sehaty. All rights reserved.</p>
+      <footer className="py-8 bg-gray-100">
+        <div className="container mx-auto px-4 text-center">
+          <p>&copy; {new Date().getFullYear()} Sehaty. All rights reserved.</p>
+        </div>
       </footer>
     </div>
   );
