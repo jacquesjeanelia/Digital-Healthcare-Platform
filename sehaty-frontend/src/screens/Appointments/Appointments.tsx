@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "../../components/ui/button";
 import { Card, CardContent } from "../../components/ui/card";
 import { useAuth } from "../../lib/AuthContext";
+import { QueueManager } from "../../components/QueueManager";
 
 export const Appointments = (): JSX.Element => {
   const { user } = useAuth();
@@ -132,139 +133,189 @@ export const Appointments = (): JSX.Element => {
           </div>
 
           {/* Appointments List */}
-          <div className="grid grid-cols-1 gap-4">
-            {filteredAppointments.length > 0 ? (
-              filteredAppointments.map((appointment) => (
-                <Card key={appointment.id} className="bg-white dark:bg-gray-800 border-none shadow-sm overflow-hidden">
-                  <CardContent className="p-0">
-                    <div className="flex flex-col md:flex-row">
-                      {/* Status Indicator */}
-                      <div 
-                        className={`w-full md:w-2 ${
-                          appointment.status === "confirmed" 
-                            ? "bg-[#4caf96]" 
-                            : appointment.status === "completed" 
-                              ? "bg-blue-500" 
-                              : "bg-yellow-500"
-                        }`}
-                      />
-                      
-                      <div className="p-6 flex-1">
-                        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                          <div>
-                            <div className="flex items-center gap-2">
-                              <h3 className="font-bold text-[#1f4156] dark:text-white text-lg">
-                                {appointment.doctorName}
-                              </h3>
-                              <span className="text-[#4caf96] text-sm font-medium">
-                                {appointment.specialty}
-                              </span>
-                            </div>
-                            
-                            <div className="flex flex-col md:flex-row md:items-center gap-1 md:gap-4 mt-2">
-                              <div className="flex items-center gap-1">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-gray-500">
-                                  <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
-                                  <line x1="16" y1="2" x2="16" y2="6"></line>
-                                  <line x1="8" y1="2" x2="8" y2="6"></line>
-                                  <line x1="3" y1="10" x2="21" y2="10"></line>
-                                </svg>
-                                <span className="text-gray-700 dark:text-gray-300 text-sm">
-                                  {new Date(appointment.date).toLocaleDateString("en-US", {
-                                    year: "numeric",
-                                    month: "long",
-                                    day: "numeric",
-                                  })}
-                                </span>
-                              </div>
-                              
-                              <div className="flex items-center gap-1">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-gray-500">
-                                  <circle cx="12" cy="12" r="10"></circle>
-                                  <polyline points="12 6 12 12 16 14"></polyline>
-                                </svg>
-                                <span className="text-gray-700 dark:text-gray-300 text-sm">
-                                  {appointment.time}
-                                </span>
-                              </div>
-                              
-                              <div className="flex items-center gap-1">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-gray-500">
-                                  <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
-                                  <circle cx="12" cy="10" r="3"></circle>
-                                </svg>
-                                <span className="text-gray-700 dark:text-gray-300 text-sm">
-                                  {appointment.location}
-                                </span>
-                              </div>
-                            </div>
-                            
-                            {appointment.notes && (
-                              <p className="text-gray-600 dark:text-gray-400 text-sm mt-3 bg-[#4caf9610] dark:bg-[#4caf9620] p-2 rounded-md">
-                                <span className="font-medium">Note:</span> {appointment.notes}
-                              </p>
-                            )}
-                          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="md:col-span-2">
+              <div className="grid grid-cols-1 gap-4">
+                {filteredAppointments.length > 0 ? (
+                  filteredAppointments.map((appointment) => (
+                    <Card key={appointment.id} className="bg-white dark:bg-gray-800 border-none shadow-sm overflow-hidden">
+                      <CardContent className="p-0">
+                        <div className="flex flex-col md:flex-row">
+                          {/* Status Indicator */}
+                          <div 
+                            className={`w-full md:w-2 ${
+                              appointment.status === "confirmed" 
+                                ? "bg-[#4caf96]" 
+                                : appointment.status === "completed" 
+                                  ? "bg-blue-500" 
+                                  : "bg-yellow-500"
+                            }`}
+                          />
                           
-                          <div className="flex gap-2">
-                            {appointment.status === "confirmed" && (
-                              <>
-                                <Button 
-                                  variant="outline" 
-                                  className="h-9 border-[#4caf96] text-[#4caf96] hover:bg-[#4caf9610]"
-                                >
-                                  Reschedule
-                                </Button>
-                                <Button 
-                                  variant="outline" 
-                                  className="h-9 border-red-500 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20"
-                                >
-                                  Cancel
-                                </Button>
-                              </>
-                            )}
-                            
-                            {appointment.status === "completed" && (
-                              <Button 
-                                variant="outline" 
-                                className="h-9 border-blue-500 text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20"
-                              >
-                                View Summary
-                              </Button>
-                            )}
+                          <div className="p-6 flex-1">
+                            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                              <div>
+                                <div className="flex items-center gap-2">
+                                  <h3 className="font-bold text-[#1f4156] dark:text-white text-lg">
+                                    {appointment.doctorName}
+                                  </h3>
+                                  <span className="text-[#4caf96] text-sm font-medium">
+                                    {appointment.specialty}
+                                  </span>
+                                </div>
+                                
+                                <div className="flex flex-col md:flex-row md:items-center gap-1 md:gap-4 mt-2">
+                                  <div className="flex items-center gap-1">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-gray-500">
+                                      <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                                      <line x1="16" y1="2" x2="16" y2="6"></line>
+                                      <line x1="8" y1="2" x2="8" y2="6"></line>
+                                      <line x1="3" y1="10" x2="21" y2="10"></line>
+                                    </svg>
+                                    <span className="text-gray-700 dark:text-gray-300 text-sm">
+                                      {new Date(appointment.date).toLocaleDateString("en-US", {
+                                        year: "numeric",
+                                        month: "long",
+                                        day: "numeric",
+                                      })}
+                                    </span>
+                                  </div>
+                                  
+                                  <div className="flex items-center gap-1">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-gray-500">
+                                      <circle cx="12" cy="12" r="10"></circle>
+                                      <polyline points="12 6 12 12 16 14"></polyline>
+                                    </svg>
+                                    <span className="text-gray-700 dark:text-gray-300 text-sm">
+                                      {appointment.time}
+                                    </span>
+                                  </div>
+                                  
+                                  <div className="flex items-center gap-1">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-gray-500">
+                                      <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                                      <circle cx="12" cy="10" r="3"></circle>
+                                    </svg>
+                                    <span className="text-gray-700 dark:text-gray-300 text-sm">
+                                      {appointment.location}
+                                    </span>
+                                  </div>
+                                </div>
+                                
+                                {appointment.notes && (
+                                  <p className="text-gray-600 dark:text-gray-400 text-sm mt-3 bg-[#4caf9610] dark:bg-[#4caf9620] p-2 rounded-md">
+                                    <span className="font-medium">Note:</span> {appointment.notes}
+                                  </p>
+                                )}
+                              </div>
+                              
+                              <div className="flex gap-2">
+                                {appointment.status === "confirmed" && (
+                                  <>
+                                    <Button 
+                                      variant="outline" 
+                                      className="h-9 border-[#4caf96] text-[#4caf96] hover:bg-[#4caf9610]"
+                                    >
+                                      Reschedule
+                                    </Button>
+                                    <Button 
+                                      variant="outline" 
+                                      className="h-9 border-red-500 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20"
+                                    >
+                                      Cancel
+                                    </Button>
+                                  </>
+                                )}
+                                
+                                {appointment.status === "completed" && (
+                                  <Button 
+                                    variant="outline" 
+                                    className="h-9 border-blue-500 text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20"
+                                  >
+                                    View Summary
+                                  </Button>
+                                )}
+                              </div>
+                            </div>
                           </div>
                         </div>
-                      </div>
+                      </CardContent>
+                    </Card>
+                  ))
+                ) : (
+                  <div className="flex flex-col items-center justify-center bg-white dark:bg-gray-800 rounded-lg p-12 text-center">
+                    <div className="w-16 h-16 bg-[#4caf9620] dark:bg-[#4caf9640] rounded-full flex items-center justify-center text-[#4caf96] mb-4">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                        <line x1="16" y1="2" x2="16" y2="6"></line>
+                        <line x1="8" y1="2" x2="8" y2="6"></line>
+                        <line x1="3" y1="10" x2="21" y2="10"></line>
+                      </svg>
                     </div>
+                    <h3 className="text-xl font-bold text-[#1f4156] dark:text-white mb-2">No appointments found</h3>
+                    <p className="text-gray-600 dark:text-gray-400 mb-6">
+                      {filter === "upcoming" 
+                        ? "You don't have any upcoming appointments" 
+                        : filter === "past" 
+                          ? "You don't have any past appointments" 
+                          : "You don't have any appointments"}
+                    </p>
+                    <Button 
+                      className="bg-[#4caf96] hover:bg-[#3d9d86] text-white"
+                      onClick={() => navigate('/doctors')}
+                    >
+                      Book an Appointment
+                    </Button>
+                  </div>
+                )}
+              </div>
+            </div>
+            
+            {/* Today's appointments queue - only show for the current day */}
+            <div className="md:col-span-1">
+              <div className="sticky top-[90px]">
+                <QueueManager />
+                
+                <Card className="mt-4 border-[#4caf96] dark:border-[#4caf96]">
+                  <CardContent className="p-4">
+                    <h3 className="font-bold text-[#1f4156] dark:text-white text-lg mb-2">
+                      Appointment Tips
+                    </h3>
+                    <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
+                      <li className="flex items-start gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-[#4caf96] mt-0.5">
+                          <path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/>
+                          <circle cx="12" cy="8" r="1"/>
+                          <path d="M12 12v4"/>
+                        </svg>
+                        <span>Please arrive 15 minutes before your scheduled time</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-[#4caf96] mt-0.5">
+                          <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>
+                        </svg>
+                        <span>Bring your insurance card and ID</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-[#4caf96] mt-0.5">
+                          <path d="M14 9a2 2 0 0 1-2 2H6l-4 4V4c0-1.1.9-2 2-2h8a2 2 0 0 1 2 2v5Z"/>
+                          <path d="M18 9h2a2 2 0 0 1 2 2v11l-4-4h-6a2 2 0 0 1-2-2v-1"/>
+                        </svg>
+                        <span>Please update the receptionist on any changes to your health</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-[#4caf96] mt-0.5">
+                          <path d="M7 13H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2h-2"/>
+                          <path d="M17 13H7"/>
+                          <path d="M7 18a1 1 0 0 1-1-1v-4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v4a1 1 0 0 1-1 1H7z"/>
+                        </svg>
+                        <span>We accept all major credit cards, cash, and mobile payments</span>
+                      </li>
+                    </ul>
                   </CardContent>
                 </Card>
-              ))
-            ) : (
-              <div className="flex flex-col items-center justify-center bg-white dark:bg-gray-800 rounded-lg p-12 text-center">
-                <div className="w-16 h-16 bg-[#4caf9620] dark:bg-[#4caf9640] rounded-full flex items-center justify-center text-[#4caf96] mb-4">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
-                    <line x1="16" y1="2" x2="16" y2="6"></line>
-                    <line x1="8" y1="2" x2="8" y2="6"></line>
-                    <line x1="3" y1="10" x2="21" y2="10"></line>
-                  </svg>
-                </div>
-                <h3 className="text-xl font-bold text-[#1f4156] dark:text-white mb-2">No appointments found</h3>
-                <p className="text-gray-600 dark:text-gray-400 mb-6">
-                  {filter === "upcoming" 
-                    ? "You don't have any upcoming appointments" 
-                    : filter === "past" 
-                      ? "You don't have any past appointments" 
-                      : "You don't have any appointments"}
-                </p>
-                <Button 
-                  className="bg-[#4caf96] hover:bg-[#3d9d86] text-white"
-                  onClick={() => navigate('/doctors')}
-                >
-                  Book an Appointment
-                </Button>
               </div>
-            )}
+            </div>
           </div>
         </div>
       </div>

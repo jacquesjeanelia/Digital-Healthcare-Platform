@@ -10,6 +10,7 @@ import { Login, Register, DoctorLogin } from "./screens/Auth";
 import { Dashboard } from "./screens/Dashboard";
 import { Appointments } from "./screens/Appointments";
 import { Layout } from "./components/Layout";
+import { ProtectedRoute } from "./components/ProtectedRoute";
 import { AuthProvider } from "./lib/AuthContext";
 
 createRoot(document.getElementById("app") as HTMLElement).render(
@@ -22,9 +23,17 @@ createRoot(document.getElementById("app") as HTMLElement).render(
           <Route path="/auth/register" element={<Register />} />
           <Route path="/auth/doctor-login" element={<DoctorLogin />} />
           
-          {/* Dashboard routes with layout */}
-          <Route path="/dashboard" element={<Layout><Dashboard /></Layout>} />
-          <Route path="/appointments" element={<Layout><Appointments /></Layout>} />
+          {/* Dashboard routes with layout - protected */}
+          <Route path="/dashboard" element={
+            <ProtectedRoute>
+              <Layout><Dashboard /></Layout>
+            </ProtectedRoute>
+          } />
+          <Route path="/appointments" element={
+            <ProtectedRoute>
+              <Layout><Appointments /></Layout>
+            </ProtectedRoute>
+          } />
           
           {/* Main routes with standard layout */}
           <Route path="/" element={<Layout><Homepage /></Layout>} />

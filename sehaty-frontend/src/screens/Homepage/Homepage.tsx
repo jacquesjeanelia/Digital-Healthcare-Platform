@@ -4,9 +4,11 @@ import { Card, CardContent } from "../../components/ui/card";
 import { Input } from "../../components/ui/input";
 import { Separator } from "../../components/ui/separator";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../lib/AuthContext";
 
 export const Homepage = (): JSX.Element => {
   const navigate = useNavigate();
+  const { enablePreviewMode } = useAuth();
   
   // Data for specialty cards
   const specialties = [
@@ -151,15 +153,17 @@ export const Homepage = (): JSX.Element => {
                   appointments
                 </h2>
 
-                <Button
-                  variant="ghost"
-                  className="inline-flex items-start bg-[#4caf9620] dark:bg-[#4caf9640] rounded-lg gap-2.5 px-5 py-4 hover:bg-[#4caf9630]"
-                  onClick={() => navigate("/doctors")}
-                >
-                  <span className="font-['Inter',Helvetica] font-bold text-[#4caf96] text-[15px]">
-                    Learn More →
-                  </span>
-                </Button>
+                <div className="w-full flex justify-center">
+                  <Button
+                    variant="ghost"
+                    className="inline-flex items-center bg-[#4caf9620] dark:bg-[#4caf9640] rounded-lg gap-2.5 px-5 py-4 hover:bg-[#4caf9630] transition-all duration-300 transform hover:scale-105"
+                    onClick={() => navigate("/doctors")}
+                  >
+                    <span className="font-['Inter',Helvetica] font-bold text-[#4caf96] text-[15px]">
+                      Learn More →
+                    </span>
+                  </Button>
+                </div>
               </div>
 
               <img
@@ -194,10 +198,10 @@ export const Homepage = (): JSX.Element => {
                 {specialties.map((specialty, index) => (
                   <Card
                     key={index}
-                    className="flex flex-col w-full h-[230px] bg-[#f0edff] dark:bg-[#311c5e] rounded-2xl border-none"
+                    className="flex flex-col w-full h-[230px] bg-[#4caf9610] dark:bg-[#4caf9630] rounded-2xl border-none transition-transform duration-300 hover:scale-105"
                   >
                     <CardContent className="flex flex-col items-start gap-[11px] p-5">
-                      <div className="w-[45px] h-[45px] bg-[#e9e5ff] dark:bg-[#4d2d8b] rounded-[32px] shadow-[10px_10px_24px_-4px_#0000004c] flex items-center justify-center">
+                      <div className="w-[45px] h-[45px] bg-[#4caf9620] dark:bg-[#4caf9650] rounded-[32px] shadow-[10px_10px_24px_-4px_#0000004c] flex items-center justify-center">
                         {specialty.icon}
                       </div>
                       <h3 className="self-stretch h-[26px] font-['Inter',Helvetica] font-bold text-neutral-950 dark:text-white text-lg tracking-[-0.36px]">
@@ -252,11 +256,37 @@ export const Homepage = (): JSX.Element => {
           </section>
 
           <Button 
-            className="w-[136px] h-10 bg-[#4caf96] rounded-lg text-white"
+            className="w-[136px] h-10 bg-[#4caf96] rounded-lg text-white transform transition-transform duration-300 hover:scale-105"
             onClick={() => navigate("/doctors")}
           >
             View All Clinics
           </Button>
+
+          {/* Preview Mode Button */}
+          <div className="w-full max-w-[1280px] flex flex-col items-center my-8 bg-[#4caf9610] dark:bg-[#4caf9630] rounded-xl p-6 animate-fadeIn">
+            <h2 className="font-['Inter',Helvetica] text-[#1f4156] dark:text-white text-2xl font-bold mb-3">
+              Want to explore the platform?
+            </h2>
+            <p className="text-gray-600 dark:text-gray-400 text-center max-w-2xl mb-6">
+              Try our preview mode to experience the full platform without creating an account. 
+              See appointments, dashboard features, and more!
+            </p>
+            <Button 
+              className="bg-[#4caf96] hover:bg-[#3d9d86] text-white font-bold px-8 py-6 h-auto rounded-lg shadow-lg transform transition-transform duration-300 hover:scale-105"
+              onClick={() => {
+                enablePreviewMode();
+                navigate('/dashboard');
+              }}
+            >
+              <span className="flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" />
+                  <circle cx="12" cy="12" r="3" />
+                </svg>
+                Try Preview Mode
+              </span>
+            </Button>
+          </div>
 
           {/* How It Works Section */}
           <section className="flex flex-col items-center justify-center w-full">
