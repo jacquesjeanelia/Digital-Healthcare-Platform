@@ -5,8 +5,8 @@
       "src": "sehaty-frontend/package.json",
       "use": "@vercel/static-build",
       "config": {
-        "buildCommand": "npm run build",
-        "outputDirectory": "dist"
+        "buildCommand": "cd sehaty-frontend && npm install && npm run build",
+        "outputDirectory": "sehaty-frontend/dist"
       }
     },
     {
@@ -21,7 +21,7 @@
     },
     {
       "src": "/(.*)",
-      "dest": "sehaty-frontend/dist/$1"
+      "dest": "/sehaty-frontend/dist/$1"
     }
   ]
 } 
