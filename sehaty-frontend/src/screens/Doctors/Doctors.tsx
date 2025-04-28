@@ -76,6 +76,17 @@ const SPECIALTIES = [
   "Gynecology",
 ];
 
+// Define the Doctor type
+type Doctor = {
+  id: number;
+  name: string;
+  specialty: string;
+  experience: string;
+  rating: number;
+  patients: number;
+  available: boolean;
+};
+
 export const Doctors = (): JSX.Element => {
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState("");
@@ -83,6 +94,10 @@ export const Doctors = (): JSX.Element => {
   const [availableOnly, setAvailableOnly] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const doctorsPerPage = 4;
+  const [showBookingModal, setShowBookingModal] = useState(false);
+  const [selectedDoctor, setSelectedDoctor] = useState<Doctor | null>(null);
+  const [bookingDate, setBookingDate] = useState("");
+  const [bookingTime, setBookingTime] = useState("");
 
   // Filter doctors based on search, specialty, and availability
   const filteredDoctors = DOCTORS.filter((doctor) => {
@@ -108,6 +123,23 @@ export const Doctors = (): JSX.Element => {
 
   // Handle page change
   const paginate = (pageNumber: number) => setCurrentPage(pageNumber);
+
+  // Handle booking appointment
+  const handleBookAppointment = (doctor: Doctor) => {
+    setSelectedDoctor(doctor);
+    setShowBookingModal(true);
+  };
+
+  // Handle confirm booking
+  const handleConfirmBooking = () => {
+    if (selectedDoctor) {
+      alert(`Appointment booked with ${selectedDoctor.name} on ${bookingDate} at ${bookingTime}`);
+      setShowBookingModal(false);
+      setSelectedDoctor(null);
+      setBookingDate("");
+      setBookingTime("");
+    }
+  };
 
   return (
     <div className="bg-white dark:bg-gray-900 flex flex-row justify-center w-full min-h-screen">
@@ -236,8 +268,7 @@ export const Doctors = (): JSX.Element => {
                                   // Check if user is logged in
                                   const token = localStorage.getItem('token');
                                   if (token) {
-                                    // Navigate to booking page
-                                    alert('Book appointment with ' + doctor.name);
+                                    handleBookAppointment(doctor);
                                   } else {
                                     // Redirect to login
                                     navigate('/auth/login');
@@ -264,62 +295,80 @@ export const Doctors = (): JSX.Element => {
                 ))}
               </div>
             ) : (
-              <div className="flex flex-col items-center justify-center py-12 text-center bg-gray-50 dark:bg-gray-800 rounded-xl">
-                <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" className="text-gray-400 mb-4">
-                  <circle cx="11" cy="11" r="8"></circle>
-                  <path d="m21 21-4.3-4.3"></path>
-                </svg>
-                <h3 className="font-['Montserrat',Helvetica] font-medium text-gray-800 dark:text-white text-lg mb-1">
-                  No doctors found
-                </h3>
-                <p className="text-gray-500 dark:text-gray-400 text-sm">
-                  Try adjusting your search or filter criteria
-                </p>
+              <div className="text-center py-8">
+                <p className="text-gray-500 dark:text-gray-400">No doctors found matching your criteria.</p>
               </div>
             )}
-            
+
             {/* Pagination */}
             {totalPages > 1 && (
-              <div className="flex justify-center mt-4">
-                <div className="flex gap-2">
+              <div className="flex justify-center gap-2 mt-4">
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
                   <Button
-                    variant="ghost"
-                    className="h-8 w-8 p-0 text-sm"
-                    onClick={() => paginate(Math.max(1, currentPage - 1))}
-                    disabled={currentPage === 1}
+                    key={page}
+                    variant={page === currentPage ? "default" : "outline"}
+                    className={page === currentPage 
+                      ? "bg-[#4caf96] hover:bg-[#3d9d86] text-white" 
+                      : "border-[#4caf96] text-[#4caf96] hover:bg-[#4caf9610]"}
+                    onClick={() => paginate(page)}
                   >
-                    &lt;
+                    {page}
                   </Button>
-                  
-                  {Array.from({ length: totalPages }, (_, i) => i + 1).map(number => (
-                    <Button
-                      key={number}
-                      variant={currentPage === number ? "default" : "ghost"}
-                      className={`h-8 w-8 p-0 text-sm ${
-                        currentPage === number 
-                          ? "bg-[#4caf96] text-white"
-                          : "text-gray-800 dark:text-white"
-                      }`}
-                      onClick={() => paginate(number)}
-                    >
-                      {number}
-                    </Button>
-                  ))}
-                  
-                  <Button
-                    variant="ghost"
-                    className="h-8 w-8 p-0 text-sm"
-                    onClick={() => paginate(Math.min(totalPages, currentPage + 1))}
-                    disabled={currentPage === totalPages}
-                  >
-                    &gt;
-                  </Button>
-                </div>
+                ))}
               </div>
             )}
           </div>
         </div>
       </div>
+
+      {/* Booking Modal */}
+      {showBookingModal && selectedDoctor && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white dark:bg-gray-800 p-6 rounded-lg w-full max-w-md">
+            <h2 className="text-xl font-bold mb-4">Book Appointment with {selectedDoctor.name}</h2>
+            <div className="flex flex-col gap-4">
+              <div>
+                <label className="block text-sm font-medium mb-1">Date</label>
+                <input
+                  type="date"
+                  className="w-full p-2 border rounded"
+                  value={bookingDate}
+                  onChange={(e) => setBookingDate(e.target.value)}
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">Time</label>
+                <input
+                  type="time"
+                  className="w-full p-2 border rounded"
+                  value={bookingTime}
+                  onChange={(e) => setBookingTime(e.target.value)}
+                />
+              </div>
+              <div className="flex gap-2 mt-4">
+                <Button
+                  className="flex-1 bg-[#4caf96] text-white"
+                  onClick={handleConfirmBooking}
+                >
+                  Confirm Booking
+                </Button>
+                <Button
+                  variant="outline"
+                  className="flex-1"
+                  onClick={() => {
+                    setShowBookingModal(false);
+                    setSelectedDoctor(null);
+                    setBookingDate("");
+                    setBookingTime("");
+                  }}
+                >
+                  Cancel
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }; 
