@@ -109,7 +109,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ email, password })
+        body: JSON.stringify({ email, password }),
+        credentials: 'include' // Important for cookies
       });
 
       if (!response.ok) {
@@ -122,8 +123,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       // Set the user
       setUser(data.user);
       
-      // Save token
-      localStorage.setItem("token", data.token);
+      // No need to handle token as it's handled by cookies
     } catch (error) {
       console.error("Login error:", error);
       throw error;
@@ -141,7 +141,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ name, email, password })
+        body: JSON.stringify({ name, email, password }),
+        credentials: 'include' // Important for cookies
       });
 
       if (!response.ok) {
@@ -154,8 +155,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       // Set the user
       setUser(data.user);
       
-      // Save token
-      localStorage.setItem("token", data.token);
+      // No need to handle token as it's handled by cookies
     } catch (error) {
       console.error("Registration error:", error);
       throw error;
@@ -165,9 +165,17 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   };
 
   // Logout function
-  const logout = () => {
-    setUser(null);
-    localStorage.removeItem("token");
+  const logout = async () => {
+    try {
+      await fetch(`${API_URL}/auth/logout`, {
+        method: 'POST',
+        credentials: 'include'
+      });
+    } catch (error) {
+      console.error("Logout error:", error);
+    } finally {
+      setUser(null);
+    }
   };
 
   const value = {

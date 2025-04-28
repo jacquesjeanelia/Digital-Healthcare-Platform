@@ -61,17 +61,25 @@ app.get('/api/health', async (req, res) => {
 // Serve static files in production
 if (process.env.NODE_ENV === 'production') {
   const frontendPath = path.join(__dirname, 'sehaty-frontend/dist');
-  if (fs.existsSync(frontendPath)) {
-    app.use(express.static(frontendPath));
+  
+  // Serve static files
+  app.use(express.static(frontendPath));
+  
+  // Handle client-side routing
+  app.get('*', (req, res) => {
+    // Skip API routes
+    if (req.path.startsWith('/api/')) {
+      return res.status(404).json({ message: 'API endpoint not found' });
+    }
     
-    // Handle client-side routing
-    app.get('*', (req, res) => {
-      if (req.path.startsWith('/api/')) {
-        return res.status(404).json({ message: 'API endpoint not found' });
-      }
-      res.sendFile(path.join(frontendPath, 'index.html'));
-    });
-  }
+    // Skip static assets
+    if (req.path.startsWith('/assets/')) {
+      return res.status(404).json({ message: 'Asset not found' });
+    }
+    
+    // Serve index.html for all other routes
+    res.sendFile(path.join(frontendPath, 'index.html'));
+  });
 }
 
 // MongoDB connection configuration
@@ -130,8 +138,13 @@ app.use((err, req, res, next) => {
   });
 });
 
-// Start server
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-  console.log(`🚀 Server is running on port ${PORT}`);
-}); 
+// Start server only in local development (not on Vercel)
+if (process.env.NODE_ENV !== 'production' && process.env.VERCEL !== '1') {
+  const PORT = process.env.PORT || 5000;
+  app.listen(PORT, () => {
+    console.log(`🚀 Server is running on port ${PORT}`);
+  });
+}
+
+// Export the app for Vercel serverless functions
+module.exports = app;

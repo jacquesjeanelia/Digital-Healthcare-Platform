@@ -102,6 +102,8 @@ if (!rootElement) {
     console.error('Error mounting React app:', error);
     if (error instanceof Error) {
       rootElement.innerHTML = `<div style="color: red; padding: 20px;">Error mounting app: ${error.message}</div>`;
+    } else {
+      rootElement.innerHTML = '<div style="color: red; padding: 20px;">An unknown error occurred while mounting the app</div>';
     }
   }
 }
