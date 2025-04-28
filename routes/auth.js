@@ -5,11 +5,17 @@ const router = express.Router();
 
 // Register route
 router.post('/register', async (req, res) => {
+  console.log('Registration attempt:', {
+    body: { ...req.body, password: req.body.password ? '***' : undefined },
+    headers: req.headers
+  });
+
   try {
     const { name, email, password } = req.body;
 
     // Input validation
     if (!name || !email || !password) {
+      console.log('Validation failed - missing fields:', { name: !name, email: !email, password: !password });
       return res.status(400).json({ 
         message: 'Please provide all required fields',
         fields: { name: !name, email: !email, password: !password }
@@ -18,6 +24,7 @@ router.post('/register', async (req, res) => {
 
     // Password validation
     if (password.length < 8) {
+      console.log('Validation failed - password too short');
       return res.status(400).json({ 
         message: 'Password must be at least 8 characters long'
       });
@@ -26,25 +33,30 @@ router.post('/register', async (req, res) => {
     // Email validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
+      console.log('Validation failed - invalid email format');
       return res.status(400).json({ 
         message: 'Please provide a valid email address'
       });
     }
 
     // Check if user already exists
+    console.log('Checking for existing user...');
     const existingUser = await User.findOne({ email });
     if (existingUser) {
+      console.log('Registration failed - user already exists');
       return res.status(400).json({ 
         message: 'User with this email already exists'
       });
     }
 
     // Create new user
+    console.log('Creating new user...');
     const user = await User.create({
       name,
       email,
       password
     });
+    console.log('User created successfully:', { id: user._id, email: user.email });
 
     // Generate JWT token
     const token = jwt.sign(
@@ -54,6 +66,7 @@ router.post('/register', async (req, res) => {
     );
 
     // Send response
+    console.log('Registration successful');
     res.status(201).json({
       message: 'Registration successful',
       token,
@@ -65,10 +78,16 @@ router.post('/register', async (req, res) => {
       }
     });
   } catch (error) {
-    console.error('Registration error:', error);
+    console.error('Registration error:', {
+      name: error.name,
+      message: error.message,
+      stack: error.stack,
+      code: error.code
+    });
     
     // Handle specific MongoDB errors
     if (error.name === 'ValidationError') {
+      console.log('MongoDB validation error:', error.errors);
       return res.status(400).json({ 
         message: 'Validation error',
         errors: Object.values(error.errors).map(err => err.message)
@@ -77,6 +96,7 @@ router.post('/register', async (req, res) => {
 
     // Handle duplicate key error
     if (error.code === 11000) {
+      console.log('Duplicate key error');
       return res.status(400).json({ 
         message: 'Email already exists'
       });
