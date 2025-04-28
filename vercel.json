@@ -1,27 +1,16 @@
 {
   "version": 2,
-  "builds": [
+  "buildCommand": "cd sehaty-frontend && npm install && npm run build",
+  "outputDirectory": "sehaty-frontend/dist",
+  "framework": "vite",
+  "rewrites": [
     {
-      "src": "sehaty-frontend/package.json",
-      "use": "@vercel/static-build",
-      "config": {
-        "buildCommand": "cd sehaty-frontend && npm install && npm run build",
-        "outputDirectory": "sehaty-frontend/dist"
-      }
+      "source": "/api/(.*)",
+      "destination": "server.js"
     },
     {
-      "src": "server.js",
-      "use": "@vercel/node"
-    }
-  ],
-  "routes": [
-    {
-      "src": "/api/(.*)",
-      "dest": "server.js"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/sehaty-frontend/dist/$1"
+      "source": "/(.*)",
+      "destination": "/index.html"
     }
   ]
 } 
