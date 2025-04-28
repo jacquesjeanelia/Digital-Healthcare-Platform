@@ -8,10 +8,35 @@ router.post('/register', async (req, res) => {
   try {
     const { name, email, password } = req.body;
 
+    // Input validation
+    if (!name || !email || !password) {
+      return res.status(400).json({ 
+        message: 'Please provide all required fields',
+        fields: { name: !name, email: !email, password: !password }
+      });
+    }
+
+    // Password validation
+    if (password.length < 8) {
+      return res.status(400).json({ 
+        message: 'Password must be at least 8 characters long'
+      });
+    }
+
+    // Email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return res.status(400).json({ 
+        message: 'Please provide a valid email address'
+      });
+    }
+
     // Check if user already exists
     const existingUser = await User.findOne({ email });
     if (existingUser) {
-      return res.status(400).json({ message: 'User already exists' });
+      return res.status(400).json({ 
+        message: 'User with this email already exists'
+      });
     }
 
     // Create new user
@@ -30,6 +55,7 @@ router.post('/register', async (req, res) => {
 
     // Send response
     res.status(201).json({
+      message: 'Registration successful',
       token,
       user: {
         id: user._id,
@@ -40,7 +66,26 @@ router.post('/register', async (req, res) => {
     });
   } catch (error) {
     console.error('Registration error:', error);
-    res.status(500).json({ message: 'Error registering user' });
+    
+    // Handle specific MongoDB errors
+    if (error.name === 'ValidationError') {
+      return res.status(400).json({ 
+        message: 'Validation error',
+        errors: Object.values(error.errors).map(err => err.message)
+      });
+    }
+
+    // Handle duplicate key error
+    if (error.code === 11000) {
+      return res.status(400).json({ 
+        message: 'Email already exists'
+      });
+    }
+
+    res.status(500).json({ 
+      message: 'Registration failed. Please try again.',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
   }
 });
 
