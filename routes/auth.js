@@ -42,9 +42,12 @@ router.post('/register', validateRegistration, async (req, res) => {
   const { name, email, password } = req.body;
 
   try {
+    console.log('Registration attempt:', { email, name });
+
     // Check if user already exists
     const existingUser = await User.findOne({ email });
     if (existingUser) {
+      console.log('Registration failed: User already exists', { email });
       return res.status(409).json({
         message: 'Registration failed',
         errors: ['An account with this email already exists']
@@ -57,6 +60,8 @@ router.post('/register', validateRegistration, async (req, res) => {
       email: email.toLowerCase().trim(),
       password
     });
+
+    console.log('User created successfully:', { userId: user._id, email });
 
     // Generate JWT token
     const token = jwt.sign(
@@ -88,7 +93,8 @@ router.post('/register', validateRegistration, async (req, res) => {
       name: error.name,
       message: error.message,
       code: error.code,
-      stack: error.stack
+      stack: error.stack,
+      requestBody: { email, name }
     });
 
     // Handle specific error types

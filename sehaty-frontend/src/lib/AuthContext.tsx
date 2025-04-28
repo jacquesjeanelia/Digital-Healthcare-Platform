@@ -18,8 +18,8 @@ interface AuthContextType {
   logout: () => void;
 }
 
-// API base URL
-const API_URL = 'http://localhost:5000/api';
+// API base URL - use environment variable or fallback to localhost
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
 // Create context with default values
 const AuthContext = createContext<AuthContextType>({
