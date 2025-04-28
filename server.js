@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const dotenv = require('dotenv');
 const authRoutes = require('./routes/auth');
+const path = require('path');
 
 // Load environment variables
 dotenv.config();
@@ -24,6 +25,9 @@ app.use(cors({
   credentials: true
 }));
 app.use(express.json());
+
+// Serve static files from the frontend build directory
+app.use(express.static(path.join(__dirname, 'sehaty-frontend/dist')));
 
 // Request logging middleware
 app.use((req, res, next) => {
@@ -90,6 +94,11 @@ connectDB();
 
 // Routes
 app.use('/api/auth', authRoutes);
+
+// Handle client-side routing
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'sehaty-frontend/dist/index.html'));
+});
 
 // Health check endpoint with detailed status
 app.get('/health', async (req, res) => {

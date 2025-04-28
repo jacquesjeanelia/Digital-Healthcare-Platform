@@ -2,6 +2,7 @@ const express = require('express');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 const router = express.Router();
+const path = require('path');
 
 // Input validation middleware
 const validateRegistration = (req, res, next) => {
@@ -215,6 +216,11 @@ router.get('/me', async (req, res) => {
     console.error('Get user error:', error);
     res.status(401).json({ message: 'Invalid token' });
   }
+});
+
+// Serve registration page
+router.get('/register', (req, res) => {
+  res.sendFile(path.join(__dirname, '../../sehaty-frontend/dist/index.html'));
 });
 
 module.exports = router; 
