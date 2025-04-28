@@ -1,16 +1,15 @@
 {
   "version": 2,
-  "buildCommand": "cd sehaty-frontend && npm install && npm run build",
-  "outputDirectory": "sehaty-frontend/dist",
-  "framework": "vite",
-  "rewrites": [
+  "builds": [
     {
-      "source": "/api/(.*)",
-      "destination": "server.js"
-    },
+      "src": "server.js",
+      "use": "@vercel/node"
+    }
+  ],
+  "routes": [
     {
-      "source": "/(.*)",
-      "destination": "/index.html"
+      "src": "/(.*)",
+      "dest": "server.js"
     }
   ]
 } 
