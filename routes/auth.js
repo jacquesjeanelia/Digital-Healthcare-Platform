@@ -3,60 +3,59 @@ const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 const router = express.Router();
 
+// Input validation middleware
+const validateRegistration = (req, res, next) => {
+  const { name, email, password } = req.body;
+  const errors = [];
+
+  // Name validation
+  if (!name || name.trim().length < 2) {
+    errors.push('Name must be at least 2 characters long');
+  }
+
+  // Email validation
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!email || !emailRegex.test(email)) {
+    errors.push('Please provide a valid email address');
+  }
+
+  // Password validation
+  if (!password || password.length < 8) {
+    errors.push('Password must be at least 8 characters long');
+  } else if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(password)) {
+    errors.push('Password must contain at least one uppercase letter, one lowercase letter, and one number');
+  }
+
+  if (errors.length > 0) {
+    return res.status(400).json({
+      message: 'Validation failed',
+      errors
+    });
+  }
+
+  next();
+};
+
 // Register route
-router.post('/register', async (req, res) => {
-  console.log('Registration attempt:', {
-    body: { ...req.body, password: req.body.password ? '***' : undefined },
-    headers: req.headers
-  });
+router.post('/register', validateRegistration, async (req, res) => {
+  const { name, email, password } = req.body;
 
   try {
-    const { name, email, password } = req.body;
-
-    // Input validation
-    if (!name || !email || !password) {
-      console.log('Validation failed - missing fields:', { name: !name, email: !email, password: !password });
-      return res.status(400).json({ 
-        message: 'Please provide all required fields',
-        fields: { name: !name, email: !email, password: !password }
-      });
-    }
-
-    // Password validation
-    if (password.length < 8) {
-      console.log('Validation failed - password too short');
-      return res.status(400).json({ 
-        message: 'Password must be at least 8 characters long'
-      });
-    }
-
-    // Email validation
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-      console.log('Validation failed - invalid email format');
-      return res.status(400).json({ 
-        message: 'Please provide a valid email address'
-      });
-    }
-
     // Check if user already exists
-    console.log('Checking for existing user...');
     const existingUser = await User.findOne({ email });
     if (existingUser) {
-      console.log('Registration failed - user already exists');
-      return res.status(400).json({ 
-        message: 'User with this email already exists'
+      return res.status(409).json({
+        message: 'Registration failed',
+        errors: ['An account with this email already exists']
       });
     }
 
     // Create new user
-    console.log('Creating new user...');
     const user = await User.create({
-      name,
-      email,
+      name: name.trim(),
+      email: email.toLowerCase().trim(),
       password
     });
-    console.log('User created successfully:', { id: user._id, email: user.email });
 
     // Generate JWT token
     const token = jwt.sign(
@@ -65,11 +64,17 @@ router.post('/register', async (req, res) => {
       { expiresIn: '30d' }
     );
 
-    // Send response
-    console.log('Registration successful');
+    // Set secure cookie with token
+    res.cookie('token', token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      maxAge: 30 * 24 * 60 * 60 * 1000 // 30 days
+    });
+
+    // Send success response
     res.status(201).json({
       message: 'Registration successful',
-      token,
       user: {
         id: user._id,
         name: user.name,
@@ -81,49 +86,69 @@ router.post('/register', async (req, res) => {
     console.error('Registration error:', {
       name: error.name,
       message: error.message,
-      stack: error.stack,
-      code: error.code
+      code: error.code,
+      stack: error.stack
     });
-    
-    // Handle specific MongoDB errors
+
+    // Handle specific error types
     if (error.name === 'ValidationError') {
-      console.log('MongoDB validation error:', error.errors);
-      return res.status(400).json({ 
-        message: 'Validation error',
+      return res.status(400).json({
+        message: 'Registration failed',
         errors: Object.values(error.errors).map(err => err.message)
       });
     }
 
-    // Handle duplicate key error
     if (error.code === 11000) {
-      console.log('Duplicate key error');
-      return res.status(400).json({ 
-        message: 'Email already exists'
+      return res.status(409).json({
+        message: 'Registration failed',
+        errors: ['An account with this email already exists']
       });
     }
 
-    res.status(500).json({ 
-      message: 'Registration failed. Please try again.',
-      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    // Handle database connection errors
+    if (error.name === 'MongoError' && error.message.includes('connection')) {
+      return res.status(503).json({
+        message: 'Registration failed',
+        errors: ['Unable to connect to the database. Please try again later.']
+      });
+    }
+
+    res.status(500).json({
+      message: 'Registration failed',
+      errors: ['An unexpected error occurred. Please try again later.']
     });
   }
 });
 
 // Login route
 router.post('/login', async (req, res) => {
-  try {
-    const { email, password } = req.body;
+  const { email, password } = req.body;
 
-    // Find user and include password for comparison
-    const user = await User.findOne({ email }).select('+password');
+  try {
+    // Input validation
+    if (!email || !password) {
+      return res.status(400).json({
+        message: 'Login failed',
+        errors: ['Please provide both email and password']
+      });
+    }
+
+    // Find user
+    const user = await User.findOne({ email: email.toLowerCase().trim() }).select('+password');
     if (!user) {
-      return res.status(401).json({ message: 'Invalid email or password' });
+      return res.status(401).json({
+        message: 'Login failed',
+        errors: ['Invalid email or password']
+      });
     }
 
     // Check password
     const isPasswordCorrect = await user.comparePassword(password);
     if (!isPasswordCorrect) {
-      return res.status(401).json({ message: 'Invalid email or password' });
+      return res.status(401).json({
+        message: 'Login failed',
+        errors: ['Invalid email or password']
+      });
     }
 
     // Generate JWT token
@@ -133,9 +158,17 @@ router.post('/login', async (req, res) => {
       { expiresIn: '30d' }
     );
 
-    // Send response
+    // Set secure cookie with token
+    res.cookie('token', token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      maxAge: 30 * 24 * 60 * 60 * 1000 // 30 days
+    });
+
+    // Send success response
     res.json({
-      token,
+      message: 'Login successful',
       user: {
         id: user._id,
         name: user.name,
@@ -145,7 +178,10 @@ router.post('/login', async (req, res) => {
     });
   } catch (error) {
     console.error('Login error:', error);
-    res.status(500).json({ message: 'Error logging in' });
+    res.status(500).json({
+      message: 'Login failed',
+      errors: ['An unexpected error occurred. Please try again later.']
+    });
   }
 });
 
