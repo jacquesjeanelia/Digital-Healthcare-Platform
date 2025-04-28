@@ -36,6 +36,11 @@ app.use(express.json());
 // Routes - Mount API routes before static files
 app.use('/api/auth', authRoutes);
 
+// Generic 404 handler for undefined API endpoints
+app.use('/api', (req, res) => {
+  res.status(404).json({ message: 'API endpoint not found', path: req.originalUrl });
+});
+
 // Health check endpoint
 app.get('/api/health', async (req, res) => {
   try {
