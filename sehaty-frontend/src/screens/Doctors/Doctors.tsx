@@ -87,6 +87,18 @@ type Doctor = {
   available: boolean;
 };
 
+// Define the Appointment type
+type Appointment = {
+  id: number;
+  doctorName: string;
+  specialty: string;
+  date: string;
+  time: string;
+  status: string;
+  location: string;
+  notes: string;
+};
+
 export const Doctors = (): JSX.Element => {
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState("");
@@ -98,6 +110,7 @@ export const Doctors = (): JSX.Element => {
   const [selectedDoctor, setSelectedDoctor] = useState<Doctor | null>(null);
   const [bookingDate, setBookingDate] = useState("");
   const [bookingTime, setBookingTime] = useState("");
+  const [userAppointments, setUserAppointments] = useState<Appointment[]>([]);
 
   // Filter doctors based on search, specialty, and availability
   const filteredDoctors = DOCTORS.filter((doctor) => {
@@ -133,6 +146,17 @@ export const Doctors = (): JSX.Element => {
   // Handle confirm booking
   const handleConfirmBooking = () => {
     if (selectedDoctor) {
+      const newAppointment: Appointment = {
+        id: userAppointments.length + 1,
+        doctorName: selectedDoctor.name,
+        specialty: selectedDoctor.specialty,
+        date: bookingDate,
+        time: bookingTime,
+        status: "confirmed",
+        location: "Main Hospital, Floor 3",
+        notes: "Please arrive 15 minutes early to complete paperwork",
+      };
+      setUserAppointments([...userAppointments, newAppointment]);
       alert(`Appointment booked with ${selectedDoctor.name} on ${bookingDate} at ${bookingTime}`);
       setShowBookingModal(false);
       setSelectedDoctor(null);

@@ -5,10 +5,23 @@ import { Card, CardContent } from "../../components/ui/card";
 import { useAuth } from "../../lib/AuthContext";
 import { QueueManager } from "../../components/QueueManager";
 
+// Define the Appointment type
+type Appointment = {
+  id: number;
+  doctorName: string;
+  specialty: string;
+  date: string;
+  time: string;
+  status: string;
+  location: string;
+  notes: string;
+};
+
 export const Appointments = (): JSX.Element => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [filter, setFilter] = useState("upcoming"); // upcoming, past, all
+  const [userAppointments, setUserAppointments] = useState<Appointment[]>([]);
 
   // Redirect if not authenticated
   React.useEffect(() => {
@@ -17,52 +30,8 @@ export const Appointments = (): JSX.Element => {
     }
   }, [user, navigate]);
 
-  // Mock appointment data
-  const mockAppointments = [
-    {
-      id: 1,
-      doctorName: "Dr. Sarah Johnson",
-      specialty: "Cardiology",
-      date: "2023-05-25",
-      time: "10:00 AM",
-      status: "confirmed",
-      location: "Main Hospital, Floor 3",
-      notes: "Please arrive 15 minutes early to complete paperwork",
-    },
-    {
-      id: 2,
-      doctorName: "Dr. Michael Chen",
-      specialty: "Dermatology",
-      date: "2023-05-30",
-      time: "2:30 PM",
-      status: "confirmed",
-      location: "North Clinic, Room 205",
-      notes: "Bring previous test results if available",
-    },
-    {
-      id: 3,
-      doctorName: "Dr. Emily Rodriguez",
-      specialty: "General Practice",
-      date: "2023-04-15",
-      time: "9:00 AM",
-      status: "completed",
-      location: "Main Hospital, Floor 1",
-      notes: "Follow-up appointment",
-    },
-    {
-      id: 4,
-      doctorName: "Dr. James Wilson",
-      specialty: "Orthopedics",
-      date: "2023-03-22",
-      time: "11:30 AM",
-      status: "completed",
-      location: "Sports Medicine Center",
-      notes: "Post-surgery follow-up",
-    },
-  ];
-
   // Filter appointments based on selected filter
-  const filteredAppointments = mockAppointments.filter((appointment) => {
+  const filteredAppointments = userAppointments.filter((appointment) => {
     const appointmentDate = new Date(appointment.date);
     const today = new Date();
     
@@ -202,39 +171,34 @@ export const Appointments = (): JSX.Element => {
                                   </div>
                                 </div>
                                 
-                                {appointment.notes && (
-                                  <p className="text-gray-600 dark:text-gray-400 text-sm mt-3 bg-[#4caf9610] dark:bg-[#4caf9620] p-2 rounded-md">
-                                    <span className="font-medium">Note:</span> {appointment.notes}
+                                <div className="mt-4">
+                                  <p className="text-gray-600 dark:text-gray-400 text-sm">
+                                    {appointment.notes}
                                   </p>
-                                )}
+                                </div>
                               </div>
                               
-                              <div className="flex gap-2">
-                                {appointment.status === "confirmed" && (
-                                  <>
-                                    <Button 
-                                      variant="outline" 
-                                      className="h-9 border-[#4caf96] text-[#4caf96] hover:bg-[#4caf9610]"
-                                    >
-                                      Reschedule
-                                    </Button>
-                                    <Button 
-                                      variant="outline" 
-                                      className="h-9 border-red-500 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20"
-                                    >
-                                      Cancel
-                                    </Button>
-                                  </>
-                                )}
-                                
-                                {appointment.status === "completed" && (
-                                  <Button 
-                                    variant="outline" 
-                                    className="h-9 border-blue-500 text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20"
-                                  >
-                                    View Summary
-                                  </Button>
-                                )}
+                              <div className="flex flex-col gap-2">
+                                <Button
+                                  variant="outline"
+                                  className="border-[#4caf96] text-[#4caf96] hover:bg-[#4caf9610]"
+                                  onClick={() => {
+                                    // Handle reschedule
+                                    alert('Reschedule appointment with ' + appointment.doctorName);
+                                  }}
+                                >
+                                  Reschedule
+                                </Button>
+                                <Button
+                                  variant="outline"
+                                  className="border-red-500 text-red-500 hover:bg-red-50"
+                                  onClick={() => {
+                                    // Handle cancel
+                                    alert('Cancel appointment with ' + appointment.doctorName);
+                                  }}
+                                >
+                                  Cancel
+                                </Button>
                               </div>
                             </div>
                           </div>
@@ -243,78 +207,16 @@ export const Appointments = (): JSX.Element => {
                     </Card>
                   ))
                 ) : (
-                  <div className="flex flex-col items-center justify-center bg-white dark:bg-gray-800 rounded-lg p-12 text-center">
-                    <div className="w-16 h-16 bg-[#4caf9620] dark:bg-[#4caf9640] rounded-full flex items-center justify-center text-[#4caf96] mb-4">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
-                        <line x1="16" y1="2" x2="16" y2="6"></line>
-                        <line x1="8" y1="2" x2="8" y2="6"></line>
-                        <line x1="3" y1="10" x2="21" y2="10"></line>
-                      </svg>
-                    </div>
-                    <h3 className="text-xl font-bold text-[#1f4156] dark:text-white mb-2">No appointments found</h3>
-                    <p className="text-gray-600 dark:text-gray-400 mb-6">
-                      {filter === "upcoming" 
-                        ? "You don't have any upcoming appointments" 
-                        : filter === "past" 
-                          ? "You don't have any past appointments" 
-                          : "You don't have any appointments"}
-                    </p>
-                    <Button 
-                      className="bg-[#4caf96] hover:bg-[#3d9d86] text-white"
-                      onClick={() => navigate('/doctors')}
-                    >
-                      Book an Appointment
-                    </Button>
+                  <div className="text-center py-8">
+                    <p className="text-gray-500 dark:text-gray-400">No appointments found.</p>
                   </div>
                 )}
               </div>
             </div>
             
-            {/* Today's appointments queue - only show for the current day */}
+            {/* Queue Manager */}
             <div className="md:col-span-1">
-              <div className="sticky top-[90px]">
-                <QueueManager />
-                
-                <Card className="mt-4 border-[#4caf96] dark:border-[#4caf96]">
-                  <CardContent className="p-4">
-                    <h3 className="font-bold text-[#1f4156] dark:text-white text-lg mb-2">
-                      Appointment Tips
-                    </h3>
-                    <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
-                      <li className="flex items-start gap-2">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-[#4caf96] mt-0.5">
-                          <path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/>
-                          <circle cx="12" cy="8" r="1"/>
-                          <path d="M12 12v4"/>
-                        </svg>
-                        <span>Please arrive 15 minutes before your scheduled time</span>
-                      </li>
-                      <li className="flex items-start gap-2">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-[#4caf96] mt-0.5">
-                          <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>
-                        </svg>
-                        <span>Bring your insurance card and ID</span>
-                      </li>
-                      <li className="flex items-start gap-2">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-[#4caf96] mt-0.5">
-                          <path d="M14 9a2 2 0 0 1-2 2H6l-4 4V4c0-1.1.9-2 2-2h8a2 2 0 0 1 2 2v5Z"/>
-                          <path d="M18 9h2a2 2 0 0 1 2 2v11l-4-4h-6a2 2 0 0 1-2-2v-1"/>
-                        </svg>
-                        <span>Please update the receptionist on any changes to your health</span>
-                      </li>
-                      <li className="flex items-start gap-2">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-[#4caf96] mt-0.5">
-                          <path d="M7 13H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2h-2"/>
-                          <path d="M17 13H7"/>
-                          <path d="M7 18a1 1 0 0 1-1-1v-4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v4a1 1 0 0 1-1 1H7z"/>
-                        </svg>
-                        <span>We accept all major credit cards, cash, and mobile payments</span>
-                      </li>
-                    </ul>
-                  </CardContent>
-                </Card>
-              </div>
+              <QueueManager />
             </div>
           </div>
         </div>

@@ -13,25 +13,22 @@ interface AuthContextType {
   user: User | null;
   isAuthenticated: boolean;
   isLoading: boolean;
-  isPreviewMode: boolean;
   login: (email: string, password: string) => Promise<void>;
   register: (name: string, email: string, password: string) => Promise<void>;
   logout: () => void;
-  enablePreviewMode: () => void;
-  disablePreviewMode: () => void;
 }
+
+// API base URL
+const API_URL = 'http://localhost:5000/api';
 
 // Create context with default values
 const AuthContext = createContext<AuthContextType>({
   user: null,
   isAuthenticated: false,
   isLoading: true,
-  isPreviewMode: false,
   login: async () => {},
   register: async () => {},
   logout: () => {},
-  enablePreviewMode: () => {},
-  disablePreviewMode: () => {},
 });
 
 // Hook to use the auth context
@@ -41,36 +38,31 @@ export const useAuth = () => useContext(AuthContext);
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [isPreviewMode, setIsPreviewMode] = useState(false);
 
   useEffect(() => {
-    // Check for existing auth token
+    // Check for existing auth token and fetch user data
     const checkAuth = async () => {
       try {
         const token = localStorage.getItem("token");
-        const previewMode = localStorage.getItem("previewMode") === "true";
         
-        if (previewMode) {
-          setIsPreviewMode(true);
-          setUser({
-            id: "preview",
-            name: "Preview User",
-            email: "preview@example.com",
-            role: "patient"
+        if (token) {
+          const response = await fetch(`${API_URL}/auth/me`, {
+            headers: {
+              'Authorization': `Bearer ${token}`
+            }
           });
-        } else if (token) {
-          // For demo purposes - in a real app, validate the token with your backend
-          setUser({
-            id: "1",
-            name: "Test User",
-            email: "test@example.com",
-            role: "patient"
-          });
+
+          if (response.ok) {
+            const data = await response.json();
+            setUser(data.user);
+          } else {
+            // If token is invalid, remove it
+            localStorage.removeItem("token");
+          }
         }
       } catch (error) {
         console.error("Auth error:", error);
         localStorage.removeItem("token");
-        localStorage.removeItem("previewMode");
       } finally {
         setIsLoading(false);
       }
@@ -78,19 +70,16 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
     checkAuth();
 
-    // Auto logout after 30 minutes of inactivity (unless in preview mode)
+    // Auto logout after 30 minutes of inactivity
     let inactivityTimer: number;
     
     const resetTimer = () => {
       if (inactivityTimer) clearTimeout(inactivityTimer);
       
-      // Only set timer if not in preview mode
-      if (!isPreviewMode) {
-        inactivityTimer = window.setTimeout(() => {
-          logout();
-          alert("You have been logged out due to inactivity");
-        }, 30 * 60 * 1000); // 30 minutes
-      }
+      inactivityTimer = window.setTimeout(() => {
+        logout();
+        alert("You have been logged out due to inactivity");
+      }, 30 * 60 * 1000); // 30 minutes
     };
 
     // Reset timer on user activity
@@ -109,26 +98,32 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         document.removeEventListener(event, resetTimer);
       });
     };
-  }, [isPreviewMode]);
+  }, []);
 
   // Login function
   const login = async (email: string, password: string) => {
     setIsLoading(true);
     try {
-      // In a real app, make an API call to your backend
-      // Mock login for demo purposes
-      await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate network delay
+      const response = await fetch(`${API_URL}/auth/login`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ email, password })
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || 'Login failed');
+      }
+
+      const data = await response.json();
       
       // Set the user
-      setUser({
-        id: "1",
-        name: "Test User",
-        email,
-        role: "patient"
-      });
+      setUser(data.user);
       
       // Save token
-      localStorage.setItem("token", "mock-token");
+      localStorage.setItem("token", data.token);
     } catch (error) {
       console.error("Login error:", error);
       throw error;
@@ -141,20 +136,26 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const register = async (name: string, email: string, password: string) => {
     setIsLoading(true);
     try {
-      // In a real app, make an API call to your backend
-      // Mock registration for demo purposes
-      await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate network delay
+      const response = await fetch(`${API_URL}/auth/register`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ name, email, password })
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || 'Registration failed');
+      }
+
+      const data = await response.json();
       
       // Set the user
-      setUser({
-        id: "1",
-        name,
-        email,
-        role: "patient"
-      });
+      setUser(data.user);
       
       // Save token
-      localStorage.setItem("token", "mock-token");
+      localStorage.setItem("token", data.token);
     } catch (error) {
       console.error("Registration error:", error);
       throw error;
@@ -166,43 +167,21 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   // Logout function
   const logout = () => {
     setUser(null);
-    setIsPreviewMode(false);
     localStorage.removeItem("token");
-    localStorage.removeItem("previewMode");
-  };
-
-  // Enable preview mode
-  const enablePreviewMode = () => {
-    setIsPreviewMode(true);
-    setUser({
-      id: "preview",
-      name: "Preview User",
-      email: "preview@example.com",
-      role: "patient"
-    });
-    localStorage.setItem("previewMode", "true");
-  };
-
-  // Disable preview mode
-  const disablePreviewMode = () => {
-    setIsPreviewMode(false);
-    if (!localStorage.getItem("token")) {
-      setUser(null);
-    }
-    localStorage.removeItem("previewMode");
   };
 
   const value = {
     user,
     isAuthenticated: !!user,
     isLoading,
-    isPreviewMode,
     login,
     register,
     logout,
-    enablePreviewMode,
-    disablePreviewMode
   };
 
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+  return (
+    <AuthContext.Provider value={value}>
+      {children}
+    </AuthContext.Provider>
+  );
 }; 
