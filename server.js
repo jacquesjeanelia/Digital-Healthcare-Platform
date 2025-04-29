@@ -118,11 +118,18 @@ if (process.env.NODE_ENV === 'production') {
 const mongoOptions = {
   useNewUrlParser: true,
   useUnifiedTopology: true,
-  serverSelectionTimeoutMS: 5000,
-  socketTimeoutMS: 45000,
+  serverSelectionTimeoutMS: 30000,
+  socketTimeoutMS: 30000,
   maxPoolSize: 10,
   retryWrites: true,
-  w: 'majority'
+  w: 'majority',
+  retryReads: true,
+  readPreference: 'primary',
+  autoIndex: true,
+  keepAlive: true,
+  keepAliveInitialDelay: 300000,
+  heartbeatFrequencyMS: 10000,
+  minHeartbeatFrequencyMS: 500
 };
 
 // MongoDB connection with retry logic
