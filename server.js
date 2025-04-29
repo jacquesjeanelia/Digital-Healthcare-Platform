@@ -2,6 +2,9 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const dotenv = require('dotenv');
+const path = require('path');
+const morgan = require('morgan');
+const fs = require('fs');
 const authRoutes = require('./routes/auth');
 const complaintsRoutes = require('./routes/complaints');
 
@@ -17,35 +20,14 @@ console.log('NODE_ENV:', process.env.NODE_ENV || 'development');
 // Create Express app
 const app = express();
 
-// Middleware
-app.use(cors({
-  origin: '*', // In production, replace with your frontend URL
-  methods: ['GET', 'POST', 'PUT', 'DELETE'],
-  allowedHeaders: ['Content-Type', 'Authorization']
-}));
+// Enable CORS
+app.use(cors());
+
+// Enable request logging
+app.use(morgan('dev'));
+
+// Parse JSON bodies
 app.use(express.json());
-
-// Request logging middleware
-app.use((req, res, next) => {
-  console.log(`${new Date().toISOString()} - ${req.method} ${req.url}`);
-  next();
-const path = require('path');
-const morgan = require('morgan');
-const fs = require('fs');
-
-// Middleware
-app.use(cors({
-  origin: process.env.FRONTEND_URL || '*',
-  methods: ['GET', 'POST', 'PUT', 'DELETE'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
-  credentials: true
-}));
-app.use(express.json());
-
-// Request logging middleware
-if (process.env.NODE_ENV !== 'production') {
-  app.use(morgan('dev'));
-}
 
 // Routes - Mount API routes before static files
 app.use('/api/auth', authRoutes);
