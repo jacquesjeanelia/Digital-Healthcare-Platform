@@ -123,13 +123,47 @@ router.post('/register', validateRegistration, async (req, res) => {
     if (error.name === 'MongoError' && error.message.includes('connection')) {
       return res.status(503).json({
         message: 'Registration failed',
-        errors: ['Unable to connect to the database. Please try again later.']
+        errors: ['Unable to connect to the database. Please try again later.'],
+        details: {
+          errorType: 'DatabaseConnectionError',
+          message: error.message,
+          code: error.code
+        }
+      });
+    }
+
+    // Handle password hashing errors
+    if (error.name === 'Error' && error.message.includes('password')) {
+      return res.status(500).json({
+        message: 'Registration failed',
+        errors: ['Failed to hash password. Please try again later.'],
+        details: {
+          errorType: 'PasswordError',
+          message: error.message
+        }
+      });
+    }
+
+    // Handle general database errors
+    if (error.name === 'MongoError') {
+      return res.status(500).json({
+        message: 'Registration failed',
+        errors: ['Database error occurred. Please try again later.'],
+        details: {
+          errorType: 'DatabaseError',
+          message: error.message,
+          code: error.code
+        }
       });
     }
 
     res.status(500).json({
       message: 'Registration failed',
-      errors: ['An unexpected error occurred. Please try again later.']
+      errors: ['An unexpected error occurred. Please try again later.'],
+      details: {
+        errorType: 'UnknownError',
+        message: error.message
+      }
     });
   }
 });
