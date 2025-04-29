@@ -8,48 +8,81 @@ import { useAuth } from "../../lib/AuthContext";
 export const Register = (): JSX.Element => {
   const navigate = useNavigate();
   const { register, isLoading: authLoading } = useAuth();
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [birthdate, setBirthdate] = useState("");
-  const [error, setError] = useState("");
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
+    phone: "",
+    medicalHistory: "",
+    preferences: ""
+  });
+  const [errors, setErrors] = useState<Record<string, string>>({});
   const [isLoading, setIsLoading] = useState(false);
+
+  const validateForm = () => {
+    const newErrors: Record<string, string> = {};
+
+    if (!formData.name.trim()) {
+      newErrors.name = "Name is required";
+    }
+
+    if (!formData.email.trim()) {
+      newErrors.email = "Email is required";
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+      newErrors.email = "Please enter a valid email address";
+    }
+
+    if (!formData.password.trim()) {
+      newErrors.password = "Password is required";
+    } else if (formData.password.length < 8) {
+      newErrors.password = "Password must be at least 8 characters long";
+    } else if (!/[A-Z]/.test(formData.password)) {
+      newErrors.password = "Password must contain at least one uppercase letter";
+    } else if (!/[a-z]/.test(formData.password)) {
+      newErrors.password = "Password must contain at least one lowercase letter";
+    } else if (!/[0-9]/.test(formData.password)) {
+      newErrors.password = "Password must contain at least one number";
+    }
+
+    if (!formData.confirmPassword.trim()) {
+      newErrors.confirmPassword = "Confirm password is required";
+    } else if (formData.password !== formData.confirmPassword) {
+      newErrors.confirmPassword = "Passwords do not match";
+    }
+
+    if (!formData.phone.trim()) {
+      newErrors.phone = "Phone number is required";
+    } else if (!/^\+?\d{10,15}$/.test(formData.phone)) {
+      newErrors.phone = "Please enter a valid phone number (e.g., +201234567890)";
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+  };
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError("");
     setIsLoading(true);
 
-    // Basic validation
-    if (password !== confirmPassword) {
-      setError("Passwords do not match");
-      setIsLoading(false);
-      return;
-    }
-
-    // Age verification - user must be at least 16 years old
-    const today = new Date();
-    const birthDate = new Date(birthdate);
-    let age = today.getFullYear() - birthDate.getFullYear();
-    const monthDiff = today.getMonth() - birthDate.getMonth();
-    
-    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
-      age--;
-    }
-
-    if (age < 16) {
-      setError("You must be at least 16 years old to register");
+    if (!validateForm()) {
       setIsLoading(false);
       return;
     }
 
     try {
-      // Register using auth context
-      await register(name, email, password);
+      await register(formData);
       navigate("/");
-    } catch (err) {
-      setError("Registration failed. Please try again.");
+    } catch (err: any) {
+      setErrors({
+        ...errors,
+        general: err.message || "Registration failed. Please try again."
+      });
     } finally {
       setIsLoading(false);
     }
@@ -72,9 +105,9 @@ export const Register = (): JSX.Element => {
 
         <Card className="dark:bg-gray-800">
           <CardContent className="p-6">
-            {error && (
+            {errors.general && (
               <div className="bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 p-3 rounded-md mb-4">
-                {error}
+                {errors.general}
               </div>
             )}
 
@@ -86,12 +119,18 @@ export const Register = (): JSX.Element => {
                 <Input
                   id="name"
                   type="text"
+                  name="name"
                   placeholder="John Doe"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
+                  value={formData.name}
+                  onChange={handleChange}
                   className="w-full bg-white dark:bg-gray-700"
                   required
                 />
+                {errors.name && (
+                  <p className="text-red-600 dark:text-red-400 text-sm mt-1">
+                    {errors.name}
+                  </p>
+                )}
               </div>
 
               <div>
@@ -101,29 +140,39 @@ export const Register = (): JSX.Element => {
                 <Input
                   id="email"
                   type="email"
+                  name="email"
                   placeholder="you@example.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  value={formData.email}
+                  onChange={handleChange}
                   className="w-full bg-white dark:bg-gray-700"
                   required
                 />
+                {errors.email && (
+                  <p className="text-red-600 dark:text-red-400 text-sm mt-1">
+                    {errors.email}
+                  </p>
+                )}
               </div>
 
               <div>
-                <label htmlFor="birthdate" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Date of Birth
+                <label htmlFor="phone" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Phone Number
                 </label>
                 <Input
-                  id="birthdate"
-                  type="date"
-                  value={birthdate}
-                  onChange={(e) => setBirthdate(e.target.value)}
+                  id="phone"
+                  type="tel"
+                  name="phone"
+                  placeholder="+201234567890"
+                  value={formData.phone}
+                  onChange={handleChange}
                   className="w-full bg-white dark:bg-gray-700"
                   required
                 />
-                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                  You must be 16 years or older to register
-                </p>
+                {errors.phone && (
+                  <p className="text-red-600 dark:text-red-400 text-sm mt-1">
+                    {errors.phone}
+                  </p>
+                )}
               </div>
 
               <div>
@@ -133,12 +182,18 @@ export const Register = (): JSX.Element => {
                 <Input
                   id="password"
                   type="password"
+                  name="password"
                   placeholder="••••••••"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  value={formData.password}
+                  onChange={handleChange}
                   className="w-full bg-white dark:bg-gray-700"
                   required
                 />
+                {errors.password && (
+                  <p className="text-red-600 dark:text-red-400 text-sm mt-1">
+                    {errors.password}
+                  </p>
+                )}
               </div>
 
               <div>
@@ -148,55 +203,77 @@ export const Register = (): JSX.Element => {
                 <Input
                   id="confirmPassword"
                   type="password"
+                  name="confirmPassword"
                   placeholder="••••••••"
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  value={formData.confirmPassword}
+                  onChange={handleChange}
                   className="w-full bg-white dark:bg-gray-700"
                   required
                 />
+                {errors.confirmPassword && (
+                  <p className="text-red-600 dark:text-red-400 text-sm mt-1">
+                    {errors.confirmPassword}
+                  </p>
+                )}
               </div>
 
-              <div className="flex items-center">
-                <input
-                  id="terms"
-                  type="checkbox"
-                  className="h-4 w-4 accent-[#4caf96]"
-                  required
-                />
-                <label htmlFor="terms" className="ml-2 text-sm text-gray-600 dark:text-gray-400">
-                  I agree to the <a href="#" className="text-[#4caf96] hover:underline">Terms of Service</a> and <a href="#" className="text-[#4caf96] hover:underline">Privacy Policy</a>
+              <div>
+                <label htmlFor="medicalHistory" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Medical History (optional)
                 </label>
+                <textarea
+                  id="medicalHistory"
+                  name="medicalHistory"
+                  rows={3}
+                  value={formData.medicalHistory}
+                  onChange={handleChange}
+                  className="w-full bg-white dark:bg-gray-700 p-2 rounded-md text-gray-900 dark:text-white"
+                  placeholder="Any existing medical conditions or allergies..."
+                />
+              </div>
+
+              <div>
+                <label htmlFor="preferences" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Preferences (optional)
+                </label>
+                <textarea
+                  id="preferences"
+                  name="preferences"
+                  rows={3}
+                  value={formData.preferences}
+                  onChange={handleChange}
+                  className="w-full bg-white dark:bg-gray-700 p-2 rounded-md text-gray-900 dark:text-white"
+                  placeholder="Preferred appointment times, language preferences..."
+                />
               </div>
 
               <Button
                 type="submit"
-                className="w-full h-10 bg-[#4caf96] text-white font-bold rounded-lg hover:bg-[#3d9d86] transition-colors"
+                className="w-full bg-blue-600 dark:bg-blue-700 text-white font-bold rounded-lg py-3 hover:bg-blue-700 dark:hover:bg-blue-800 transition-colors"
                 disabled={isLoading || authLoading}
               >
-                {isLoading ? "Creating Account..." : "Sign Up"}
+                {isLoading || authLoading ? (
+                  <>
+                    <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Creating Account...
+                  </>
+                ) : (
+                  "Create Account"
+                )}
               </Button>
+
+              <div className="text-center mt-4">
+                <p className="text-sm text-gray-600 dark:text-gray-400">
+                  Already have an account?{' '}
+                  <a href="/auth/login" className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300">
+                    Sign in
+                  </a>
+                </p>
+              </div>
             </form>
-
-            <div className="mt-6 text-center">
-              <p className="text-sm text-gray-600 dark:text-gray-400">
-                Already have an account?{" "}
-                <button 
-                  onClick={() => navigate("/auth/login")} 
-                  className="text-[#4caf96] hover:underline"
-                >
-                  Log in
-                </button>
-              </p>
-            </div>
-
-            <div className="relative my-6">
-              <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-gray-300 dark:border-gray-700"></div>
-              </div>
-              <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-white dark:bg-gray-800 px-2 text-gray-500 dark:text-gray-400">Or</span>
-              </div>
-            </div>
 
             <div className="space-y-3">
               <Button

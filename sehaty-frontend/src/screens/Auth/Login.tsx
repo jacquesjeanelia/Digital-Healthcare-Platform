@@ -8,21 +8,52 @@ import { useAuth } from "../../lib/AuthContext";
 export const Login = (): JSX.Element => {
   const navigate = useNavigate();
   const { login, isLoading: authLoading } = useAuth();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
+  const [formData, setFormData] = useState({
+    email: "",
+    password: ""
+  });
+  const [errors, setErrors] = useState<Record<string, string>>({});
   const [isLoading, setIsLoading] = useState(false);
+
+  const validateForm = () => {
+    const newErrors: Record<string, string> = {};
+
+    if (!formData.email.trim()) {
+      newErrors.email = "Email is required";
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+      newErrors.email = "Please enter a valid email address";
+    }
+
+    if (!formData.password.trim()) {
+      newErrors.password = "Password is required";
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+  };
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError("");
     setIsLoading(true);
 
+    if (!validateForm()) {
+      setIsLoading(false);
+      return;
+    }
+
     try {
-      await login(email, password);
+      await login(formData.email, formData.password);
       navigate("/");
-    } catch (err) {
-      setError("Invalid email or password. Please try again.");
+    } catch (err: any) {
+      setErrors({
+        ...errors,
+        general: err.message || "Invalid email or password. Please try again."
+      });
     } finally {
       setIsLoading(false);
     }
@@ -68,9 +99,9 @@ export const Login = (): JSX.Element => {
 
         <Card className="dark:bg-gray-800">
           <CardContent className="p-6">
-            {error && (
+            {errors.general && (
               <div className="bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 p-3 rounded-md mb-4">
-                {error}
+                {errors.general}
               </div>
             )}
 
@@ -82,12 +113,18 @@ export const Login = (): JSX.Element => {
                 <Input
                   id="email"
                   type="email"
+                  name="email"
                   placeholder="you@example.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  value={formData.email}
+                  onChange={handleChange}
                   className="w-full bg-white dark:bg-gray-700"
                   required
                 />
+                {errors.email && (
+                  <p className="text-red-600 dark:text-red-400 text-sm mt-1">
+                    {errors.email}
+                  </p>
+                )}
               </div>
 
               <div>
@@ -97,12 +134,18 @@ export const Login = (): JSX.Element => {
                 <Input
                   id="password"
                   type="password"
+                  name="password"
                   placeholder="••••••••"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  value={formData.password}
+                  onChange={handleChange}
                   className="w-full bg-white dark:bg-gray-700"
                   required
                 />
+                {errors.password && (
+                  <p className="text-red-600 dark:text-red-400 text-sm mt-1">
+                    {errors.password}
+                  </p>
+                )}
               </div>
 
               <div className="flex items-center justify-between">
