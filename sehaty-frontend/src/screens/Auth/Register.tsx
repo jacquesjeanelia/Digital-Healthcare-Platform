@@ -76,7 +76,12 @@ export const Register = (): JSX.Element => {
     }
 
     try {
-      await register(formData);
+      await register(
+        formData.name,
+        formData.email,
+        formData.password,
+        formData.phone
+      );
       navigate("/");
     } catch (err: any) {
       setErrors({

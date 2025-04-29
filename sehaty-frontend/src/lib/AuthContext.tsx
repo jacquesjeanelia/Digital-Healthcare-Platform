@@ -14,7 +14,7 @@ interface AuthContextType {
   isAuthenticated: boolean;
   isLoading: boolean;
   login: (email: string, password: string) => Promise<void>;
-  register: (name: string, email: string, password: string) => Promise<void>;
+  register: (name: string, email: string, password: string, phone: string) => Promise<void>;
   logout: () => void;
 }
 
@@ -133,7 +133,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   };
 
   // Register function
-  const register = async (name: string, email: string, password: string) => {
+  const register = async (name: string, email: string, password: string, phone: string) => {
     setIsLoading(true);
     try {
       const response = await fetch(`${API_URL}/auth/register`, {
@@ -141,7 +141,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ name, email, password }),
+        body: JSON.stringify({ name, email, password, phone }),
         credentials: 'include' // Important for cookies
       });
 
@@ -156,9 +156,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       setUser(data.user);
       
       // No need to handle token as it's handled by cookies
-    } catch (error) {
+    } catch (error: any) {
       console.error("Registration error:", error);
-      throw error;
+      throw new Error(error.message || 'Registration failed');
     } finally {
       setIsLoading(false);
     }
