@@ -14,6 +14,11 @@ const userSchema = new mongoose.Schema({
     lowercase: true,
     trim: true
   },
+  phone: {
+    type: String,
+    required: [true, 'Please provide your phone number'],
+    trim: true
+  },
   password: {
     type: String,
     required: [true, 'Please provide a password'],
@@ -28,6 +33,18 @@ const userSchema = new mongoose.Schema({
   appointments: [{
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Appointment'
+  }],
+  medicalHistory: {
+    type: String,
+    default: ''
+  },
+  preferences: {
+    type: String,
+    default: ''
+  },
+  complaints: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Complaint'
   }],
   createdAt: {
     type: Date,

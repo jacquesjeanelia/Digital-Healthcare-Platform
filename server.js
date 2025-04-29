@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const dotenv = require('dotenv');
 const authRoutes = require('./routes/auth');
+const complaintsRoutes = require('./routes/complaints');
 
 // Load environment variables
 dotenv.config();
@@ -276,18 +277,6 @@ app.use((err, req, res, next) => {
     error: process.env.NODE_ENV === 'development' ? err.message : undefined
   });
 });
-
-// Start server
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-  console.log(`🚀 Server is running on port ${PORT}`);
-  console.log(`Health check available at: http://localhost:${PORT}/health`);
-});
-
-const mongoose = require('mongoose');
-const cors = require('cors');
-const dotenv = require('dotenv');
-const authRoutes = require('./routes/auth');
 const path = require('path');
 const morgan = require('morgan');
 const fs = require('fs');
@@ -320,6 +309,7 @@ app.use(express.json());
 
 // Routes - Mount API routes before static files
 app.use('/api/auth', authRoutes);
+app.use('/api/complaints', complaintsRoutes);
 
 // Generic 404 handler for undefined API endpoints
 app.use('/api', (req, res) => {

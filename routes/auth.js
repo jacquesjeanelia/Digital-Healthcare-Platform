@@ -6,7 +6,7 @@ const path = require('path');
 
 // Input validation middleware
 const validateRegistration = (req, res, next) => {
-  const { name, email, password } = req.body;
+  const { name, email, password, phone } = req.body;
   const errors = [];
 
   // Name validation
@@ -18,6 +18,12 @@ const validateRegistration = (req, res, next) => {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   if (!email || !emailRegex.test(email)) {
     errors.push('Please provide a valid email address');
+  }
+
+  // Phone validation
+  const phoneRegex = /^\+?\d{10,15}$/;
+  if (!phone || !phoneRegex.test(phone)) {
+    errors.push('Please provide a valid phone number (e.g., +201234567890)');
   }
 
   // Password validation
@@ -39,7 +45,7 @@ const validateRegistration = (req, res, next) => {
 
 // Register route
 router.post('/register', validateRegistration, async (req, res) => {
-  const { name, email, password } = req.body;
+  const { name, email, password, phone } = req.body;
 
   try {
     console.log('Registration attempt:', { email, name });
@@ -58,7 +64,8 @@ router.post('/register', validateRegistration, async (req, res) => {
     const user = await User.create({
       name: name.trim(),
       email: email.toLowerCase().trim(),
-      password
+      password,
+      phone: phone.trim()
     });
 
     console.log('User created successfully:', { userId: user._id, email });
