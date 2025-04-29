@@ -33,23 +33,6 @@ const path = require('path');
 const morgan = require('morgan');
 const fs = require('fs');
 
-// Load environment variables
-dotenv.config();
-
-// Debug logging
-console.log('Environment variables loaded:');
-console.log('MONGODB_URI:', process.env.MONGODB_URI ? 'Present' : 'Missing');
-console.log('JWT_SECRET:', process.env.JWT_SECRET ? 'Present' : 'Missing');
-console.log('NODE_ENV:', process.env.NODE_ENV || 'development');
-
-// Create Express app
-const app = express();
-
-// Request logging middleware
-if (process.env.NODE_ENV !== 'production') {
-  app.use(morgan('dev'));
-}
-
 // Middleware
 app.use(cors({
   origin: process.env.FRONTEND_URL || '*',
@@ -58,6 +41,11 @@ app.use(cors({
   credentials: true
 }));
 app.use(express.json());
+
+// Request logging middleware
+if (process.env.NODE_ENV !== 'production') {
+  app.use(morgan('dev'));
+}
 
 // Routes - Mount API routes before static files
 app.use('/api/auth', authRoutes);

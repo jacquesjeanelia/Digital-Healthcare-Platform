@@ -56,7 +56,11 @@ router.post('/register', validateRegistration, async (req, res) => {
       console.log('Registration failed: User already exists', { email });
       return res.status(409).json({
         message: 'Registration failed',
-        errors: ['An account with this email already exists']
+        errors: ['An account with this email already exists'],
+        details: {
+          errorType: 'DuplicateEmailError',
+          message: 'An account with this email already exists'
+        }
       });
     }
 
@@ -108,14 +112,22 @@ router.post('/register', validateRegistration, async (req, res) => {
     if (error.name === 'ValidationError') {
       return res.status(400).json({
         message: 'Registration failed',
-        errors: Object.values(error.errors).map(err => err.message)
+        errors: Object.values(error.errors).map(err => err.message),
+        details: {
+          errorType: 'ValidationError',
+          message: error.message
+        }
       });
     }
 
     if (error.code === 11000) {
       return res.status(409).json({
         message: 'Registration failed',
-        errors: ['An account with this email already exists']
+        errors: ['An account with this email already exists'],
+        details: {
+          errorType: 'DuplicateEmailError',
+          message: 'An account with this email already exists'
+        }
       });
     }
 
