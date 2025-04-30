@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { Button } from "../../components/ui/button";
 import { Card, CardContent } from "../../components/ui/card";
 import { Input } from "../../components/ui/input";
@@ -7,49 +7,112 @@ import { useAuth } from "../../lib/AuthContext";
 
 export const Register = (): JSX.Element => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { register, isLoading: authLoading } = useAuth();
+  const [role, setRole] = useState<"patient" | "doctor" | "clinic" | null>(null);
+  
+  // Common fields
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
+  const [phoneNumber, setPhoneNumber] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [birthdate, setBirthdate] = useState("");
+  
+  // Patient specific fields
+  const [dateOfBirth, setDateOfBirth] = useState("");
+  const [gender, setGender] = useState("");
+  const [address, setAddress] = useState("");
+  const [insuranceProvider, setInsuranceProvider] = useState("");
+  
+  // Provider specific fields
+  const [clinicName, setClinicName] = useState("");
+  const [specialty, setSpecialty] = useState("");
+  const [location, setLocation] = useState("");
+  const [licenseNumber, setLicenseNumber] = useState("");
+  const [website, setWebsite] = useState("");
+  const [contactInfo, setContactInfo] = useState("");
+  
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleRegister = async (e: React.FormEvent) => {
+  useEffect(() => {
+    const roleParam = searchParams.get("role");
+    if (roleParam === "patient" || roleParam === "doctor" || roleParam === "clinic") {
+      setRole(roleParam);
+    } else {
+      navigate("/auth/role-selection");
+    }
+  }, [searchParams, navigate]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
     setIsLoading(true);
 
-    // Basic validation
+    if (!role) {
+      setError("Please select a role");
+      setIsLoading(false);
+      return;
+    }
+
+    // Validate required fields based on role
+    if (!name || !email || !password) {
+      setError("Please fill in all required fields");
+      setIsLoading(false);
+      return;
+    }
+
     if (password !== confirmPassword) {
       setError("Passwords do not match");
       setIsLoading(false);
       return;
     }
 
-    // Age verification - user must be at least 16 years old
-    const today = new Date();
-    const birthDate = new Date(birthdate);
-    let age = today.getFullYear() - birthDate.getFullYear();
-    const monthDiff = today.getMonth() - birthDate.getMonth();
-    
-    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
-      age--;
+    if (role === "doctor" && (!specialty || !location)) {
+      setError("Please fill in all required fields for doctor registration");
+      setIsLoading(false);
+      return;
     }
 
-    if (age < 16) {
-      setError("You must be at least 16 years old to register");
+    if (role === "clinic" && (!clinicName || !specialty || !location)) {
+      setError("Please fill in all required fields for clinic registration");
       setIsLoading(false);
       return;
     }
 
     try {
-      // Register using auth context
-      await register(name, email, password);
-      navigate("/");
+      const userData = {
+        name,
+        email,
+        password,
+        role,
+        phoneNumber: phoneNumber || "",
+        ...(role === "patient" && {
+          dateOfBirth: dateOfBirth || undefined,
+          gender: gender || undefined,
+          address: address || undefined,
+          insuranceProvider: insuranceProvider || undefined,
+        }),
+        ...(role === "doctor" && {
+          specialty,
+          location,
+          licenseNumber: licenseNumber || undefined,
+          contactInfo: contactInfo || undefined,
+        }),
+        ...(role === "clinic" && {
+          clinicName,
+          specialty,
+          location,
+          website: website || undefined,
+          licenseNumber: licenseNumber || undefined,
+          contactInfo: contactInfo || undefined,
+        }),
+      };
+
+      await register(userData);
+      navigate("/dashboard");
     } catch (err) {
-      setError("Registration failed. Please try again.");
+      setError(err instanceof Error ? err.message : "Registration failed");
     } finally {
       setIsLoading(false);
     }
@@ -64,9 +127,13 @@ export const Register = (): JSX.Element => {
             alt="Sehaty" 
             className="w-16 h-16 mb-2" 
           />
-          <h1 className="text-2xl font-bold text-blue-900 dark:text-white">Create an Account</h1>
+          <h1 className="text-2xl font-bold text-blue-900 dark:text-white">
+            {role === "patient" ? "Patient Registration" : 
+             role === "doctor" ? "Doctor Registration" : 
+             "Clinic Registration"}
+          </h1>
           <p className="text-gray-600 dark:text-gray-400 text-center mt-2">
-            Join Sehaty to start managing your healthcare
+            Create your {role} account to get started
           </p>
         </div>
 
@@ -78,102 +145,247 @@ export const Register = (): JSX.Element => {
               </div>
             )}
 
-            <form onSubmit={handleRegister} className="space-y-4">
+            <form onSubmit={handleSubmit} className="space-y-4">
+              {/* Common fields */}
               <div>
                 <label htmlFor="name" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Full Name
+                  Full Name *
                 </label>
                 <Input
                   id="name"
                   type="text"
-                  placeholder="John Doe"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  className="w-full bg-white dark:bg-gray-700"
+                  className="w-full"
                   required
                 />
               </div>
 
               <div>
                 <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Email
+                  Email *
                 </label>
                 <Input
                   id="email"
                   type="email"
-                  placeholder="you@example.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full bg-white dark:bg-gray-700"
+                  className="w-full"
                   required
                 />
               </div>
 
               <div>
-                <label htmlFor="birthdate" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Date of Birth
+                <label htmlFor="phoneNumber" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Phone Number (Egyptian format: +201234567890)
                 </label>
                 <Input
-                  id="birthdate"
-                  type="date"
-                  value={birthdate}
-                  onChange={(e) => setBirthdate(e.target.value)}
-                  className="w-full bg-white dark:bg-gray-700"
-                  required
+                  id="phoneNumber"
+                  type="tel"
+                  value={phoneNumber}
+                  onChange={(e) => setPhoneNumber(e.target.value)}
+                  className="w-full"
+                  pattern="\+201[0-9]{9}"
                 />
-                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                  You must be 16 years or older to register
-                </p>
               </div>
 
               <div>
                 <label htmlFor="password" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Password
+                  Password *
                 </label>
                 <Input
                   id="password"
                   type="password"
-                  placeholder="••••••••"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full bg-white dark:bg-gray-700"
+                  className="w-full"
                   required
                 />
               </div>
 
               <div>
                 <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Confirm Password
+                  Confirm Password *
                 </label>
                 <Input
                   id="confirmPassword"
                   type="password"
-                  placeholder="••••••••"
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
-                  className="w-full bg-white dark:bg-gray-700"
+                  className="w-full"
                   required
                 />
               </div>
 
-              <div className="flex items-center">
-                <input
-                  id="terms"
-                  type="checkbox"
-                  className="h-4 w-4 accent-[#4caf96]"
-                  required
-                />
-                <label htmlFor="terms" className="ml-2 text-sm text-gray-600 dark:text-gray-400">
-                  I agree to the <a href="#" className="text-[#4caf96] hover:underline">Terms of Service</a> and <a href="#" className="text-[#4caf96] hover:underline">Privacy Policy</a>
-                </label>
-              </div>
+              {/* Role-specific fields */}
+              {role === "patient" && (
+                <>
+                  <div>
+                    <label htmlFor="dateOfBirth" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                      Date of Birth
+                    </label>
+                    <Input
+                      id="dateOfBirth"
+                      type="date"
+                      value={dateOfBirth}
+                      onChange={(e) => setDateOfBirth(e.target.value)}
+                      className="w-full"
+                    />
+                  </div>
+
+                  <div>
+                    <label htmlFor="gender" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                      Gender
+                    </label>
+                    <select
+                      id="gender"
+                      value={gender}
+                      onChange={(e) => setGender(e.target.value)}
+                      className="w-full p-2 border rounded"
+                    >
+                      <option value="">Select Gender</option>
+                      <option value="male">Male</option>
+                      <option value="female">Female</option>
+                      <option value="other">Other</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label htmlFor="address" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                      Address
+                    </label>
+                    <Input
+                      id="address"
+                      type="text"
+                      value={address}
+                      onChange={(e) => setAddress(e.target.value)}
+                      className="w-full"
+                    />
+                  </div>
+
+                  <div>
+                    <label htmlFor="insuranceProvider" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                      Insurance Provider
+                    </label>
+                    <Input
+                      id="insuranceProvider"
+                      type="text"
+                      value={insuranceProvider}
+                      onChange={(e) => setInsuranceProvider(e.target.value)}
+                      className="w-full"
+                    />
+                  </div>
+                </>
+              )}
+
+              {(role === "doctor" || role === "clinic") && (
+                <>
+                  {role === "clinic" && (
+                    <div>
+                      <label htmlFor="clinicName" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                        Clinic Name *
+                      </label>
+                      <Input
+                        id="clinicName"
+                        type="text"
+                        value={clinicName}
+                        onChange={(e) => setClinicName(e.target.value)}
+                        className="w-full"
+                        required
+                      />
+                    </div>
+                  )}
+
+                  <div>
+                    <label htmlFor="specialty" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                      Specialty *
+                    </label>
+                    <select
+                      id="specialty"
+                      value={specialty}
+                      onChange={(e) => setSpecialty(e.target.value)}
+                      className="w-full p-2 border rounded"
+                      required
+                    >
+                      <option value="">Select Specialty</option>
+                      <option value="Cardiology">Cardiology</option>
+                      <option value="Dermatology">Dermatology</option>
+                      <option value="Endocrinology">Endocrinology</option>
+                      <option value="Gastroenterology">Gastroenterology</option>
+                      <option value="General Practice">General Practice</option>
+                      <option value="Neurology">Neurology</option>
+                      <option value="Obstetrics & Gynecology">Obstetrics & Gynecology</option>
+                      <option value="Ophthalmology">Ophthalmology</option>
+                      <option value="Orthopedics">Orthopedics</option>
+                      <option value="Pediatrics">Pediatrics</option>
+                      <option value="Psychiatry">Psychiatry</option>
+                      <option value="Urology">Urology</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label htmlFor="location" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                      Location *
+                    </label>
+                    <Input
+                      id="location"
+                      type="text"
+                      value={location}
+                      onChange={(e) => setLocation(e.target.value)}
+                      className="w-full"
+                      required
+                    />
+                  </div>
+
+                  {role === "clinic" && (
+                    <div>
+                      <label htmlFor="website" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                        Website
+                      </label>
+                      <Input
+                        id="website"
+                        type="url"
+                        value={website}
+                        onChange={(e) => setWebsite(e.target.value)}
+                        className="w-full"
+                      />
+                    </div>
+                  )}
+
+                  <div>
+                    <label htmlFor="licenseNumber" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                      License Number
+                    </label>
+                    <Input
+                      id="licenseNumber"
+                      type="text"
+                      value={licenseNumber}
+                      onChange={(e) => setLicenseNumber(e.target.value)}
+                      className="w-full"
+                    />
+                  </div>
+
+                  <div>
+                    <label htmlFor="contactInfo" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                      Additional Contact Information
+                    </label>
+                    <Input
+                      id="contactInfo"
+                      type="text"
+                      value={contactInfo}
+                      onChange={(e) => setContactInfo(e.target.value)}
+                      className="w-full"
+                    />
+                  </div>
+                </>
+              )}
 
               <Button
                 type="submit"
-                className="w-full h-10 bg-[#4caf96] text-white font-bold rounded-lg hover:bg-[#3d9d86] transition-colors"
+                className="w-full h-10 bg-[#4caf96] text-white font-bold rounded-lg hover:bg-[#3d9d86]"
                 disabled={isLoading || authLoading}
               >
-                {isLoading ? "Creating Account..." : "Sign Up"}
+                {isLoading || authLoading ? "Creating Account..." : "Create Account"}
               </Button>
             </form>
 
@@ -188,31 +400,18 @@ export const Register = (): JSX.Element => {
                 </button>
               </p>
             </div>
-
-            <div className="relative my-6">
-              <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-gray-300 dark:border-gray-700"></div>
-              </div>
-              <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-white dark:bg-gray-800 px-2 text-gray-500 dark:text-gray-400">Or</span>
-              </div>
-            </div>
-
-            <div className="space-y-3">
-              <Button
-                variant="outline"
-                className="w-full border-gray-300 dark:border-gray-700 flex items-center justify-center gap-2 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
-                onClick={() => navigate("/auth/doctor-login")}
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-[#4caf96]">
-                  <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
-                  <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
-                </svg>
-                <span>I am a Healthcare Provider</span>
-              </Button>
-            </div>
           </CardContent>
         </Card>
+
+        <div className="flex justify-center mt-8">
+          <Button
+            variant="outline"
+            className="border-gray-300 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+            onClick={() => navigate("/auth/role-selection")}
+          >
+            Back to Role Selection
+          </Button>
+        </div>
       </div>
     </div>
   );

@@ -14,8 +14,8 @@ export const About = (): JSX.Element => {
 
       <div className="w-full">
         <img
-          src="/about-image.jpg"
-          alt="Healthcare Team"
+          src="/images/about.jpg"
+          alt="About Us - Caring Hands Together"
           className="w-full h-[300px] object-cover rounded-xl mb-12"
         />
 

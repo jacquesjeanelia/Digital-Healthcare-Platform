@@ -58,7 +58,7 @@ export const Login = (): JSX.Element => {
               </p>
               <Button 
                 className="w-full h-10 bg-[#4caf96] text-white font-bold rounded-lg hover:bg-[#3d9d86] transition-colors"
-                onClick={() => navigate("/auth/register")}
+                onClick={() => navigate("/auth/role-selection")}
               >
                 Create an Account
               </Button>
@@ -134,37 +134,25 @@ export const Login = (): JSX.Element => {
               <p className="text-sm text-gray-600 dark:text-gray-400">
                 Don't have an account?{" "}
                 <button 
-                  onClick={() => navigate("/auth/register")} 
+                  onClick={() => navigate("/auth/role-selection")} 
                   className="text-[#4caf96] hover:underline"
                 >
                   Sign up
                 </button>
               </p>
             </div>
-
-            <div className="relative my-6">
-              <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-gray-300 dark:border-gray-700"></div>
-              </div>
-              <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-white dark:bg-gray-800 px-2 text-gray-500 dark:text-gray-400">Or</span>
-              </div>
-            </div>
-
-            <div className="space-y-3">
-              <Button
-                variant="outline"
-                className="w-full border-gray-300 dark:border-gray-700 flex items-center justify-center gap-2 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
-                onClick={() => navigate("/auth/doctor-login")}
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-[#4caf96]">
-                  <path d="M3 15v4c0 1.1.9 2 2 2h14a2 2 0 0 0 2-2v-4M17 9l-5 5-5-5M12 12.8V2.5"></path>
-                </svg>
-                <span>Login as Healthcare Provider</span>
-              </Button>
-            </div>
           </CardContent>
         </Card>
+
+        <div className="flex justify-center mt-8">
+          <Button
+            variant="outline"
+            className="border-gray-300 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+            onClick={() => navigate("/")}
+          >
+            Back to Home
+          </Button>
+        </div>
 
         <div className="flex justify-center mt-8 space-x-4 text-sm text-gray-500 dark:text-gray-400">
           <a href="/about" className="hover:text-[#4caf96]">Privacy Policy</a>

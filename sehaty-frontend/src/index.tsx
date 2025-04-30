@@ -6,7 +6,7 @@ import { Contact } from "./screens/Contact";
 import { About } from "./screens/About";
 import { Doctors } from "./screens/Doctors";
 import { Services } from "./screens/Services";
-import { Login, Register, DoctorLogin } from "./screens/Auth";
+import { Login, Register, RoleSelection, ProviderSelection } from "./screens/Auth";
 import { Dashboard } from "./screens/Dashboard";
 import { Appointments } from "./screens/Appointments";
 import { Layout } from "./components/Layout";
@@ -20,8 +20,9 @@ createRoot(document.getElementById("app") as HTMLElement).render(
         <Routes>
           {/* Auth routes (without standard layout) */}
           <Route path="/auth/login" element={<Login />} />
+          <Route path="/auth/role-selection" element={<RoleSelection />} />
+          <Route path="/auth/provider-selection" element={<ProviderSelection />} />
           <Route path="/auth/register" element={<Register />} />
-          <Route path="/auth/doctor-login" element={<DoctorLogin />} />
           
           {/* Dashboard routes with layout - protected */}
           <Route path="/dashboard" element={

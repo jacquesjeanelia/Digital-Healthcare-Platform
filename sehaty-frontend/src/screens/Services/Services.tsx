@@ -1,13 +1,15 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Button } from "../../components/ui/button";
 import { Card, CardContent } from "../../components/ui/card";
+import { useLocation } from "react-router-dom";
 
-// Sample services data
+// Sample services data with detailed descriptions
 const SERVICES = [
   {
     id: 1,
     title: "Teleconsultation",
     description: "Connect with healthcare professionals from the comfort of your home through secure video consultations.",
+    detailedDescription: "Our teleconsultation service allows you to connect with qualified healthcare providers through secure video calls. Features include:\n\n• Real-time video consultations\n• Secure messaging with healthcare providers\n• Digital prescription management\n• Medical record sharing\n• Follow-up appointment scheduling\n\nAvailable 24/7 for urgent care needs.",
     icon: (
       <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
         <rect width="14" height="14" x="5" y="5" rx="2" />
@@ -19,6 +21,7 @@ const SERVICES = [
     id: 2,
     title: "Appointment Booking",
     description: "Schedule appointments with healthcare providers based on your availability.",
+    detailedDescription: "Our appointment booking system makes scheduling healthcare visits simple and efficient:\n\n• Real-time availability checking\n• Multiple booking options (in-person, video, phone)\n• Automated reminders via SMS and email\n• Easy rescheduling and cancellation\n• Waitlist for earlier appointments\n\nBook appointments with specialists, general practitioners, and diagnostic services.",
     icon: (
       <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
         <rect width="18" height="18" x="3" y="4" rx="2" ry="2" />
@@ -33,6 +36,7 @@ const SERVICES = [
     id: 3,
     title: "Prescription Management",
     description: "Manage and renew prescriptions online with electronic prescriptions sent directly to your pharmacy.",
+    detailedDescription: "Our prescription management system streamlines medication management:\n\n• Digital prescription storage\n• Automatic refill reminders\n• Pharmacy integration\n• Medication interaction checking\n• Prescription sharing with healthcare providers\n\nKeep track of all your medications in one secure place.",
     icon: (
       <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
         <path d="M3 3v18h18" />
@@ -44,6 +48,7 @@ const SERVICES = [
     id: 4,
     title: "Medical Records",
     description: "Access and manage your health records securely in one place.",
+    detailedDescription: "Our medical records system provides comprehensive health information management:\n\n• Secure storage of medical history\n• Lab results and imaging reports\n• Vaccination records\n• Allergies and medications\n• Family medical history\n\nAccess your complete medical history anytime, anywhere.",
     icon: (
       <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
         <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
@@ -58,6 +63,7 @@ const SERVICES = [
     id: 5,
     title: "Health Monitoring",
     description: "Track your vital signs and health metrics over time with automated reminders.",
+    detailedDescription: "Our health monitoring system helps you stay on top of your health:\n\n• Vital signs tracking (blood pressure, heart rate, etc.)\n• Blood sugar monitoring\n• Weight management\n• Sleep tracking\n• Activity monitoring\n\nSet health goals and track your progress over time.",
     icon: (
       <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
         <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
@@ -68,6 +74,7 @@ const SERVICES = [
     id: 6,
     title: "Medication Reminders",
     description: "Get timely reminders for your medications to ensure you never miss a dose.",
+    detailedDescription: "Our medication reminder system helps you stay on track with your treatment:\n\n• Customizable reminder schedules\n• Multiple medication tracking\n• Refill reminders\n• Missed dose alerts\n• Medication history tracking\n\nNever miss a dose with our smart reminder system.",
     icon: (
       <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
         <path d="M5 3a2 2 0 0 0-2 2" />
@@ -86,6 +93,22 @@ const SERVICES = [
 ];
 
 export const Services = (): JSX.Element => {
+  const [selectedService, setSelectedService] = useState<number | null>(null);
+  const location = useLocation();
+
+  useEffect(() => {
+    // Handle anchor links
+    const hash = location.hash;
+    if (hash) {
+      const serviceId = SERVICES.findIndex(s => 
+        s.title.toLowerCase().replace(/\s+/g, '-') === hash.slice(1)
+      ) + 1;
+      if (serviceId > 0) {
+        setSelectedService(serviceId);
+      }
+    }
+  }, [location]);
+
   return (
     <div className="bg-[#f8f5f2] dark:bg-gray-900 flex flex-row justify-center w-full min-h-screen">
       <div className="w-full max-w-[1280px] relative pt-[75px] px-4 md:px-6">
@@ -118,6 +141,7 @@ export const Services = (): JSX.Element => {
                     <Button
                       variant="ghost"
                       className="w-full justify-center bg-[#4caf9620] text-[#4caf96] font-bold text-sm rounded-lg hover:bg-[#4caf9630] h-10"
+                      onClick={() => setSelectedService(service.id)}
                     >
                       Learn More
                     </Button>
@@ -126,6 +150,41 @@ export const Services = (): JSX.Element => {
               </Card>
             ))}
           </div>
+
+          {/* Detailed Service Modal */}
+          {selectedService !== null && (
+            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+              <div className="bg-white dark:bg-gray-800 p-6 rounded-lg w-full max-w-2xl mx-4">
+                <div className="flex justify-between items-start mb-4">
+                  <h2 className="text-2xl font-bold text-[#1f4156] dark:text-white">
+                    {SERVICES.find(s => s.id === selectedService)?.title}
+                  </h2>
+                  <button
+                    onClick={() => setSelectedService(null)}
+                    className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <line x1="18" y1="6" x2="6" y2="18"></line>
+                      <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                  </button>
+                </div>
+                <div className="prose dark:prose-invert max-w-none">
+                  <p className="whitespace-pre-line text-gray-600 dark:text-gray-300">
+                    {SERVICES.find(s => s.id === selectedService)?.detailedDescription}
+                  </p>
+                </div>
+                <div className="mt-6 flex justify-end">
+                  <Button
+                    className="bg-[#4caf96] text-white hover:bg-[#3d9d86]"
+                    onClick={() => setSelectedService(null)}
+                  >
+                    Close
+                  </Button>
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* CTA Section */}
           <div className="bg-[#4caf9620] dark:bg-[#4caf9640] rounded-xl p-8 mt-8 flex flex-col md:flex-row items-center justify-between gap-6">

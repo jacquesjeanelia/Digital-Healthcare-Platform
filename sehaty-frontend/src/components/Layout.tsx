@@ -414,7 +414,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
               <ul className="flex flex-col gap-2">
                 <li>
                   <a 
-                    href="#" 
+                    href="/services#teleconsultation" 
                     className="text-gray-600 dark:text-gray-300 hover:text-[#4caf96] text-sm"
                   >
                     Teleconsultation
@@ -422,7 +422,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                 </li>
                 <li>
                   <a 
-                    href="#" 
+                    href="/services#appointment-booking" 
                     className="text-gray-600 dark:text-gray-300 hover:text-[#4caf96] text-sm"
                   >
                     Appointment Booking
@@ -430,7 +430,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                 </li>
                 <li>
                   <a 
-                    href="#" 
+                    href="/services#medical-records" 
                     className="text-gray-600 dark:text-gray-300 hover:text-[#4caf96] text-sm"
                   >
                     Health Records
@@ -438,7 +438,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                 </li>
                 <li>
                   <a 
-                    href="#" 
+                    href="/services#prescription-management" 
                     className="text-gray-600 dark:text-gray-300 hover:text-[#4caf96] text-sm"
                   >
                     Prescription Management

@@ -1,11 +1,46 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from "react";
+import { API_URL } from "./config";
 
 // Define the shape of the user object
 interface User {
   id: string;
   name: string;
   email: string;
-  role: 'patient' | 'doctor' | 'admin';
+  phoneNumber: string;
+  role: 'patient' | 'doctor' | 'clinic';
+  // Patient specific fields
+  dateOfBirth?: string;
+  gender?: string;
+  address?: string;
+  insuranceProvider?: string;
+  // Provider specific fields
+  clinicName?: string;
+  specialty?: string;
+  location?: string;
+  licenseNumber?: string;
+  website?: string;
+  contactInfo?: string;
+}
+
+// Define the shape of the registration data
+interface RegisterData {
+  name: string;
+  email: string;
+  phoneNumber: string;
+  password: string;
+  role: 'patient' | 'doctor' | 'clinic';
+  // Patient specific fields
+  dateOfBirth?: string;
+  gender?: string;
+  address?: string;
+  insuranceProvider?: string;
+  // Provider specific fields
+  clinicName?: string;
+  specialty?: string;
+  location?: string;
+  licenseNumber?: string;
+  website?: string;
+  contactInfo?: string;
 }
 
 // Define the shape of the auth context
@@ -14,12 +49,9 @@ interface AuthContextType {
   isAuthenticated: boolean;
   isLoading: boolean;
   login: (email: string, password: string) => Promise<void>;
-  register: (name: string, email: string, password: string) => Promise<void>;
+  register: (data: RegisterData) => Promise<void>;
   logout: () => void;
 }
-
-// API base URL
-const API_URL = 'http://localhost:5000/api';
 
 // Create context with default values
 const AuthContext = createContext<AuthContextType>({
@@ -133,7 +165,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   };
 
   // Register function
-  const register = async (name: string, email: string, password: string) => {
+  const register = async (data: RegisterData) => {
     setIsLoading(true);
     try {
       const response = await fetch(`${API_URL}/auth/register`, {
@@ -141,7 +173,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ name, email, password })
+        body: JSON.stringify(data)
       });
 
       if (!response.ok) {
@@ -149,13 +181,13 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         throw new Error(error.message || 'Registration failed');
       }
 
-      const data = await response.json();
+      const responseData = await response.json();
       
       // Set the user
-      setUser(data.user);
+      setUser(responseData.user);
       
       // Save token
-      localStorage.setItem("token", data.token);
+      localStorage.setItem("token", responseData.token);
     } catch (error) {
       console.error("Registration error:", error);
       throw error;

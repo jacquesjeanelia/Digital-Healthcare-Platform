@@ -11,20 +11,55 @@ router.post('/register', async (req, res) => {
   });
 
   try {
-    const { name, email, password } = req.body;
+    const { role, name, email, phoneNumber, password } = req.body;
 
-    // Input validation
-    if (!name || !email || !password) {
-      console.log('Validation failed - missing fields:', { name: !name, email: !email, password: !password });
+    // Basic input validation
+    if (!role || !name || !email || !phoneNumber || !password) {
       return res.status(400).json({ 
         message: 'Please provide all required fields',
-        fields: { name: !name, email: !email, password: !password }
+        fields: { 
+          role: !role, 
+          name: !name, 
+          email: !email, 
+          phoneNumber: !phoneNumber, 
+          password: !password 
+        }
       });
+    }
+
+    // Role-specific validation
+    if (role === 'patient') {
+      const { dateOfBirth, gender, address, insuranceProvider } = req.body;
+      if (!dateOfBirth || !gender || !address || !insuranceProvider) {
+        return res.status(400).json({
+          message: 'Please provide all required patient information',
+          fields: {
+            dateOfBirth: !dateOfBirth,
+            gender: !gender,
+            address: !address,
+            insuranceProvider: !insuranceProvider
+          }
+        });
+      }
+    } else if (role === 'clinic') {
+      const { clinicName, specialty, location, workingHours, licenseNumber, website } = req.body;
+      if (!clinicName || !specialty || !location || !workingHours || !licenseNumber || !website) {
+        return res.status(400).json({
+          message: 'Please provide all required clinic information',
+          fields: {
+            clinicName: !clinicName,
+            specialty: !specialty,
+            location: !location,
+            workingHours: !workingHours,
+            licenseNumber: !licenseNumber,
+            website: !website
+          }
+        });
+      }
     }
 
     // Password validation
     if (password.length < 8) {
-      console.log('Validation failed - password too short');
       return res.status(400).json({ 
         message: 'Password must be at least 8 characters long'
       });
@@ -33,30 +68,29 @@ router.post('/register', async (req, res) => {
     // Email validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
-      console.log('Validation failed - invalid email format');
       return res.status(400).json({ 
         message: 'Please provide a valid email address'
       });
     }
 
+    // Phone number validation
+    const phoneRegex = /^\+?[\d\s-]{10,}$/;
+    if (!phoneRegex.test(phoneNumber)) {
+      return res.status(400).json({
+        message: 'Please provide a valid phone number'
+      });
+    }
+
     // Check if user already exists
-    console.log('Checking for existing user...');
     const existingUser = await User.findOne({ email });
     if (existingUser) {
-      console.log('Registration failed - user already exists');
       return res.status(400).json({ 
         message: 'User with this email already exists'
       });
     }
 
     // Create new user
-    console.log('Creating new user...');
-    const user = await User.create({
-      name,
-      email,
-      password
-    });
-    console.log('User created successfully:', { id: user._id, email: user.email });
+    const user = await User.create(req.body);
 
     // Generate JWT token
     const token = jwt.sign(
@@ -66,7 +100,6 @@ router.post('/register', async (req, res) => {
     );
 
     // Send response
-    console.log('Registration successful');
     res.status(201).json({
       message: 'Registration successful',
       token,
@@ -74,29 +107,33 @@ router.post('/register', async (req, res) => {
         id: user._id,
         name: user.name,
         email: user.email,
-        role: user.role
+        role: user.role,
+        ...(user.role === 'patient' ? {
+          dateOfBirth: user.dateOfBirth,
+          gender: user.gender,
+          address: user.address,
+          insuranceProvider: user.insuranceProvider
+        } : {
+          clinicName: user.clinicName,
+          specialty: user.specialty,
+          location: user.location,
+          workingHours: user.workingHours,
+          licenseNumber: user.licenseNumber,
+          website: user.website
+        })
       }
     });
   } catch (error) {
-    console.error('Registration error:', {
-      name: error.name,
-      message: error.message,
-      stack: error.stack,
-      code: error.code
-    });
+    console.error('Registration error:', error);
     
-    // Handle specific MongoDB errors
     if (error.name === 'ValidationError') {
-      console.log('MongoDB validation error:', error.errors);
       return res.status(400).json({ 
         message: 'Validation error',
         errors: Object.values(error.errors).map(err => err.message)
       });
     }
 
-    // Handle duplicate key error
     if (error.code === 11000) {
-      console.log('Duplicate key error');
       return res.status(400).json({ 
         message: 'Email already exists'
       });
@@ -140,7 +177,20 @@ router.post('/login', async (req, res) => {
         id: user._id,
         name: user.name,
         email: user.email,
-        role: user.role
+        role: user.role,
+        ...(user.role === 'patient' ? {
+          dateOfBirth: user.dateOfBirth,
+          gender: user.gender,
+          address: user.address,
+          insuranceProvider: user.insuranceProvider
+        } : {
+          clinicName: user.clinicName,
+          specialty: user.specialty,
+          location: user.location,
+          workingHours: user.workingHours,
+          licenseNumber: user.licenseNumber,
+          website: user.website
+        })
       }
     });
   } catch (error) {
@@ -172,7 +222,20 @@ router.get('/me', async (req, res) => {
         id: user._id,
         name: user.name,
         email: user.email,
-        role: user.role
+        role: user.role,
+        ...(user.role === 'patient' ? {
+          dateOfBirth: user.dateOfBirth,
+          gender: user.gender,
+          address: user.address,
+          insuranceProvider: user.insuranceProvider
+        } : {
+          clinicName: user.clinicName,
+          specialty: user.specialty,
+          location: user.location,
+          workingHours: user.workingHours,
+          licenseNumber: user.licenseNumber,
+          website: user.website
+        })
       }
     });
   } catch (error) {

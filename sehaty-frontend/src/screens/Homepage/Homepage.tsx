@@ -71,18 +71,21 @@ export const Homepage = (): JSX.Element => {
   // Data for top rated clinics
   const topRatedClinics = [
     {
+      id: 1,
       name: "Cairo Medical Center",
       specialty: "General Medicine",
       rating: "4.8",
       image: "/image-1.png",
     },
     {
+      id: 2,
       name: "Alexandria Dental Clinic",
       specialty: "Dentistry",
       rating: "4.7",
       image: "/image-2.png",
     },
     {
+      id: 3,
       name: "Giza Pediatric Center",
       specialty: "Pediatrics",
       rating: "4.9",
@@ -232,8 +235,11 @@ export const Homepage = (): JSX.Element => {
             <div className="flex flex-col items-start py-5 w-full">
               <Card className="w-full border border-[#838383] dark:border-gray-700 rounded-[16px] overflow-hidden dark:bg-gray-800">
                 {topRatedClinics.map((clinic, index) => (
-                  <React.Fragment key={index}>
-                    <CardContent className="flex items-center gap-1 p-2.5">
+                  <React.Fragment key={clinic.id}>
+                    <CardContent 
+                      className="flex items-center gap-1 p-2.5 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200"
+                      onClick={() => navigate(`/doctors?clinic=${clinic.id}`)}
+                    >
                       <img
                         className="w-11 h-11 object-cover"
                         alt={clinic.name}
