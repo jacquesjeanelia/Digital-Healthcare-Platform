@@ -173,7 +173,6 @@ export const Login = (): JSX.Element => {
                   Create one
                 </a>
               </p>
-              </Button>
             </div>
           </CardContent>
         </Card>
