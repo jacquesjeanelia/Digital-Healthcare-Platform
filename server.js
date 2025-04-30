@@ -2,6 +2,10 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const dotenv = require('dotenv');
+<<<<<<< HEAD
+=======
+const authRoutes = require('./routes/auth');
+>>>>>>> parent of c85381e (reverts and fixes)
 const path = require('path');
 const morgan = require('morgan');
 const Redis = require('ioredis');
