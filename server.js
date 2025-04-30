@@ -4,32 +4,43 @@ const cors = require('cors');
 const dotenv = require('dotenv');
 const path = require('path');
 const morgan = require('morgan');
-const fs = require('fs');
+const Redis = require('ioredis');
 const authRoutes = require('./routes/auth');
 const complaintsRoutes = require('./routes/complaints');
 
 // Load environment variables
 dotenv.config();
 
+// Configure MongoDB connection
+const MONGODB_URI = process.env.MONGODB_URI || 'mongodb+srv://vercel-admin-user-681146823a0e515dbc263eeb:i2PVzN8J8zgaxkM9@sehaty.nr1hkua.mongodb.net/myFirstDatabase?retryWrites=true&w=majority';
+
+// Configure Redis connection
+const redis = new Redis({
+  host: process.env.REDIS_HOST || 'localhost',
+  port: process.env.REDIS_PORT || 6379,
+  password: process.env.REDIS_PASSWORD,
+  retryStrategy: (times) => {
+    const delay = Math.min(times * 50, 2000);
+    return delay;
+  }
+});
+
 // Debug logging
 console.log('Environment variables loaded:');
-console.log('MONGODB_URI:', process.env.MONGODB_URI ? 'Present' : 'Missing');
+console.log('MONGODB_URI:', MONGODB_URI ? 'Present' : 'Missing');
 console.log('JWT_SECRET:', process.env.JWT_SECRET ? 'Present' : 'Missing');
 console.log('NODE_ENV:', process.env.NODE_ENV || 'development');
+console.log('Redis connection:', redis.status);
 
 // Create Express app
 const app = express();
 
-// Enable CORS
+// Middleware setup
 app.use(cors());
-
-// Enable request logging
 app.use(morgan('dev'));
-
-// Parse JSON bodies
 app.use(express.json());
 
-// Routes - Mount API routes before static files
+// API Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/complaints', complaintsRoutes);
 
@@ -60,87 +71,60 @@ app.get('/api/health', async (req, res) => {
   }
 });
 
-// Serve static files in production
+// Static file serving in production
 if (process.env.NODE_ENV === 'production') {
   const frontendPath = path.join(__dirname, 'sehaty-frontend/dist');
-  
-  // Serve static files
   app.use(express.static(frontendPath));
   
-  // Handle client-side routing
+  // Client-side routing
   app.get('*', (req, res) => {
-    // Skip API routes
     if (req.path.startsWith('/api/')) {
       return res.status(404).json({ message: 'API endpoint not found' });
     }
     
-    // Skip static assets
     if (req.path.startsWith('/assets/')) {
       return res.status(404).json({ message: 'Asset not found' });
     }
     
-    // Serve index.html for all other routes
     res.sendFile(path.join(frontendPath, 'index.html'));
   });
 }
 
-// MongoDB connection configuration
-const mongoOptions = {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-  serverSelectionTimeoutMS: 30000,
-  socketTimeoutMS: 30000,
-  maxPoolSize: 10,
-  retryWrites: true,
-  w: 'majority',
-  retryReads: true,
-  readPreference: 'primary',
-  autoIndex: true,
-  keepAlive: true,
-  keepAliveInitialDelay: 300000,
-  heartbeatFrequencyMS: 10000,
-  minHeartbeatFrequencyMS: 500
-};
-
 // MongoDB connection with retry logic
 const connectDB = async (retries = 5, delay = 5000) => {
-  for (let i = 0; i < retries; i++) {
-    try {
-      console.log(`Attempting MongoDB connection attempt ${i + 1}...`);
-      console.log('Using MongoDB URI:', process.env.MONGODB_URI);
-      
-      await mongoose.connect(process.env.MONGODB_URI, mongoOptions);
-      
-      console.log('✅ Successfully connected to MongoDB');
-      
-      // Test database connection
-      await mongoose.connection.db.admin().ping();
-      console.log('✅ Database ping successful');
-      
-      // Test creating a test collection
-      try {
-        await mongoose.connection.db.createCollection('test_collection');
-        console.log('✅ Successfully created test collection');
-      } catch (err) {
-        console.error('❌ Error creating test collection:', err);
-      }
-      
-      return;
-    } catch (err) {
-      console.error(`❌ MongoDB connection attempt ${i + 1} failed:`);
-      console.error('Error details:', {
-        name: err.name,
-        message: err.message,
-        code: err.code,
-        stack: err.stack
-      });
-      
-      if (i === retries - 1) {
-        console.error('❌ All MongoDB connection attempts failed');
-        process.exit(1);
-      }
-      
-      await new Promise(resolve => setTimeout(resolve, delay));
+  try {
+    console.log('Attempting to connect to MongoDB...');
+    console.log('Using connection string:', MONGODB_URI);
+    
+    const conn = await mongoose.connect(MONGODB_URI, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+      serverSelectionTimeoutMS: 5000,
+      socketTimeoutMS: 45000,
+      family: 4,
+      retryWrites: true,
+      w: 'majority'
+    });
+
+    console.log('Successfully connected to MongoDB');
+    await conn.db.admin().ping();
+    console.log('MongoDB connection ping successful');
+    
+    return conn;
+  } catch (error) {
+    console.error('MongoDB connection error:', error);
+    console.error('Error details:', {
+      message: error.message,
+      code: error.code,
+      name: error.name
+    });
+    
+    if (retries > 0) {
+      console.log(`Retrying connection in ${delay}ms... (${retries} attempts left)`);
+      setTimeout(() => connectDB(retries - 1, delay), delay);
+    } else {
+      console.error('Failed to connect to MongoDB after all retries');
+      process.exit(1);
     }
   }
 };

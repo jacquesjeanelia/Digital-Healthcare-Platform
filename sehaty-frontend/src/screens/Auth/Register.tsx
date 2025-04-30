@@ -1,41 +1,103 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { Button } from "../../components/ui/button";
-import { Card, CardContent } from "../../components/ui/card";
-import { Input } from "../../components/ui/input";
-import { useAuth } from "../../lib/AuthContext";
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../lib/AuthContext';
+import './Register.css';
+import { Button } from '../../components/ui/button';
+import { Card, CardContent } from '../../components/ui/card';
+import { Input } from '../../components/ui/input';
 
-export const Register = (): JSX.Element => {
+interface FormData {
+  name: string;
+  email: string;
+  password: string;
+  confirmPassword: string;
+  phone: string;
+  role: 'patient' | 'doctor';
+  providerInfo: {
+    location: string;
+    specialty: string;
+    workingHours: string;
+    clinicName: string;
+    contactInfo: string;
+  };
+}
+
+const Register: React.FC = () => {
+  const [showPassword, setShowPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [formData, setFormData] = useState<FormData>({
+    name: '',
+    email: '',
+    password: '',
+    confirmPassword: '',
+    phone: '',
+    role: 'patient',
+    providerInfo: {
+      location: '',
+      specialty: '',
+      workingHours: '',
+      clinicName: '',
+      contactInfo: ''
+    }
+  });
+
   const navigate = useNavigate();
   const { register, isLoading: authLoading } = useAuth();
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    password: "",
-    confirmPassword: "",
-    phone: "",
-    medicalHistory: "",
-    preferences: ""
-  });
-  const [showPassword, setShowPassword] = useState(false);
-  const [errors, setErrors] = useState<Record<string, string>>({});
-  const [isLoading, setIsLoading] = useState(false);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    if (name.startsWith('providerInfo.')) {
+      setFormData(prev => ({
+        ...prev,
+        providerInfo: {
+          ...prev.providerInfo,
+          [name.replace('providerInfo.', '')]: value
+        }
+      }));
+    } else {
+      setFormData(prev => ({ ...prev, [name]: value }));
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const validationErrors = validateForm();
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors);
+      return;
+    }
+
+    try {
+      setIsLoading(true);
+      await register(formData);
+      navigate("/dashboard");
+    } catch (error) {
+      setErrors({
+        general: 'Registration failed. Please try again later.'
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
 
     if (!formData.name.trim()) {
-      newErrors.name = "Name is required";
+      newErrors.name = 'Name is required';
     }
 
     if (!formData.email.trim()) {
-      newErrors.email = "Email is required";
+      newErrors.email = 'Email is required';
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      newErrors.email = "Please enter a valid email address";
+      newErrors.email = 'Please enter a valid email address';
     }
 
     if (!formData.password.trim()) {
-      newErrors.password = "Password is required";
+      newErrors.password = 'Password is required';
+    } else if (formData.password.length < 6) {
+      newErrors.password = 'Password must be at least 6 characters';
     } else if (formData.password.length < 8) {
       newErrors.password = "Password must be at least 8 characters long";
     } else if (!/[A-Z]/.test(formData.password)) {
@@ -64,7 +126,17 @@ export const Register = (): JSX.Element => {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    if (name.startsWith('providerInfo.')) {
+      setFormData(prev => ({
+        ...prev,
+        providerInfo: {
+          ...prev.providerInfo,
+          [name.replace('providerInfo.', '')]: value
+        }
+      }));
+    } else {
+      setFormData(prev => ({ ...prev, [name]: value }));
+    }
   };
 
   const handleRegister = async (e: React.FormEvent) => {
@@ -77,12 +149,7 @@ export const Register = (): JSX.Element => {
     }
 
     try {
-      await register(
-        formData.name,
-        formData.email,
-        formData.password,
-        formData.phone
-      );
+      await register(formData);
       navigate("/");
     } catch (err: any) {
       setErrors({
@@ -99,7 +166,278 @@ export const Register = (): JSX.Element => {
       <div className="w-full max-w-md px-4">
         <div className="flex flex-col items-center mb-8">
           <img 
-            src="/logo-colored.svg" 
+            src="/logo.svg"
+            alt="Sehaty"
+            className="h-12 w-auto"
+          />
+          <h2 className="mt-6 text-3xl font-extrabold text-gray-900 dark:text-white">
+            Create your account
+          </h2>
+          <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
+            Already have an account?{' '}
+            <a
+              href="/login"
+              className="font-medium text-blue-600 dark:text-blue-400 hover:text-blue-500 dark:hover:text-blue-300"
+            >
+              Sign in
+            </a>
+          </p>
+        </div>
+
+        <Card className="w-full">
+          <CardContent>
+            <form onSubmit={handleRegister} className="space-y-6">
+              <div>
+                <label htmlFor="role" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                  Account Type
+                </label>
+                <div className="mt-1">
+                  <button
+                    type="button"
+                    onClick={() => setIsProvider(false)}
+                    className={`w-full flex items-center justify-center px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-md shadow-sm text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 ${
+                      !isProvider ? 'bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300' : ''
+                    }`}
+                  >
+                    Patient
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setIsProvider(true)}
+                    className={`w-full flex items-center justify-center px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-md shadow-sm text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 ${
+                      isProvider ? 'bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300' : ''
+                    }`}
+                  >
+                    Healthcare Provider
+                  </button>
+                </div>
+              </div>
+
+              <div>
+                <label htmlFor="name" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                  Full Name
+                </label>
+                <Input
+                  id="name"
+                  name="name"
+                  type="text"
+                  required
+                  value={formData.name}
+                  onChange={handleChange}
+                  className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-700 shadow-sm focus:border-blue-500 dark:focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                />
+                {errors.name && (
+                  <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.name}</p>
+                )}
+              </div>
+
+              <div>
+                <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                  Email address
+                </label>
+                <Input
+                  id="email"
+                  name="email"
+                  type="email"
+                  required
+                  value={formData.email}
+                  onChange={handleChange}
+                  className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-700 shadow-sm focus:border-blue-500 dark:focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                />
+                {errors.email && (
+                  <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.email}</p>
+                )}
+              </div>
+
+              <div>
+                <label htmlFor="phone" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                  Phone number
+                </label>
+                <Input
+                  id="phone"
+                  name="phone"
+                  type="tel"
+                  required
+                  value={formData.phone}
+                  onChange={handleChange}
+                  className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-700 shadow-sm focus:border-blue-500 dark:focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                />
+                {errors.phone && (
+                  <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.phone}</p>
+                )}
+              </div>
+
+              {isProvider && (
+                <div>
+                  <label htmlFor="providerInfo.location" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                    Location
+                  </label>
+                  <Input
+                    id="providerInfo.location"
+                    name="providerInfo.location"
+                    type="text"
+                    required
+                    value={formData.providerInfo.location}
+                    onChange={handleChange}
+                    className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-700 shadow-sm focus:border-blue-500 dark:focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                  />
+                  {errors['providerInfo.location'] && (
+                    <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors['providerInfo.location']}</p>
+                  )}
+                </div>
+              )}
+
+              {isProvider && (
+                <div>
+                  <label htmlFor="providerInfo.specialty" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                    Specialty
+                  </label>
+                  <Input
+                    id="providerInfo.specialty"
+                    name="providerInfo.specialty"
+                    type="text"
+                    required
+                    value={formData.providerInfo.specialty}
+                    onChange={handleChange}
+                    className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-700 shadow-sm focus:border-blue-500 dark:focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                  />
+                  {errors['providerInfo.specialty'] && (
+                    <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors['providerInfo.specialty']}</p>
+                  )}
+                </div>
+              )}
+
+              {isProvider && (
+                <div>
+                  <label htmlFor="providerInfo.workingHours" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                    Working Hours
+                  </label>
+                  <Input
+                    id="providerInfo.workingHours"
+                    name="providerInfo.workingHours"
+                    type="text"
+                    required
+                    value={formData.providerInfo.workingHours}
+                    onChange={handleChange}
+                    className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-700 shadow-sm focus:border-blue-500 dark:focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                  />
+                  {errors['providerInfo.workingHours'] && (
+                    <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors['providerInfo.workingHours']}</p>
+                  )}
+                </div>
+              )}
+
+              {isProvider && (
+                <div>
+                  <label htmlFor="providerInfo.clinicName" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                    Clinic Name (Optional)
+                  </label>
+                  <Input
+                    id="providerInfo.clinicName"
+                    name="providerInfo.clinicName"
+                    type="text"
+                    value={formData.providerInfo.clinicName}
+                    onChange={handleChange}
+                    className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-700 shadow-sm focus:border-blue-500 dark:focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                  />
+                </div>
+              )}
+
+              {isProvider && (
+                <div>
+                  <label htmlFor="providerInfo.contactInfo" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                    Contact Information
+                  </label>
+                  <Input
+                    id="providerInfo.contactInfo"
+                    name="providerInfo.contactInfo"
+                    type="text"
+                    required
+                    value={formData.providerInfo.contactInfo}
+                    onChange={handleChange}
+                    className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-700 shadow-sm focus:border-blue-500 dark:focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                  />
+                  {errors['providerInfo.contactInfo'] && (
+                    <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors['providerInfo.contactInfo']}</p>
+                  )}
+                </div>
+              )}
+
+              <div>
+                <label htmlFor="password" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                  Password
+                </label>
+                <div className="mt-1 relative">
+                  <Input
+                    id="password"
+                    name="password"
+                    type={showPassword ? "text" : "password"}
+                    required
+                    value={formData.password}
+                    onChange={handleChange}
+                    className="block w-full rounded-md border-gray-300 dark:border-gray-700 shadow-sm focus:border-blue-500 dark:focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-2.5 text-gray-400 hover:text-gray-500"
+                  >
+                    {showPassword ? "Hide" : "Show"}
+                  </button>
+                </div>
+                {errors.password && (
+                  <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.password}</p>
+                )}
+              </div>
+
+              <div>
+                <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                  Confirm Password
+                </label>
+                <div className="mt-1 relative">
+                  <Input
+                    id="confirmPassword"
+                    name="confirmPassword"
+                    type={showPassword ? "text" : "password"}
+                    required
+                    value={formData.confirmPassword}
+                    onChange={handleChange}
+                    className="block w-full rounded-md border-gray-300 dark:border-gray-700 shadow-sm focus:border-blue-500 dark:focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-2.5 text-gray-400 hover:text-gray-500"
+                  >
+                    {showPassword ? "Hide" : "Show"}
+                  </button>
+                </div>
+                {errors.confirmPassword && (
+                  <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.confirmPassword}</p>
+                )}
+              </div>
+
+              <div>
+                <Button
+                  type="submit"
+                  disabled={isLoading}
+                  className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                >
+                  {isLoading ? 'Creating account...' : 'Create account'}
+                </Button>
+              </div>
+
+              {errors.general && (
+                <div className="text-center text-red-600 dark:text-red-400">
+                  {errors.general}
+                </div>
+              )}
+            </form>
+          </CardContent>
+        </Card>
+      </div>
+    </div>
+  );            src="/logo-colored.svg" 
             alt="Sehaty" 
             className="w-16 h-16 mb-2" 
           />

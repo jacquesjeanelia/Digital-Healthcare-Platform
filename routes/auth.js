@@ -2,11 +2,10 @@ const express = require('express');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 const router = express.Router();
-const path = require('path');
 
 // Input validation middleware
 const validateRegistration = (req, res, next) => {
-  const { name, email, password, phone } = req.body;
+  const { name, email, password, phone, role } = req.body;
   const errors = [];
 
   // Name validation
@@ -29,8 +28,11 @@ const validateRegistration = (req, res, next) => {
   // Password validation
   if (!password || password.length < 8) {
     errors.push('Password must be at least 8 characters long');
-  } else if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(password)) {
-    errors.push('Password must contain at least one uppercase letter, one lowercase letter, and one number');
+  }
+
+  // Role validation
+  if (role && !['patient', 'doctor', 'admin'].includes(role)) {
+    errors.push('Invalid user role');
   }
 
   if (errors.length > 0) {
@@ -45,10 +47,10 @@ const validateRegistration = (req, res, next) => {
 
 // Register route
 router.post('/register', validateRegistration, async (req, res) => {
-  const { name, email, password, phone } = req.body;
+  const { name, email, password, phone, role } = req.body;
 
   try {
-    console.log('Registration attempt:', { email, name });
+    console.log('Registration attempt:', { email, name, role });
 
     // Check if user already exists
     const existingUser = await User.findOne({ email });
@@ -69,10 +71,11 @@ router.post('/register', validateRegistration, async (req, res) => {
       name: name.trim(),
       email: email.toLowerCase().trim(),
       password,
-      phone: phone.trim()
+      phone: phone.trim(),
+      role: role || 'patient'
     });
 
-    console.log('User created successfully:', { userId: user._id, email });
+    console.log('User created successfully:', { userId: user._id, email, role: user.role });
 
     // Generate JWT token
     const token = jwt.sign(
@@ -193,9 +196,23 @@ router.post('/login', async (req, res) => {
       });
     }
 
+    // Rate limiting
+    const rateLimitKey = `login:${email}`;
+    const rateLimit = await redis.get(rateLimitKey);
+    if (rateLimit && parseInt(rateLimit) >= 5) {
+      return res.status(429).json({
+        message: 'Too many login attempts. Please try again later.',
+        errors: ['Too many login attempts. Please try again later.']
+      });
+    }
+
     // Find user
     const user = await User.findOne({ email: email.toLowerCase().trim() }).select('+password');
     if (!user) {
+      // Increment rate limit even if user doesn't exist
+      await redis.incr(rateLimitKey);
+      await redis.expire(rateLimitKey, 3600); // Reset after 1 hour
+      
       return res.status(401).json({
         message: 'Login failed',
         errors: ['Invalid email or password']
@@ -205,17 +222,27 @@ router.post('/login', async (req, res) => {
     // Check password
     const isPasswordCorrect = await user.comparePassword(password);
     if (!isPasswordCorrect) {
+      // Increment rate limit on failed password attempt
+      await redis.incr(rateLimitKey);
+      await redis.expire(rateLimitKey, 3600); // Reset after 1 hour
+      
       return res.status(401).json({
         message: 'Login failed',
         errors: ['Invalid email or password']
       });
     }
 
+    // Reset rate limit on successful login
+    await redis.del(rateLimitKey);
+
     // Generate JWT token
     const token = jwt.sign(
       { id: user._id, role: user.role },
       process.env.JWT_SECRET,
-      { expiresIn: '30d' }
+      { 
+        expiresIn: '30d',
+        algorithm: 'HS256'
+      }
     );
 
     // Set secure cookie with token
@@ -223,7 +250,8 @@ router.post('/login', async (req, res) => {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'strict',
-      maxAge: 30 * 24 * 60 * 60 * 1000 // 30 days
+      maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
+      domain: process.env.NODE_ENV === 'production' ? '.sehaty.com' : undefined
     });
 
     // Send success response
@@ -237,10 +265,19 @@ router.post('/login', async (req, res) => {
       }
     });
   } catch (error) {
-    console.error('Login error:', error);
+    console.error('Login error:', {
+      message: error.message,
+      stack: error.stack,
+      type: error.name
+    });
+    
     res.status(500).json({
       message: 'Login failed',
-      errors: ['An unexpected error occurred. Please try again later.']
+      errors: ['An unexpected error occurred. Please try again later.'],
+      details: {
+        errorType: 'ServerError',
+        timestamp: new Date().toISOString()
+      }
     });
   }
 });

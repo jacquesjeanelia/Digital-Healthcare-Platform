@@ -14,6 +14,7 @@ export const Login = (): JSX.Element => {
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isLoading, setIsLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
@@ -97,7 +98,7 @@ export const Login = (): JSX.Element => {
           </div>
         </div>
 
-        <Card className="dark:bg-gray-800">
+        <Card className="w-full">
           <CardContent className="p-6">
             {errors.general && (
               <div className="bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 p-3 rounded-md mb-4">
@@ -107,103 +108,71 @@ export const Login = (): JSX.Element => {
 
             <form onSubmit={handleLogin} className="space-y-4">
               <div>
-                <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Email
+                <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                  Email address
                 </label>
                 <Input
                   id="email"
                   type="email"
                   name="email"
-                  placeholder="you@example.com"
+                  required
                   value={formData.email}
                   onChange={handleChange}
-                  className="w-full bg-white dark:bg-gray-700"
-                  required
+                  className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-700 shadow-sm focus:border-blue-500 dark:focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
                 />
                 {errors.email && (
-                  <p className="text-red-600 dark:text-red-400 text-sm mt-1">
-                    {errors.email}
-                  </p>
+                  <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.email}</p>
                 )}
               </div>
 
               <div>
-                <label htmlFor="password" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                <label htmlFor="password" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                   Password
                 </label>
-                <Input
-                  id="password"
-                  type="password"
-                  name="password"
-                  placeholder="••••••••"
-                  value={formData.password}
-                  onChange={handleChange}
-                  className="w-full bg-white dark:bg-gray-700"
-                  required
-                />
+                <div className="mt-1 relative">
+                  <Input
+                    id="password"
+                    type={showPassword ? "text" : "password"}
+                    name="password"
+                    required
+                    value={formData.password}
+                    onChange={handleChange}
+                    className="block w-full rounded-md border-gray-300 dark:border-gray-700 shadow-sm focus:border-blue-500 dark:focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-2.5 text-gray-400 hover:text-gray-500"
+                  >
+                    {showPassword ? "Hide" : "Show"}
+                  </button>
+                </div>
                 {errors.password && (
-                  <p className="text-red-600 dark:text-red-400 text-sm mt-1">
-                    {errors.password}
-                  </p>
+                  <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.password}</p>
                 )}
               </div>
 
-              <div className="flex items-center justify-between">
-                <div className="flex items-center">
-                  <input
-                    id="remember"
-                    type="checkbox"
-                    className="h-4 w-4 accent-[#4caf96]"
-                  />
-                  <label htmlFor="remember" className="ml-2 text-sm text-gray-600 dark:text-gray-400">
-                    Remember me
-                  </label>
-                </div>
-                <a href="#" className="text-sm text-[#4caf96] hover:underline">
-                  Forgot password?
-                </a>
+              <div className="mt-4">
+                <Button
+                  type="submit"
+                  disabled={isLoading}
+                  className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                >
+                  {isLoading ? 'Signing in...' : 'Sign in'}
+                </Button>
               </div>
-
-              <Button
-                type="submit"
-                className="w-full h-10 bg-[#4caf96] text-white font-bold rounded-lg hover:bg-[#3d9d86] transition-colors"
-                disabled={isLoading || authLoading}
-              >
-                {isLoading ? "Logging in..." : "Log in"}
-              </Button>
             </form>
 
             <div className="mt-6 text-center">
               <p className="text-sm text-gray-600 dark:text-gray-400">
-                Don't have an account?{" "}
-                <button 
-                  onClick={() => navigate("/auth/register")} 
-                  className="text-[#4caf96] hover:underline"
+                Don't have an account?{' '}
+                <a
+                  href="/auth/register"
+                  className="font-medium text-blue-600 dark:text-blue-400 hover:text-blue-500 dark:hover:text-blue-300"
                 >
-                  Sign up
-                </button>
+                  Create one
+                </a>
               </p>
-            </div>
-
-            <div className="relative my-6">
-              <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-gray-300 dark:border-gray-700"></div>
-              </div>
-              <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-white dark:bg-gray-800 px-2 text-gray-500 dark:text-gray-400">Or</span>
-              </div>
-            </div>
-
-            <div className="space-y-3">
-              <Button
-                variant="outline"
-                className="w-full border-gray-300 dark:border-gray-700 flex items-center justify-center gap-2 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
-                onClick={() => navigate("/auth/doctor-login")}
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-[#4caf96]">
-                  <path d="M3 15v4c0 1.1.9 2 2 2h14a2 2 0 0 0 2-2v-4M17 9l-5 5-5-5M12 12.8V2.5"></path>
-                </svg>
-                <span>Login as Healthcare Provider</span>
               </Button>
             </div>
           </CardContent>
