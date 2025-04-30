@@ -3,79 +3,60 @@ const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 const router = express.Router();
 
-// Input validation middleware
-const validateRegistration = (req, res, next) => {
-  const { name, email, password, phone, role } = req.body;
-  const errors = [];
-
-  // Name validation
-  if (!name || name.trim().length < 2) {
-    errors.push('Name must be at least 2 characters long');
-  }
-
-  // Email validation
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  if (!email || !emailRegex.test(email)) {
-    errors.push('Please provide a valid email address');
-  }
-
-  // Phone validation
-  const phoneRegex = /^\+?\d{10,15}$/;
-  if (!phone || !phoneRegex.test(phone)) {
-    errors.push('Please provide a valid phone number (e.g., +201234567890)');
-  }
-
-  // Password validation
-  if (!password || password.length < 8) {
-    errors.push('Password must be at least 8 characters long');
-  }
-
-  // Role validation
-  if (role && !['patient', 'doctor', 'admin'].includes(role)) {
-    errors.push('Invalid user role');
-  }
-
-  if (errors.length > 0) {
-    return res.status(400).json({
-      message: 'Validation failed',
-      errors
-    });
-  }
-
-  next();
-};
-
 // Register route
-router.post('/register', validateRegistration, async (req, res) => {
-  const { name, email, password, phone, role } = req.body;
+router.post('/register', async (req, res) => {
+  console.log('Registration attempt:', {
+    body: { ...req.body, password: req.body.password ? '***' : undefined },
+    headers: req.headers
+  });
 
   try {
-    console.log('Registration attempt:', { email, name, role });
+    const { name, email, password } = req.body;
+
+    // Input validation
+    if (!name || !email || !password) {
+      console.log('Validation failed - missing fields:', { name: !name, email: !email, password: !password });
+      return res.status(400).json({ 
+        message: 'Please provide all required fields',
+        fields: { name: !name, email: !email, password: !password }
+      });
+    }
+
+    // Password validation
+    if (password.length < 8) {
+      console.log('Validation failed - password too short');
+      return res.status(400).json({ 
+        message: 'Password must be at least 8 characters long'
+      });
+    }
+
+    // Email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      console.log('Validation failed - invalid email format');
+      return res.status(400).json({ 
+        message: 'Please provide a valid email address'
+      });
+    }
 
     // Check if user already exists
+    console.log('Checking for existing user...');
     const existingUser = await User.findOne({ email });
     if (existingUser) {
-      console.log('Registration failed: User already exists', { email });
-      return res.status(409).json({
-        message: 'Registration failed',
-        errors: ['An account with this email already exists'],
-        details: {
-          errorType: 'DuplicateEmailError',
-          message: 'An account with this email already exists'
-        }
+      console.log('Registration failed - user already exists');
+      return res.status(400).json({ 
+        message: 'User with this email already exists'
       });
     }
 
     // Create new user
+    console.log('Creating new user...');
     const user = await User.create({
-      name: name.trim(),
-      email: email.toLowerCase().trim(),
-      password,
-      phone: phone.trim(),
-      role: role || 'patient'
+      name,
+      email,
+      password
     });
-
-    console.log('User created successfully:', { userId: user._id, email, role: user.role });
+    console.log('User created successfully:', { id: user._id, email: user.email });
 
     // Generate JWT token
     const token = jwt.sign(
@@ -84,17 +65,11 @@ router.post('/register', validateRegistration, async (req, res) => {
       { expiresIn: '30d' }
     );
 
-    // Set secure cookie with token
-    res.cookie('token', token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
-      maxAge: 30 * 24 * 60 * 60 * 1000 // 30 days
-    });
-
-    // Send success response
+    // Send response
+    console.log('Registration successful');
     res.status(201).json({
       message: 'Registration successful',
+      token,
       user: {
         id: user._id,
         name: user.name,
@@ -106,157 +81,61 @@ router.post('/register', validateRegistration, async (req, res) => {
     console.error('Registration error:', {
       name: error.name,
       message: error.message,
-      code: error.code,
       stack: error.stack,
-      requestBody: { email, name }
+      code: error.code
     });
-
-    // Handle specific error types
+    
+    // Handle specific MongoDB errors
     if (error.name === 'ValidationError') {
-      return res.status(400).json({
-        message: 'Registration failed',
-        errors: Object.values(error.errors).map(err => err.message),
-        details: {
-          errorType: 'ValidationError',
-          message: error.message
-        }
+      console.log('MongoDB validation error:', error.errors);
+      return res.status(400).json({ 
+        message: 'Validation error',
+        errors: Object.values(error.errors).map(err => err.message)
       });
     }
 
+    // Handle duplicate key error
     if (error.code === 11000) {
-      return res.status(409).json({
-        message: 'Registration failed',
-        errors: ['An account with this email already exists'],
-        details: {
-          errorType: 'DuplicateEmailError',
-          message: 'An account with this email already exists'
-        }
+      console.log('Duplicate key error');
+      return res.status(400).json({ 
+        message: 'Email already exists'
       });
     }
 
-    // Handle database connection errors
-    if (error.name === 'MongoError' && error.message.includes('connection')) {
-      return res.status(503).json({
-        message: 'Registration failed',
-        errors: ['Unable to connect to the database. Please try again later.'],
-        details: {
-          errorType: 'DatabaseConnectionError',
-          message: error.message,
-          code: error.code
-        }
-      });
-    }
-
-    // Handle password hashing errors
-    if (error.name === 'Error' && error.message.includes('password')) {
-      return res.status(500).json({
-        message: 'Registration failed',
-        errors: ['Failed to hash password. Please try again later.'],
-        details: {
-          errorType: 'PasswordError',
-          message: error.message
-        }
-      });
-    }
-
-    // Handle general database errors
-    if (error.name === 'MongoError') {
-      return res.status(500).json({
-        message: 'Registration failed',
-        errors: ['Database error occurred. Please try again later.'],
-        details: {
-          errorType: 'DatabaseError',
-          message: error.message,
-          code: error.code
-        }
-      });
-    }
-
-    res.status(500).json({
-      message: 'Registration failed',
-      errors: ['An unexpected error occurred. Please try again later.'],
-      details: {
-        errorType: 'UnknownError',
-        message: error.message
-      }
+    res.status(500).json({ 
+      message: 'Registration failed. Please try again.',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
     });
   }
 });
 
 // Login route
 router.post('/login', async (req, res) => {
-  const { email, password } = req.body;
-
   try {
-    // Input validation
-    if (!email || !password) {
-      return res.status(400).json({
-        message: 'Login failed',
-        errors: ['Please provide both email and password']
-      });
-    }
+    const { email, password } = req.body;
 
-    // Rate limiting
-    const rateLimitKey = `login:${email}`;
-    const rateLimit = await redis.get(rateLimitKey);
-    if (rateLimit && parseInt(rateLimit) >= 5) {
-      return res.status(429).json({
-        message: 'Too many login attempts. Please try again later.',
-        errors: ['Too many login attempts. Please try again later.']
-      });
-    }
-
-    // Find user
-    const user = await User.findOne({ email: email.toLowerCase().trim() }).select('+password');
+    // Find user and include password for comparison
+    const user = await User.findOne({ email }).select('+password');
     if (!user) {
-      // Increment rate limit even if user doesn't exist
-      await redis.incr(rateLimitKey);
-      await redis.expire(rateLimitKey, 3600); // Reset after 1 hour
-      
-      return res.status(401).json({
-        message: 'Login failed',
-        errors: ['Invalid email or password']
-      });
+      return res.status(401).json({ message: 'Invalid email or password' });
     }
 
     // Check password
     const isPasswordCorrect = await user.comparePassword(password);
     if (!isPasswordCorrect) {
-      // Increment rate limit on failed password attempt
-      await redis.incr(rateLimitKey);
-      await redis.expire(rateLimitKey, 3600); // Reset after 1 hour
-      
-      return res.status(401).json({
-        message: 'Login failed',
-        errors: ['Invalid email or password']
-      });
+      return res.status(401).json({ message: 'Invalid email or password' });
     }
-
-    // Reset rate limit on successful login
-    await redis.del(rateLimitKey);
 
     // Generate JWT token
     const token = jwt.sign(
       { id: user._id, role: user.role },
       process.env.JWT_SECRET,
-      { 
-        expiresIn: '30d',
-        algorithm: 'HS256'
-      }
+      { expiresIn: '30d' }
     );
 
-    // Set secure cookie with token
-    res.cookie('token', token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
-      maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
-      domain: process.env.NODE_ENV === 'production' ? '.sehaty.com' : undefined
-    });
-
-    // Send success response
+    // Send response
     res.json({
-      message: 'Login successful',
+      token,
       user: {
         id: user._id,
         name: user.name,
@@ -265,20 +144,8 @@ router.post('/login', async (req, res) => {
       }
     });
   } catch (error) {
-    console.error('Login error:', {
-      message: error.message,
-      stack: error.stack,
-      type: error.name
-    });
-    
-    res.status(500).json({
-      message: 'Login failed',
-      errors: ['An unexpected error occurred. Please try again later.'],
-      details: {
-        errorType: 'ServerError',
-        timestamp: new Date().toISOString()
-      }
-    });
+    console.error('Login error:', error);
+    res.status(500).json({ message: 'Error logging in' });
   }
 });
 
@@ -312,11 +179,6 @@ router.get('/me', async (req, res) => {
     console.error('Get user error:', error);
     res.status(401).json({ message: 'Invalid token' });
   }
-});
-
-// Serve registration page
-router.get('/register', (req, res) => {
-  res.sendFile(path.join(__dirname, '../../sehaty-frontend/dist/index.html'));
 });
 
 module.exports = router; 

@@ -48,7 +48,6 @@ Generated\ Files/
 *.VisualState.xml
 TestResult.xml
 nunit-*.xml
-_last_working_commit_backup/
 
 # Build Results of an ATL Project
 [Dd]ebugPS/
@@ -406,4 +405,3 @@ FodyWeavers.xsd
 .env.development.local
 .env.test.local
 .env.production.local
-.vercel

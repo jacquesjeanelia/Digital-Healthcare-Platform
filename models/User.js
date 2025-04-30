@@ -14,11 +14,6 @@ const userSchema = new mongoose.Schema({
     lowercase: true,
     trim: true
   },
-  phone: {
-    type: String,
-    required: [true, 'Please provide your phone number'],
-    trim: true
-  },
   password: {
     type: String,
     required: [true, 'Please provide a password'],
@@ -30,43 +25,9 @@ const userSchema = new mongoose.Schema({
     enum: ['patient', 'doctor', 'admin'],
     default: 'patient'
   },
-  providerInfo: {
-    type: {
-      location: {
-        type: String,
-        required: function() { return this.role === 'doctor'; }
-      },
-      specialty: {
-        type: String,
-        required: function() { return this.role === 'doctor'; }
-      },
-      workingHours: {
-        type: String,
-        required: function() { return this.role === 'doctor'; }
-      },
-      clinicName: String,
-      contactInfo: {
-        type: String,
-        required: function() { return this.role === 'doctor'; }
-      }
-    },
-    default: null
-  },
   appointments: [{
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Appointment'
-  }],
-  medicalHistory: {
-    type: String,
-    default: ''
-  },
-  preferences: {
-    type: String,
-    default: ''
-  },
-  complaints: [{
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Complaint'
   }],
   createdAt: {
     type: Date,

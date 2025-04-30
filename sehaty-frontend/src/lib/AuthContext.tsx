@@ -1,5 +1,4 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from "react";
-import { API_URL } from "./config/api";
 
 // Define the shape of the user object
 interface User {
@@ -7,14 +6,6 @@ interface User {
   name: string;
   email: string;
   role: 'patient' | 'doctor' | 'admin';
-  phone: string;
-  providerInfo?: {
-    location: string;
-    specialty: string;
-    workingHours: string;
-    clinicName: string;
-    contactInfo: string;
-  };
 }
 
 // Define the shape of the auth context
@@ -23,58 +14,25 @@ interface AuthContextType {
   isAuthenticated: boolean;
   isLoading: boolean;
   login: (email: string, password: string) => Promise<void>;
-  register: (userData: {
-    name: string;
-    email: string;
-    password: string;
-    phone: string;
-    role: 'patient' | 'doctor';
-    providerInfo?: {
-      location: string;
-      specialty: string;
-      workingHours: string;
-      clinicName: string;
-      contactInfo: string;
-    };
-  }) => Promise<void>;
-  logout: () => Promise<void>;
+  register: (name: string, email: string, password: string) => Promise<void>;
+  logout: () => void;
 }
+
+// API base URL
+const API_URL = 'http://localhost:5000/api';
 
 // Create context with default values
 const AuthContext = createContext<AuthContextType>({
   user: null,
   isAuthenticated: false,
   isLoading: true,
-  login: async () => {
-    throw new Error('Auth context not initialized');
-  },
-  register: async (userData: {
-    name: string;
-    email: string;
-    password: string;
-    phone: string;
-    role: 'patient' | 'doctor';
-    providerInfo?: {
-      location: string;
-      specialty: string;
-      workingHours: string;
-      clinicName: string;
-      contactInfo: string;
-    };
-  }) => {
-    throw new Error('Auth context not initialized');
-  },
-  logout: async () => {},
+  login: async () => {},
+  register: async () => {},
+  logout: () => {},
 });
 
 // Hook to use the auth context
-export const useAuth = () => {
-  const context = useContext(AuthContext);
-  if (!context) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
-  return context;
-};
+export const useAuth = () => useContext(AuthContext);
 
 // Provider component
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
@@ -113,12 +71,12 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     checkAuth();
 
     // Auto logout after 30 minutes of inactivity
-    let inactivityTimer: NodeJS.Timeout;
+    let inactivityTimer: number;
     
     const resetTimer = () => {
       if (inactivityTimer) clearTimeout(inactivityTimer);
       
-      inactivityTimer = setTimeout(() => {
+      inactivityTimer = window.setTimeout(() => {
         logout();
         alert("You have been logged out due to inactivity");
       }, 30 * 60 * 1000); // 30 minutes
@@ -151,8 +109,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ email, password }),
-        credentials: 'include' // Important for cookies
+        body: JSON.stringify({ email, password })
       });
 
       if (!response.ok) {
@@ -165,7 +122,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       // Set the user
       setUser(data.user);
       
-      // No need to handle token as it's handled by cookies
+      // Save token
+      localStorage.setItem("token", data.token);
     } catch (error) {
       console.error("Login error:", error);
       throw error;
@@ -175,20 +133,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   };
 
   // Register function
-  const register = async (userData: {
-    name: string;
-    email: string;
-    password: string;
-    phone: string;
-    role: 'patient' | 'doctor';
-    providerInfo?: {
-      location: string;
-      specialty: string;
-      workingHours: string;
-      clinicName: string;
-      contactInfo: string;
-    };
-  }) => {
+  const register = async (name: string, email: string, password: string) => {
     setIsLoading(true);
     try {
       const response = await fetch(`${API_URL}/auth/register`, {
@@ -196,8 +141,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify(userData),
-        credentials: 'include' // Important for cookies
+        body: JSON.stringify({ name, email, password })
       });
 
       if (!response.ok) {
@@ -206,7 +150,12 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       }
 
       const data = await response.json();
+      
+      // Set the user
       setUser(data.user);
+      
+      // Save token
+      localStorage.setItem("token", data.token);
     } catch (error) {
       console.error("Registration error:", error);
       throw error;
@@ -216,18 +165,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   };
 
   // Logout function
-  const logout = async () => {
-    try {
-      await fetch(`${API_URL}/auth/logout`, {
-        method: 'POST',
-        credentials: 'include'
-      });
-    } catch (error) {
-      console.error("Logout error:", error);
-    } finally {
-      setUser(null);
-      localStorage.removeItem("token");
-    }
+  const logout = () => {
+    setUser(null);
+    localStorage.removeItem("token");
   };
 
   const value = {

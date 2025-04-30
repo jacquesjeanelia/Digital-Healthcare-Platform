@@ -1,8 +1,8 @@
 {
-  "name": "sehaty-frontend",
   "version": "1.0.0",
-  "private": true,
+  "source": "./index.html",
   "type": "module",
+  "name": "sehaty-frontend",
   "description": "Sehaty Digital Healthcare Platform Frontend",
   "scripts": {
     "dev": "vite",
@@ -21,9 +21,8 @@
     "tailwind-merge": "2.5.4"
   },
   "devDependencies": {
-    "@types/node": "^22.15.3",
-    "@types/react": "^18.2.0",
-    "@types/react-dom": "^18.2.0",
+    "@types/react": "18.2.0",
+    "@types/react-dom": "18.2.0",
     "@vitejs/plugin-react": "4.3.4",
     "esbuild": "0.24.0",
     "globals": "15.12.0",
