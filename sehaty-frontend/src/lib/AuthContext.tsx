@@ -178,7 +178,10 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const register = async (data: RegisterData) => {
     setIsLoading(true);
     try {
-      const response = await fetch(`${API_URL}/auth/register`, {
+      console.log('API_URL:', API_URL); // Debug log
+      const url = `${API_URL}/auth/register`;
+      console.log('Registration URL:', url); // Debug log
+      const response = await fetch(url, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
