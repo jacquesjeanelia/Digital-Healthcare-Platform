@@ -2,12 +2,22 @@ import React, { createContext, useContext, useState, useEffect, ReactNode } from
 import { API_URL } from "./config";
 
 // Define the shape of the user object
-interface User {
+export interface User {
   id: string;
   name: string;
   email: string;
-  phoneNumber: string;
-  role: 'patient' | 'doctor' | 'clinic';
+  role: "patient" | "doctor" | "admin";
+  phone?: string;
+  specialization?: string;
+  bio?: string;
+  consultationFee?: string;
+  availability?: {
+    [key: string]: {
+      start: string;
+      end: string;
+    };
+  };
+  verificationStatus?: "pending" | "approved" | "rejected";
   // Patient specific fields
   dateOfBirth?: string;
   gender?: string;

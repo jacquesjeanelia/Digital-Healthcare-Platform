@@ -12,6 +12,7 @@ import { Appointments } from "./screens/Appointments";
 import { Layout } from "./components/Layout";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import { AuthProvider } from "./lib/AuthContext";
+import { DoctorVerificationList } from "./screens/Admin/DoctorVerificationList";
 
 createRoot(document.getElementById("app") as HTMLElement).render(
   <StrictMode>
@@ -33,6 +34,13 @@ createRoot(document.getElementById("app") as HTMLElement).render(
           <Route path="/appointments" element={
             <ProtectedRoute>
               <Layout><Appointments /></Layout>
+            </ProtectedRoute>
+          } />
+
+          {/* Admin routes - protected */}
+          <Route path="/admin/doctor-verifications" element={
+            <ProtectedRoute>
+              <Layout><DoctorVerificationList /></Layout>
             </ProtectedRoute>
           } />
           

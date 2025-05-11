@@ -8,11 +8,38 @@ import { DoctorAppointments } from "./DoctorAppointments";
 import { DoctorPatients } from "./DoctorPatients";
 import { DoctorAnalytics } from "./DoctorAnalytics";
 import { DoctorSettings } from "./DoctorSettings";
+import { DoctorVerification } from "./DoctorVerification";
+import { DoctorReview } from "../../components/DoctorReview";
 
 export const DoctorDashboard = (): JSX.Element => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("appointments");
+
+  // Mock data for reviews
+  const [reviews] = useState([
+    {
+      id: "1",
+      userId: "user1",
+      userName: "John Doe",
+      rating: 5,
+      comment: "Great doctor! Very professional and caring.",
+      date: "2024-03-28",
+    },
+    {
+      id: "2",
+      userId: "user2",
+      userName: "Jane Smith",
+      rating: 4,
+      comment: "Good experience overall. Would recommend.",
+      date: "2024-03-27",
+    },
+  ]);
+
+  const handleReviewSubmit = async (rating: number, comment: string) => {
+    // TODO: Implement API call to submit review
+    console.log("Submitting review:", { rating, comment });
+  };
 
   // Redirect if not authenticated
   React.useEffect(() => {
@@ -61,8 +88,11 @@ export const DoctorDashboard = (): JSX.Element => {
             </div>
           </div>
 
+          {/* Verification Status */}
+          <DoctorVerification />
+
           {/* Doctor Dashboard Summary Cards */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             <Card className="bg-white dark:bg-gray-800 border-none shadow-sm transform transition-transform hover:scale-105">
               <CardContent className="p-6">
                 <div className="w-12 h-12 bg-[#4caf9620] dark:bg-[#4caf9640] rounded-full flex items-center justify-center mb-4 text-[#4caf96]">
@@ -83,7 +113,7 @@ export const DoctorDashboard = (): JSX.Element => {
               </CardContent>
             </Card>
 
-            <Card className="bg-white dark:bg-gray-800 border-none shadow-sm transform transition-transform hover:scale-105">
+            <Card className="bg-white dark:bg-gray-800 border-none shadow-sm">
               <CardContent className="p-6">
                 <div className="w-12 h-12 bg-[#4caf9620] dark:bg-[#4caf9640] rounded-full flex items-center justify-center mb-4 text-[#4caf96]">
                   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -103,7 +133,7 @@ export const DoctorDashboard = (): JSX.Element => {
               </CardContent>
             </Card>
 
-            <Card className="bg-white dark:bg-gray-800 border-none shadow-sm transform transition-transform hover:scale-105">
+            <Card className="bg-white dark:bg-gray-800 border-none shadow-sm">
               <CardContent className="p-6">
                 <div className="w-12 h-12 bg-[#4caf9620] dark:bg-[#4caf9640] rounded-full flex items-center justify-center mb-4 text-[#4caf96]">
                   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -120,7 +150,7 @@ export const DoctorDashboard = (): JSX.Element => {
               </CardContent>
             </Card>
 
-            <Card className="bg-white dark:bg-gray-800 border-none shadow-sm transform transition-transform hover:scale-105">
+            <Card className="bg-white dark:bg-gray-800 border-none shadow-sm">
               <CardContent className="p-6">
                 <div className="w-12 h-12 bg-[#4caf9620] dark:bg-[#4caf9640] rounded-full flex items-center justify-center mb-4 text-[#4caf96]">
                   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -142,13 +172,13 @@ export const DoctorDashboard = (): JSX.Element => {
           </div>
 
           {/* Main Dashboard Content */}
-          <Tabs 
+          <Tabs
             defaultValue="appointments" 
             value={activeTab}
             onValueChange={setActiveTab}
             className="w-full"
           >
-            <TabsList className="grid grid-cols-4 gap-2 bg-[#4caf9615] dark:bg-gray-800 p-1 rounded-xl mb-6">
+            <TabsList className="grid grid-cols-5 gap-2 bg-[#4caf9615] dark:bg-gray-800 p-1 rounded-xl mb-6">
               <TabsTrigger 
                 value="appointments" 
                 className={`${activeTab === "appointments" ? "bg-white dark:bg-gray-700 shadow-sm" : "hover:bg-[#4caf9620] dark:hover:bg-gray-700/70"} rounded-lg transition-all data-[state=active]:text-[#4caf96] data-[state=active]:font-medium`}
@@ -168,6 +198,12 @@ export const DoctorDashboard = (): JSX.Element => {
                 Analytics
               </TabsTrigger>
               <TabsTrigger 
+                value="reviews" 
+                className={`${activeTab === "reviews" ? "bg-white dark:bg-gray-700 shadow-sm" : "hover:bg-[#4caf9620] dark:hover:bg-gray-700/70"} rounded-lg transition-all data-[state=active]:text-[#4caf96] data-[state=active]:font-medium`}
+              >
+                Reviews
+              </TabsTrigger>
+              <TabsTrigger 
                 value="settings" 
                 className={`${activeTab === "settings" ? "bg-white dark:bg-gray-700 shadow-sm" : "hover:bg-[#4caf9620] dark:hover:bg-gray-700/70"} rounded-lg transition-all data-[state=active]:text-[#4caf96] data-[state=active]:font-medium`}
               >
@@ -185,6 +221,14 @@ export const DoctorDashboard = (): JSX.Element => {
             
             <TabsContent value="analytics" className="mt-0">
               <DoctorAnalytics />
+            </TabsContent>
+
+            <TabsContent value="reviews" className="mt-0">
+              <DoctorReview
+                doctorId={user.id}
+                reviews={reviews}
+                onReviewSubmit={handleReviewSubmit}
+              />
             </TabsContent>
             
             <TabsContent value="settings" className="mt-0">
