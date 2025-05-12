@@ -13,11 +13,11 @@ Sehaty is a comprehensive digital healthcare solution that connects patients wit
 
 ## Technology Stack
 
-- **Frontend**: Next.js, React, TypeScript
-- **Backend**: Node.js, Express, Next.js API Routes
+- **Frontend**: React, TypeScript, Vite, Tailwind CSS
+- **Backend**: Node.js, Express
 - **Database**: MongoDB
 - **Authentication**: JWT (JSON Web Tokens)
-- **Styling**: CSS Modules
+- **Deployment**: Vercel
 
 ## Getting Started
 
@@ -35,43 +35,65 @@ git clone https://github.com/your-username/sehaty.git
 cd sehaty
 ```
 
-2. Install dependencies:
+2. Install frontend dependencies:
 ```bash
+cd sehaty-frontend
 npm install
-# or
-yarn install
 ```
 
-3. Set up environment variables:
-Create a `.env.local` file in the root directory with the following content:
+3. Install backend dependencies:
+```bash
+cd ../sehaty-backend
+npm install
+```
+
+4. Set up environment variables:
+Create a `.env` file in the sehaty-backend directory with the following content:
 ```
 MONGODB_URI=your_mongodb_connection_string
 JWT_SECRET=your_jwt_secret
-NEXT_PUBLIC_API_URL=http://localhost:3000/api
+PORT=3000
 ```
 
-4. Run the development server:
+5. Run the development servers:
+
+Frontend:
 ```bash
+cd sehaty-frontend
 npm run dev
-# or
-yarn dev
 ```
 
-5. Open [http://localhost:3001](http://localhost:3001) to see the application in your browser.
+Backend:
+```bash
+cd sehaty-backend
+npm run dev
+```
+
+6. Open [http://localhost:5173](http://localhost:5173) to see the frontend application in your browser.
 
 ## Project Structure
 
 ```
 sehaty/
-├── public/           # Static assets
-├── src/              # Source code
-│   ├── components/   # React components
-│   ├── models/       # Data models
-│   ├── pages/        # Pages and API routes
-│   ├── styles/       # CSS styles
-│   └── utils/        # Utility functions
-├── .env.local        # Environment variables
-└── package.json      # Project dependencies
+├── sehaty-frontend/          # Frontend application
+│   ├── src/                 # Source code
+│   │   ├── components/      # React components
+│   │   ├── pages/          # Page components
+│   │   ├── styles/         # CSS styles
+│   │   └── utils/          # Utility functions
+│   ├── public/             # Static assets
+│   └── package.json        # Frontend dependencies
+│
+├── sehaty-backend/          # Backend application
+│   ├── src/                # Source code
+│   │   ├── routes/         # API routes
+│   │   ├── models/         # Database models
+│   │   ├── services/       # Business logic
+│   │   └── server.js       # Main server file
+│   └── package.json        # Backend dependencies
+│
+├── docs/                   # Documentation
+└── README.md              # Project documentation
 ```
 
 ## Contributing
