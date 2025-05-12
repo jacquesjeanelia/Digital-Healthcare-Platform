@@ -14,7 +14,7 @@ export const Contact = (): JSX.Element => {
 
       <div className="w-full">
         <img
-          src="/images/contact.jpg"
+          src="/contact.png"
           alt="Contact Us - Keyboard and Watch"
           className="w-full h-[300px] object-cover rounded-xl mb-12"
         />

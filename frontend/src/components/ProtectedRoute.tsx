@@ -7,15 +7,15 @@ interface ProtectedRouteProps {
 }
 
 export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
-  const { user, isAuthenticated, isPreviewMode, isLoading } = useAuth();
+  const { user, isAuthenticated, isLoading } = useAuth();
   const location = useLocation();
 
   useEffect(() => {
     // Store the route the user was trying to access for redirect after login
-    if (!isAuthenticated && !isLoading && !isPreviewMode) {
+    if (!isAuthenticated && !isLoading) {
       sessionStorage.setItem("redirectAfterLogin", location.pathname);
     }
-  }, [isAuthenticated, isLoading, isPreviewMode, location.pathname]);
+  }, [isAuthenticated, isLoading, location.pathname]);
 
   if (isLoading) {
     // Show loading state
@@ -29,11 +29,11 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
     );
   }
 
-  // If not authenticated and not in preview mode, redirect to login page
-  if (!isAuthenticated && !isPreviewMode) {
+  // If not authenticated, redirect to login page
+  if (!isAuthenticated) {
     return <Navigate to="/auth/login" />;
   }
 
-  // If user is in preview mode or is authenticated, show the protected content
+  // If user is authenticated, show the protected content
   return <>{children}</>;
 }; 

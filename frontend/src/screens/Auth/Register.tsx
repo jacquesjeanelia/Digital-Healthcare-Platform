@@ -3,6 +3,7 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { Button } from "../../components/ui/button";
 import { Card, CardContent } from "../../components/ui/card";
 import { Input } from "../../components/ui/input";
+import { PasswordInput } from "../../components/ui/password-input";
 import { useAuth } from "../../lib/AuthContext";
 
 export const Register = (): JSX.Element => {
@@ -44,6 +45,22 @@ export const Register = (): JSX.Element => {
     }
   }, [searchParams, navigate]);
 
+  const validatePassword = (password: string): boolean => {
+    const minLength = 8;
+    const hasUpperCase = /[A-Z]/.test(password);
+    const hasLowerCase = /[a-z]/.test(password);
+    const hasNumbers = /\d/.test(password);
+    const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(password);
+
+    return (
+      password.length >= minLength &&
+      hasUpperCase &&
+      hasLowerCase &&
+      hasNumbers &&
+      hasSpecialChar
+    );
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
@@ -58,6 +75,12 @@ export const Register = (): JSX.Element => {
     // Validate required fields based on role
     if (!name || !email || !password) {
       setError("Please fill in all required fields");
+      setIsLoading(false);
+      return;
+    }
+
+    if (!validatePassword(password)) {
+      setError("Password must be at least 8 characters long and include uppercase, lowercase, numbers, and special characters");
       setIsLoading(false);
       return;
     }
@@ -193,11 +216,10 @@ export const Register = (): JSX.Element => {
                 <label htmlFor="password" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                   Password *
                 </label>
-                <Input
+                <PasswordInput
                   id="password"
-                  type="password"
                   value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  onChange={setPassword}
                   className="w-full"
                   required
                 />
@@ -207,11 +229,10 @@ export const Register = (): JSX.Element => {
                 <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                   Confirm Password *
                 </label>
-                <Input
+                <PasswordInput
                   id="confirmPassword"
-                  type="password"
                   value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  onChange={setConfirmPassword}
                   className="w-full"
                   required
                 />

@@ -8,7 +8,6 @@ import { useAuth } from "../../lib/AuthContext";
 
 export const Homepage = (): JSX.Element => {
   const navigate = useNavigate();
-  const { enablePreviewMode } = useAuth();
   
   // Data for specialty cards
   const specialties = [
@@ -201,7 +200,7 @@ export const Homepage = (): JSX.Element => {
                 {specialties.map((specialty, index) => (
                   <Card
                     key={index}
-                    className="flex flex-col w-full h-[230px] bg-[#4caf9610] dark:bg-[#4caf9630] rounded-2xl border-none transition-transform duration-300 hover:scale-105"
+                    className="w-full border border-[#838383] dark:border-gray-700 rounded-[16px] overflow-hidden dark:bg-gray-800"
                   >
                     <CardContent className="flex flex-col items-start gap-[11px] p-5">
                       <div className="w-[45px] h-[45px] bg-[#4caf9620] dark:bg-[#4caf9650] rounded-[32px] shadow-[10px_10px_24px_-4px_#0000004c] flex items-center justify-center">
@@ -250,7 +249,7 @@ export const Homepage = (): JSX.Element => {
                           {clinic.name}
                         </span>
                         <span className="text-[#00000080] dark:text-gray-300">
-                          {clinic.specialty} • {clinic.rating} ★
+                          {clinic.specialty}
                         </span>
                       </div>
                     </CardContent>
@@ -267,65 +266,6 @@ export const Homepage = (): JSX.Element => {
           >
             View All Clinics
           </Button>
-
-          {/* Preview Mode Button */}
-          <div className="w-full max-w-[1280px] flex flex-col items-center my-8 bg-[#4caf9610] dark:bg-[#4caf9630] rounded-xl p-6 animate-fadeIn">
-            <h2 className="font-['Inter',Helvetica] text-[#1f4156] dark:text-white text-2xl font-bold mb-3">
-              Want to explore the platform?
-            </h2>
-            <p className="text-gray-600 dark:text-gray-400 text-center max-w-2xl mb-6">
-              Try our preview mode to experience the full platform without creating an account. 
-              See appointments, dashboard features, and more!
-            </p>
-            <Button 
-              className="bg-[#4caf96] hover:bg-[#3d9d86] text-white font-bold px-8 py-6 h-auto rounded-lg shadow-lg transform transition-transform duration-300 hover:scale-105"
-              onClick={() => {
-                enablePreviewMode();
-                navigate('/dashboard');
-              }}
-            >
-              <span className="flex items-center gap-2">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" />
-                  <circle cx="12" cy="12" r="3" />
-                </svg>
-                Try Preview Mode
-              </span>
-            </Button>
-          </div>
-
-          {/* How It Works Section */}
-          <section className="flex flex-col items-center justify-center w-full">
-            <div className="flex flex-col items-center justify-center gap-9 w-full max-w-[1280px]">
-              <h2 className="font-['Inter',Helvetica] text-blue-900 dark:text-white text-[28px] text-center">
-                How It Works
-              </h2>
-
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 w-full">
-                {howItWorksSteps.map((step, index) => (
-                  <Card
-                    key={index}
-                    className="flex flex-col w-full h-[205px] bg-[#4caf9620] dark:bg-[#4caf9640] rounded-2xl border-none"
-                  >
-                    <CardContent className="flex flex-col items-start gap-[3px] p-6">
-                      <div className="w-9 h-9 bg-[#4caf9620] dark:bg-[#4caf9640] rounded-[18px] flex items-center justify-center">
-                        {step.icon}
-                      </div>
-                      <span className="font-['Inter',Helvetica] font-medium text-neutral-950 dark:text-white text-sm leading-6">
-                        {step.step}
-                      </span>
-                      <h3 className="font-['Inter',Helvetica] text-neutral-950 dark:text-white text-xl leading-7">
-                        {step.title}
-                      </h3>
-                      <p className="font-['Inter',Helvetica] text-gray-500 dark:text-gray-300 text-sm leading-[22px]">
-                        {step.description}
-                      </p>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            </div>
-          </section>
         </main>
       </div>
     </div>

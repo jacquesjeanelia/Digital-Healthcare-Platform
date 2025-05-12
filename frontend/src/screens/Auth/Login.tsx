@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "../../components/ui/button";
 import { Card, CardContent } from "../../components/ui/card";
 import { Input } from "../../components/ui/input";
+import { PasswordInput } from "../../components/ui/password-input";
 import { useAuth } from "../../lib/AuthContext";
 
 export const Login = (): JSX.Element => {
@@ -12,6 +13,7 @@ export const Login = (): JSX.Element => {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [rememberMe, setRememberMe] = useState(false);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -20,13 +22,27 @@ export const Login = (): JSX.Element => {
 
     try {
       await login(email, password);
-      navigate("/");
+      if (rememberMe) {
+        localStorage.setItem("rememberedEmail", email);
+      } else {
+        localStorage.removeItem("rememberedEmail");
+      }
+      navigate("/dashboard");
     } catch (err) {
       setError("Invalid email or password. Please try again.");
     } finally {
       setIsLoading(false);
     }
   };
+
+  // Load remembered email on component mount
+  React.useEffect(() => {
+    const rememberedEmail = localStorage.getItem("rememberedEmail");
+    if (rememberedEmail) {
+      setEmail(rememberedEmail);
+      setRememberMe(true);
+    }
+  }, []);
 
   return (
     <div className="bg-white dark:bg-gray-900 flex items-center justify-center min-h-screen">
@@ -94,12 +110,10 @@ export const Login = (): JSX.Element => {
                 <label htmlFor="password" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                   Password
                 </label>
-                <Input
+                <PasswordInput
                   id="password"
-                  type="password"
-                  placeholder="••••••••"
                   value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  onChange={setPassword}
                   className="w-full bg-white dark:bg-gray-700"
                   required
                 />
@@ -111,6 +125,8 @@ export const Login = (): JSX.Element => {
                     id="remember"
                     type="checkbox"
                     className="h-4 w-4 accent-[#4caf96]"
+                    checked={rememberMe}
+                    onChange={(e) => setRememberMe(e.target.checked)}
                   />
                   <label htmlFor="remember" className="ml-2 text-sm text-gray-600 dark:text-gray-400">
                     Remember me
@@ -154,7 +170,7 @@ export const Login = (): JSX.Element => {
           </Button>
         </div>
 
-        <div className="flex justify-center mt-8 space-x-4 text-sm text-gray-500 dark:text-gray-400">
+        <div className="flex justify-center space-x-4 mt-4 text-sm text-gray-500 dark:text-gray-400">
           <a href="/about" className="hover:text-[#4caf96]">Privacy Policy</a>
           <span>•</span>
           <a href="/contact" className="hover:text-[#4caf96]">Terms of Service</a>

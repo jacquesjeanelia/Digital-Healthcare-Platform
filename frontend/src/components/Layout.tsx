@@ -3,7 +3,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { Button } from "./ui/button";
 import { useTheme } from "../lib/utils";
 import { useAuth } from "../lib/AuthContext";
-import { PreviewBanner } from "./PreviewBanner";
+import { useNotifications } from "../contexts/NotificationsContext";
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -14,22 +14,28 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
   const navigate = useNavigate();
   const { darkMode, toggleDarkMode } = useTheme();
   const { user, isAuthenticated, logout } = useAuth();
+  const { notifications, unreadCount, markAsRead, markAllAsRead } = useNotifications();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
   const userMenuRef = useRef<HTMLDivElement>(null);
+  const notificationsRef = useRef<HTMLDivElement>(null);
 
   // Close mobile menu when changing routes
   useEffect(() => {
     setIsMenuOpen(false);
     setIsUserMenuOpen(false);
+    setIsNotificationsOpen(false);
   }, [location.pathname]);
 
-  // Handle click outside to close user menu
+  // Handle click outside to close menus
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (userMenuRef.current && !userMenuRef.current.contains(event.target as Node)) {
         setIsUserMenuOpen(false);
+      }
+      if (notificationsRef.current && !notificationsRef.current.contains(event.target as Node)) {
+        setIsNotificationsOpen(false);
       }
     };
 
@@ -141,7 +147,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
             {isAuthenticated ? (
               <>
                 {/* Notification Icon */}
-                <div className="relative">
+                <div className="relative" ref={notificationsRef}>
                   <button
                     className="p-2 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-white hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors relative"
                     aria-label="Notifications"
@@ -151,52 +157,67 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                       <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9" />
                       <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0" />
                     </svg>
-                    <span className="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full"></span>
+                    {unreadCount > 0 && (
+                      <span className="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full"></span>
+                    )}
                   </button>
                   
                   {isNotificationsOpen && (
                     <div className="absolute right-0 mt-2 w-80 bg-white dark:bg-gray-800 rounded-md shadow-lg border border-gray-200 dark:border-gray-700 z-20">
                       <div className="p-3 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
                         <p className="font-medium text-gray-800 dark:text-white">Notifications</p>
-                        <span className="bg-[#4caf96] text-white text-xs px-2 py-1 rounded-full">3 new</span>
+                        {unreadCount > 0 && (
+                          <span className="bg-[#4caf96] text-white text-xs px-2 py-1 rounded-full">
+                            {unreadCount} new
+                          </span>
+                        )}
                       </div>
                       <div className="max-h-80 overflow-y-auto">
-                        {[
-                          {
-                            title: "Appointment Confirmed",
-                            description: "Your appointment with Dr. Sarah has been confirmed",
-                            time: "Just now"
-                          },
-                          {
-                            title: "Prescription Renewed",
-                            description: "Your prescription for Amoxicillin has been renewed",
-                            time: "2 hours ago"
-                          },
-                          {
-                            title: "Lab Results Ready",
-                            description: "Your recent lab results are now available",
-                            time: "Yesterday"
-                          }
-                        ].map((notification, index) => (
-                          <div key={index} className="p-3 border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700">
-                            <div className="flex items-start gap-3">
-                              <div className="w-8 h-8 bg-[#4caf9620] dark:bg-[#4caf9640] rounded-full flex items-center justify-center text-[#4caf96] flex-shrink-0">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                  <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9" />
-                                </svg>
-                              </div>
-                              <div>
-                                <p className="font-medium text-gray-800 dark:text-white text-sm">{notification.title}</p>
-                                <p className="text-gray-600 dark:text-gray-400 text-xs mt-1">{notification.description}</p>
-                                <p className="text-[#4caf96] text-xs mt-1">{notification.time}</p>
+                        {notifications.length > 0 ? (
+                          notifications.map((notification) => (
+                            <div
+                              key={notification.id}
+                              className={`p-3 border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer ${
+                                !notification.read ? 'bg-[#4caf9610] dark:bg-[#4caf9620]' : ''
+                              }`}
+                              onClick={() => markAsRead(notification.id)}
+                            >
+                              <div className="flex items-start gap-3">
+                                <div className="w-8 h-8 bg-[#4caf9620] dark:bg-[#4caf9640] rounded-full flex items-center justify-center text-[#4caf96] flex-shrink-0">
+                                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                    <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9" />
+                                  </svg>
+                                </div>
+                                <div>
+                                  <p className="font-medium text-gray-800 dark:text-white text-sm">
+                                    {notification.title}
+                                  </p>
+                                  <p className="text-gray-600 dark:text-gray-400 text-xs mt-1">
+                                    {notification.description}
+                                  </p>
+                                  <p className="text-[#4caf96] text-xs mt-1">
+                                    {notification.time}
+                                  </p>
+                                </div>
                               </div>
                             </div>
+                          ))
+                        ) : (
+                          <div className="p-4 text-center text-gray-500 dark:text-gray-400">
+                            No notifications
                           </div>
-                        ))}
+                        )}
                       </div>
-                      <div className="p-3 text-center">
-                        <button className="text-sm text-[#4caf96] hover:underline">View all notifications</button>
-                      </div>
+                      {notifications.length > 0 && (
+                        <div className="p-3 text-center border-t border-gray-200 dark:border-gray-700">
+                          <button
+                            className="text-sm text-[#4caf96] hover:underline"
+                            onClick={markAllAsRead}
+                          >
+                            Mark all as read
+                          </button>
+                        </div>
+                      )}
                     </div>
                   )}
                 </div>
@@ -488,7 +509,6 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
           </div>
         </div>
       </footer>
-      <PreviewBanner />
     </div>
   );
 }; 
