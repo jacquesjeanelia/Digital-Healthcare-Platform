@@ -1,58 +1,42 @@
-import mongoose from 'mongoose';
 import bcrypt from 'bcryptjs';
+import clientPromise from '../config/mongodb.js';
 
-const userSchema = new mongoose.Schema({
-  name: {
-    type: String,
-    required: true
-  },
-  email: {
-    type: String,
-    required: true,
-    unique: true,
-    lowercase: true
-  },
-  password: {
-    type: String,
-    required: true
-  },
-  phoneNumber: String,
-  role: {
-    type: String,
-    enum: ['patient', 'doctor', 'clinic'],
-    required: true
-  },
-  // Patient specific fields
-  dateOfBirth: Date,
-  gender: String,
-  address: String,
-  insuranceProvider: String,
-  
-  // Provider specific fields
-  clinicName: String,
-  specialty: String,
-  location: String,
-  licenseNumber: String,
-  website: String,
-  contactInfo: String
-}, {
-  timestamps: true
-});
+const COLLECTION_NAME = 'users';
 
-// Hash password before saving
-userSchema.pre('save', async function(next) {
-  if (!this.isModified('password')) {
-    return next();
-  }
+export async function createUser(userData) {
+  const client = await clientPromise;
+  const db = client.db();
+  const collection = db.collection(COLLECTION_NAME);
+
+  // Hash password
   const salt = await bcrypt.genSalt(10);
-  this.password = await bcrypt.hash(this.password, salt);
-});
+  const hashedPassword = await bcrypt.hash(userData.password, salt);
 
-// Method to compare password
-userSchema.methods.matchPassword = async function(enteredPassword) {
-  return await bcrypt.compare(enteredPassword, this.password);
-};
+  const user = {
+    ...userData,
+    password: hashedPassword,
+    createdAt: new Date(),
+    updatedAt: new Date()
+  };
 
-const User = mongoose.model('User', userSchema);
+  const result = await collection.insertOne(user);
+  return { ...user, _id: result.insertedId };
+}
 
-export default User; 
+export async function findUserByEmail(email) {
+  const client = await clientPromise;
+  const db = client.db();
+  const collection = db.collection(COLLECTION_NAME);
+  return collection.findOne({ email });
+}
+
+export async function findUserById(id) {
+  const client = await clientPromise;
+  const db = client.db();
+  const collection = db.collection(COLLECTION_NAME);
+  return collection.findOne({ _id: id });
+}
+
+export async function matchPassword(plainPassword, hashedPassword) {
+  return bcrypt.compare(plainPassword, hashedPassword);
+} 

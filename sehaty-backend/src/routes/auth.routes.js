@@ -1,6 +1,6 @@
 import express from 'express';
 import jwt from 'jsonwebtoken';
-import User from '../models/User.js';
+import { createUser, findUserByEmail, findUserById, matchPassword } from '../models/User.js';
 
 const router = express.Router();
 
@@ -12,13 +12,13 @@ router.post('/register', async (req, res) => {
     const { email } = req.body;
 
     // Check if user already exists
-    const userExists = await User.findOne({ email });
+    const userExists = await findUserByEmail(email);
     if (userExists) {
       return res.status(400).json({ message: 'User already exists' });
     }
 
     // Create new user
-    const user = await User.create(req.body);
+    const user = await createUser(req.body);
 
     // Generate JWT token
     const token = jwt.sign(
@@ -72,13 +72,13 @@ router.post('/login', async (req, res) => {
     const { email, password } = req.body;
 
     // Find user
-    const user = await User.findOne({ email });
+    const user = await findUserByEmail(email);
     if (!user) {
       return res.status(401).json({ message: 'Invalid credentials' });
     }
 
     // Check password
-    const isMatch = await user.matchPassword(password);
+    const isMatch = await matchPassword(password, user.password);
     if (!isMatch) {
       return res.status(401).json({ message: 'Invalid credentials' });
     }
@@ -138,13 +138,15 @@ router.get('/me', async (req, res) => {
     }
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    const user = await User.findById(decoded.userId).select('-password');
+    const user = await findUserById(decoded.userId);
     
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
 
-    res.json({ user });
+    // Remove password from response
+    const { password, ...userWithoutPassword } = user;
+    res.json({ user: userWithoutPassword });
   } catch (error) {
     console.error('Profile error:', error);
     res.status(500).json({ message: 'Server error while fetching profile' });

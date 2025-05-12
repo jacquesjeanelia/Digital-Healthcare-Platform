@@ -1,7 +1,7 @@
 {
   "version": 2,
-  "buildCommand": "cd sehaty-frontend && npm install && npm run build",
-  "outputDirectory": "sehaty-frontend/dist",
+  "buildCommand": "npm install && npm run build",
+  "outputDirectory": "dist",
   "framework": "vite",
   "rewrites": [
     {
