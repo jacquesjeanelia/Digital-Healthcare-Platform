@@ -16,6 +16,7 @@ import { AuthProvider } from "./lib/AuthContext";
 import { ThemeProvider } from "./lib/ThemeContext";
 import { NotificationsProvider } from "./contexts/NotificationsContext";
 import { DoctorVerificationList } from "./screens/Admin/DoctorVerificationList";
+import { DoctorProfile } from "./screens/DoctorProfile/DoctorProfile";
 
 createRoot(document.getElementById("app") as HTMLElement).render(
   <StrictMode>
@@ -60,6 +61,7 @@ createRoot(document.getElementById("app") as HTMLElement).render(
               <Route path="/contact" element={<Layout><Contact /></Layout>} />
               <Route path="/about" element={<Layout><About /></Layout>} />
               <Route path="/doctors" element={<Layout><Doctors /></Layout>} />
+              <Route path="/doctors/:id" element={<Layout><DoctorProfile /></Layout>} />
             </Routes>
           </NotificationsProvider>
         </AuthProvider>

@@ -1,9 +1,5 @@
 import bcrypt from 'bcryptjs';
-import clientPromise from '../config/mongodb.js';
 import mongoose from 'mongoose';
-
-const COLLECTION_NAME = 'users';
-const PRESCRIPTIONS_COLLECTION = 'Prescriptions';
 
 const prescriptionSchema = new mongoose.Schema({
   medication: {
@@ -74,109 +70,60 @@ const userSchema = new mongoose.Schema({
   updatedAt: { type: Date, default: Date.now }
 });
 
-// Update timestamps on save
-userSchema.pre('save', function(next) {
-  this.updatedAt = Date.now();
-  next();
+// Hash password before saving
+userSchema.pre('save', async function(next) {
+  if (!this.isModified('password')) {
+    return next();
+  }
+  
+  try {
+    const salt = await bcrypt.genSalt(10);
+    this.password = await bcrypt.hash(this.password, salt);
+    this.updatedAt = Date.now();
+    next();
+  } catch (error) {
+    next(error);
+  }
 });
+
+// Method to compare password
+userSchema.methods.matchPassword = async function(enteredPassword) {
+  return await bcrypt.compare(enteredPassword, this.password);
+};
 
 const User = mongoose.model('User', userSchema);
 
 export async function createUser(userData) {
-  const client = await clientPromise;
-  const db = client.db();
-  const collection = db.collection(COLLECTION_NAME);
-
-  // Hash password
-  const salt = await bcrypt.genSalt(10);
-  const hashedPassword = await bcrypt.hash(userData.password, salt);
-
-  const user = {
-    ...userData,
-    password: hashedPassword,
-    createdAt: new Date(),
-    updatedAt: new Date()
-  };
-
-  const result = await collection.insertOne(user);
-  return { ...user, _id: result.insertedId };
+  try {
+    const user = new User(userData);
+    await user.save();
+    return user;
+  } catch (error) {
+    console.error('Error creating user:', error);
+    throw error;
+  }
 }
 
 export async function findUserByEmail(email) {
-  const client = await clientPromise;
-  const db = client.db();
-  const collection = db.collection(COLLECTION_NAME);
-  return collection.findOne({ email });
+  try {
+    return await User.findOne({ email });
+  } catch (error) {
+    console.error('Error finding user by email:', error);
+    throw error;
+  }
 }
 
 export async function findUserById(id) {
-  const client = await clientPromise;
-  const db = client.db();
-  const collection = db.collection(COLLECTION_NAME);
-  return collection.findOne({ _id: id });
+  try {
+    return await User.findById(id);
+  } catch (error) {
+    console.error('Error finding user by id:', error);
+    throw error;
+  }
 }
 
 export async function matchPassword(plainPassword, hashedPassword) {
-  return bcrypt.compare(plainPassword, hashedPassword);
+  return await bcrypt.compare(plainPassword, hashedPassword);
 }
 
-export async function addPrescription(userId, prescriptionData) {
-  try {
-    console.log('Adding prescription for user:', userId);
-    console.log('Prescription data:', prescriptionData);
-
-    const client = await clientPromise;
-    console.log('MongoDB client connected');
-
-    const db = client.db('test');
-    console.log('Using test database');
-
-    const collection = db.collection(PRESCRIPTIONS_COLLECTION);
-    console.log('Using Prescriptions collection');
-
-    const prescription = {
-      ...prescriptionData,
-      userId,
-      createdAt: new Date()
-    };
-
-    console.log('Final prescription document:', prescription);
-
-    const result = await collection.insertOne(prescription);
-    console.log('Insert result:', result);
-
-    return { ...prescription, _id: result.insertedId };
-  } catch (error) {
-    console.error('Error in addPrescription:', error);
-    throw error;
-  }
-}
-
-export async function getPrescriptions(userId) {
-  const client = await clientPromise;
-  const db = client.db('test');
-  const collection = db.collection(PRESCRIPTIONS_COLLECTION);
-  return collection.find({ userId }).toArray();
-}
-
-// Create a notification
-export const createNotification = async (userId, notificationData) => {
-  try {
-    const client = await clientPromise;
-    const db = client.db('test');
-    const collection = db.collection('Notifications');
-
-    const notification = {
-      userId,
-      ...notificationData,
-      read: false,
-      createdAt: new Date()
-    };
-
-    const result = await collection.insertOne(notification);
-    return { ...notification, _id: result.insertedId };
-  } catch (error) {
-    console.error('Error creating notification:', error);
-    throw error;
-  }
-}; 
+export default User; 

@@ -1,6 +1,7 @@
 import express from 'express';
+import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
-import { createUser, findUserByEmail, findUserById, matchPassword } from '../models/User.js';
+import User, { createUser, findUserByEmail, findUserById } from '../models/User.js';
 
 const router = express.Router();
 
@@ -9,58 +10,67 @@ const router = express.Router();
 // @access  Public
 router.post('/register', async (req, res) => {
   try {
-    const { email } = req.body;
+    console.log('Register request received:', req.body);
+    const { name, email, password } = req.body;
 
-    // Check if user already exists
-    const userExists = await findUserByEmail(email);
-    if (userExists) {
-      return res.status(400).json({ message: 'User already exists' });
+    // Validate input
+    if (!name || !email || !password) {
+      console.log('Missing required fields');
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Please provide all required fields' 
+      });
     }
 
-    // Create new user
-    const user = await createUser(req.body);
+    // Check if user exists
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      console.log('User already exists:', email);
+      return res.status(400).json({ 
+        success: false, 
+        message: 'User already exists' 
+      });
+    }
 
-    // Generate JWT token
+    // Hash password
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
+
+    // Create user
+    const user = await User.create({
+      name,
+      email,
+      password: hashedPassword,
+      role: 'patient' // Default role
+    });
+
+    console.log('User created successfully:', user._id);
+
+    // Generate token
     const token = jwt.sign(
-      { userId: user._id },
+      { id: user._id },
       process.env.JWT_SECRET,
       { expiresIn: '30d' }
     );
 
     res.status(201).json({
+      success: true,
+      token,
       user: {
         id: user._id,
         name: user.name,
         email: user.email,
-        role: user.role,
-        phoneNumber: user.phoneNumber,
-        // Include other relevant fields based on role
-        ...(user.role === 'patient' && {
-          dateOfBirth: user.dateOfBirth,
-          gender: user.gender,
-          address: user.address,
-          insuranceProvider: user.insuranceProvider,
-        }),
-        ...(user.role === 'doctor' && {
-          specialty: user.specialty,
-          location: user.location,
-          licenseNumber: user.licenseNumber,
-          contactInfo: user.contactInfo,
-        }),
-        ...(user.role === 'clinic' && {
-          clinicName: user.clinicName,
-          specialty: user.specialty,
-          location: user.location,
-          website: user.website,
-          licenseNumber: user.licenseNumber,
-          contactInfo: user.contactInfo,
-        }),
-      },
-      token
+        role: user.role
+      }
     });
+
   } catch (error) {
     console.error('Registration error:', error);
-    res.status(500).json({ message: 'Server error during registration' });
+    res.status(500).json({ 
+      success: false, 
+      message: 'Error creating user',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
   }
 });
 
@@ -69,61 +79,65 @@ router.post('/register', async (req, res) => {
 // @access  Public
 router.post('/login', async (req, res) => {
   try {
+    console.log('Login request received:', req.body);
     const { email, password } = req.body;
 
+    // Validate input
+    if (!email || !password) {
+      console.log('Missing email or password');
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Please provide email and password' 
+      });
+    }
+
     // Find user
-    const user = await findUserByEmail(email);
+    const user = await User.findOne({ email });
     if (!user) {
-      return res.status(401).json({ message: 'Invalid credentials' });
+      console.log('User not found:', email);
+      return res.status(401).json({ 
+        success: false, 
+        message: 'Invalid credentials' 
+      });
     }
 
     // Check password
-    const isMatch = await matchPassword(password, user.password);
+    const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
-      return res.status(401).json({ message: 'Invalid credentials' });
+      console.log('Invalid password for user:', email);
+      return res.status(401).json({ 
+        success: false, 
+        message: 'Invalid credentials' 
+      });
     }
 
-    // Generate JWT token
+    console.log('User logged in successfully:', user._id);
+
+    // Generate token
     const token = jwt.sign(
-      { userId: user._id },
+      { id: user._id },
       process.env.JWT_SECRET,
       { expiresIn: '30d' }
     );
 
     res.json({
+      success: true,
+      token,
       user: {
         id: user._id,
         name: user.name,
         email: user.email,
-        role: user.role,
-        phoneNumber: user.phoneNumber,
-        // Include other relevant fields based on role
-        ...(user.role === 'patient' && {
-          dateOfBirth: user.dateOfBirth,
-          gender: user.gender,
-          address: user.address,
-          insuranceProvider: user.insuranceProvider,
-        }),
-        ...(user.role === 'doctor' && {
-          specialty: user.specialty,
-          location: user.location,
-          licenseNumber: user.licenseNumber,
-          contactInfo: user.contactInfo,
-        }),
-        ...(user.role === 'clinic' && {
-          clinicName: user.clinicName,
-          specialty: user.specialty,
-          location: user.location,
-          website: user.website,
-          licenseNumber: user.licenseNumber,
-          contactInfo: user.contactInfo,
-        }),
-      },
-      token
+        role: user.role
+      }
     });
+
   } catch (error) {
     console.error('Login error:', error);
-    res.status(500).json({ message: 'Server error during login' });
+    res.status(500).json({ 
+      success: false, 
+      message: 'Error logging in',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
   }
 });
 
@@ -145,8 +159,10 @@ router.get('/me', async (req, res) => {
     }
 
     // Remove password from response
-    const { password, ...userWithoutPassword } = user;
-    res.json({ user: userWithoutPassword });
+    const userResponse = user.toObject();
+    delete userResponse.password;
+    
+    res.json({ user: userResponse });
   } catch (error) {
     console.error('Profile error:', error);
     res.status(500).json({ message: 'Server error while fetching profile' });

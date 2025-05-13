@@ -97,11 +97,13 @@ export const Services = (): JSX.Element => {
   const location = useLocation();
 
   useEffect(() => {
-    // Handle anchor links
-    const hash = location.hash;
-    if (hash) {
+    // Handle service selection from URL
+    const searchParams = new URLSearchParams(location.search);
+    const serviceParam = searchParams.get('service');
+    
+    if (serviceParam) {
       const serviceId = SERVICES.findIndex(s => 
-        s.title.toLowerCase().replace(/\s+/g, '-') === hash.slice(1)
+        s.title.toLowerCase().replace(/\s+/g, '-') === serviceParam
       ) + 1;
       if (serviceId > 0) {
         setSelectedService(serviceId);
@@ -111,7 +113,7 @@ export const Services = (): JSX.Element => {
 
   return (
     <div className="bg-[#f8f5f2] dark:bg-gray-900 flex flex-row justify-center w-full min-h-screen">
-      <div className="w-full max-w-[1280px] relative pt-[75px] px-4 md:px-6">
+      <div className="w-full max-w-[1440px] relative pt-[75px] px-4 md:px-6">
         <div className="flex flex-col gap-8">
           {/* Hero Section */}
           <div className="flex flex-col items-center text-center gap-4 py-12">
@@ -126,7 +128,11 @@ export const Services = (): JSX.Element => {
           {/* Services Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 py-6">
             {SERVICES.map((service) => (
-              <Card key={service.id} className="border border-gray-200 dark:border-gray-700 dark:bg-gray-800 overflow-hidden h-full bg-white">
+              <Card 
+                key={service.id} 
+                id={service.title.toLowerCase().replace(/\s+/g, '-')}
+                className="border border-gray-200 dark:border-gray-700 dark:bg-gray-800 overflow-hidden h-full bg-white"
+              >
                 <CardContent className="p-6 flex flex-col h-full">
                   <div className="w-12 h-12 bg-[#4caf9630] dark:bg-[#4caf9640] rounded-lg flex items-center justify-center mb-4 text-[#4caf96]">
                     {service.icon}
