@@ -7,7 +7,7 @@ import { Doctors } from '../screens/Doctors/Doctors';
 import { DoctorProfile } from '../screens/DoctorProfile/DoctorProfile';
 import { Login } from '../screens/Auth/Login';
 import { Register } from '../screens/Auth/Register';
-import { Dashboard } from '../screens/Dashboard/Dashboard';
+import Dashboard from '../screens/Dashboard/Dashboard';
 import { ProtectedRoute } from '../components/ProtectedRoute';
 import { Layout } from '../components/Layout';
 

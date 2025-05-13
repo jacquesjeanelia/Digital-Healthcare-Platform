@@ -59,6 +59,36 @@ export const Login = (): JSX.Element => {
           </p>
         </div>
 
+        {/* Test Login Buttons */}
+        <div className="flex gap-4 mb-6">
+          <Button
+            className="flex-1 h-10 bg-blue-500 text-white font-bold rounded-lg hover:bg-blue-600 transition-colors"
+            onClick={async () => {
+              try {
+                await login("test.doctor@sehaty.com", "test123");
+                navigate("/dashboard");
+              } catch (err) {
+                setError("Test login failed. Please try again.");
+              }
+            }}
+          >
+            Login as Test Doctor
+          </Button>
+          <Button
+            className="flex-1 h-10 bg-green-500 text-white font-bold rounded-lg hover:bg-green-600 transition-colors"
+            onClick={async () => {
+              try {
+                await login("test.patient@sehaty.com", "test123");
+                navigate("/dashboard");
+              } catch (err) {
+                setError("Test login failed. Please try again.");
+              }
+            }}
+          >
+            Login as Test Patient
+          </Button>
+        </div>
+
         {/* Sign Up Recommendation Banner */}
         <div className="bg-[#4caf9620] dark:bg-[#4caf9640] border-l-4 border-[#4caf96] p-4 mb-6 rounded-lg shadow-md animate-fadeIn">
           <div className="flex items-start">

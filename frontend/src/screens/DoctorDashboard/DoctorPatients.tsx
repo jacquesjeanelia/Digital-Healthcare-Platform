@@ -5,86 +5,78 @@ import { Input } from "../../components/ui/input";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "../../components/ui/tabs";
 
 interface Patient {
-  id: number;
+  id: string;
   name: string;
   age: number;
-  gender: "male" | "female" | "other";
+  gender: string;
   lastVisit: string;
-  contactNumber: string;
-  email: string;
-  condition?: string;
-  medicalRecordNumber: string;
+  nextAppointment: string;
+  status: string;
 }
 
-export const DoctorPatients = (): JSX.Element => {
+interface DoctorPatientsProps {
+  patients: Patient[];
+}
+
+export const DoctorPatients: React.FC<DoctorPatientsProps> = ({ patients }) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [activeTab, setActiveTab] = useState("all");
 
   // Mock patients data
   const mockPatients: Patient[] = [
     {
-      id: 1,
+      id: "1",
       name: "Ahmed Al-Mansouri",
       age: 42,
       gender: "male",
       lastVisit: "2023-05-12",
-      contactNumber: "+20 123 456 7890",
-      email: "ahmed.mansouri@example.com",
-      condition: "Hypertension",
-      medicalRecordNumber: "MRN2023001"
+      nextAppointment: "2023-06-01",
+      status: "Active"
     },
     {
-      id: 2,
+      id: "2",
       name: "Fatima Hassan",
       age: 35,
       gender: "female",
       lastVisit: "2023-05-10",
-      contactNumber: "+20 123 555 7890",
-      email: "fatima.hassan@example.com",
-      condition: "Post-operative care",
-      medicalRecordNumber: "MRN2023015"
+      nextAppointment: "2023-05-20",
+      status: "Active"
     },
     {
-      id: 3,
+      id: "3",
       name: "Mahmoud Abbas",
       age: 55,
       gender: "male",
       lastVisit: "2023-05-04",
-      contactNumber: "+20 128 456 1230",
-      email: "mahmoud.abbas@example.com",
-      condition: "Diabetes Type 2",
-      medicalRecordNumber: "MRN2022189"
+      nextAppointment: "2023-05-15",
+      status: "Active"
     },
     {
-      id: 4,
+      id: "4",
       name: "Layla Said",
       age: 28,
       gender: "female",
       lastVisit: "2023-04-28",
-      contactNumber: "+20 111 456 7890",
-      email: "layla.said@example.com",
-      medicalRecordNumber: "MRN2023042"
+      nextAppointment: "2023-05-05",
+      status: "Active"
     },
     {
-      id: 5,
+      id: "5",
       name: "Omar Ibrahim",
       age: 63,
       gender: "male",
       lastVisit: "2023-04-15",
-      contactNumber: "+20 123 456 5555",
-      email: "omar.ibrahim@example.com",
-      condition: "Arthritis",
-      medicalRecordNumber: "MRN2022076"
+      nextAppointment: "2023-04-25",
+      status: "Active"
     },
     {
-      id: 6,
+      id: "6",
       name: "Nour Ahmed",
       age: 18,
       gender: "female",
       lastVisit: "2023-05-17",
-      contactNumber: "+20 123 456 8888",
-      email: "nour.ahmed@example.com",
-      medicalRecordNumber: "MRN2023105"
+      nextAppointment: "2023-05-27",
+      status: "Active"
     }
   ];
 
@@ -93,14 +85,25 @@ export const DoctorPatients = (): JSX.Element => {
     // Search filter
     const searchMatches = 
       patient.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      patient.contactNumber.includes(searchQuery) ||
-      patient.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      patient.medicalRecordNumber.toLowerCase().includes(searchQuery.toLowerCase());
+      patient.gender.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      patient.lastVisit.includes(searchQuery) ||
+      patient.nextAppointment.includes(searchQuery);
     
     // Tab filter - we're not implementing complex filtering for this demo
     // but in a real app you might filter by recent patients, conditions, etc.
     return searchMatches;
   });
+
+  const getStatusColor = (status: string) => {
+    switch (status.toLowerCase()) {
+      case 'active':
+        return 'bg-green-100 text-green-800';
+      case 'inactive':
+        return 'bg-gray-100 text-gray-800';
+      default:
+        return 'bg-gray-100 text-gray-800';
+    }
+  };
 
   return (
     <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
@@ -183,116 +186,36 @@ export const DoctorPatients = (): JSX.Element => {
         </TabsList>
       </Tabs>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {filteredPatients.length > 0 ? (
-          filteredPatients.map((patient) => (
-            <Card 
-              key={patient.id} 
-              className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:border-[#4caf96] dark:hover:border-[#4caf96] transition-all"
-            >
-              <CardContent className="p-4">
-                <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 bg-[#4caf9610] dark:bg-[#4caf9630] rounded-full flex items-center justify-center text-[#4caf96] font-bold flex-shrink-0">
-                    {patient.name.charAt(0)}
-                  </div>
-                  
-                  <div className="flex-1">
-                    <h3 className="font-bold text-[#1f4156] dark:text-white">{patient.name}</h3>
-                    <div className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                      {patient.age} yrs • {patient.gender === "male" ? "Male" : patient.gender === "female" ? "Female" : "Other"}
-                    </div>
-                    
-                    <div className="grid grid-cols-1 gap-1 mt-3 text-sm">
-                      <div className="flex items-center gap-2">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-gray-500">
-                          <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
-                        </svg>
-                        <span className="text-gray-700 dark:text-gray-300">{patient.contactNumber}</span>
-                      </div>
-                      
-                      <div className="flex items-center gap-2">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-gray-500">
-                          <rect x="2" y="4" width="20" height="16" rx="2"></rect>
-                          <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"></path>
-                        </svg>
-                        <span className="text-gray-700 dark:text-gray-300">{patient.email}</span>
-                      </div>
-                      
-                      <div className="flex items-center gap-2">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-gray-500">
-                          <path d="M19 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                          <circle cx="12" cy="7" r="3"></circle>
-                        </svg>
-                        <span className="text-gray-700 dark:text-gray-300">{patient.medicalRecordNumber}</span>
-                      </div>
-                      
-                      <div className="flex items-center gap-2">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-gray-500">
-                          <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
-                          <line x1="16" y1="2" x2="16" y2="6"></line>
-                          <line x1="8" y1="2" x2="8" y2="6"></line>
-                          <line x1="3" y1="10" x2="21" y2="10"></line>
-                        </svg>
-                        <span className="text-gray-700 dark:text-gray-300">
-                          Last visit: {new Date(patient.lastVisit).toLocaleDateString("en-US", {
-                            year: "numeric",
-                            month: "short",
-                            day: "numeric"
-                          })}
-                        </span>
-                      </div>
-                    </div>
-                    
-                    {patient.condition && (
-                      <div className="mt-3 bg-[#4caf9610] dark:bg-[#4caf9620] text-[#4caf96] text-xs px-2 py-1 rounded-full inline-block">
-                        {patient.condition}
-                      </div>
-                    )}
-                    
-                    <div className="mt-4 flex gap-2">
-                      <Button 
-                        size="sm" 
-                        className="bg-[#4caf96] hover:bg-[#3d9d86] text-white"
-                      >
-                        View Record
-                      </Button>
-                      <Button 
-                        size="sm" 
-                        variant="outline" 
-                        className="border-[#4caf96] text-[#4caf96] hover:bg-[#4caf9610]"
-                      >
-                        Book Appointment
-                      </Button>
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))
-        ) : (
-          <div className="col-span-full bg-gray-50 dark:bg-gray-800 rounded-lg p-8 text-center">
-            <div className="w-16 h-16 bg-[#4caf9620] dark:bg-[#4caf9640] rounded-full flex items-center justify-center text-[#4caf96] mx-auto mb-4">
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-                <circle cx="8.5" cy="7" r="4"></circle>
-                <path d="M20 8v6"></path>
-                <path d="M23 11h-6"></path>
-              </svg>
+      <div className="space-y-4">
+        {filteredPatients.map((patient) => (
+          <div key={patient.id} className="border rounded-lg p-4">
+            <div className="flex justify-between items-start">
+              <div>
+                <h3 className="font-medium">{patient.name}</h3>
+                <p className="text-sm text-gray-600">
+                  Age: {patient.age} | Gender: {patient.gender}
+                </p>
+                <p className="text-sm text-gray-600">
+                  Last Visit: {patient.lastVisit}
+                </p>
+                <p className="text-sm text-gray-600">
+                  Next Appointment: {patient.nextAppointment}
+                </p>
+              </div>
+              <span className={`px-2 py-1 rounded text-sm ${getStatusColor(patient.status)}`}>
+                {patient.status}
+              </span>
             </div>
-            <h3 className="text-xl font-bold text-[#1f4156] dark:text-white mb-2">No patients found</h3>
-            <p className="text-gray-600 dark:text-gray-400 mb-6">
-              {searchQuery 
-                ? "No patients match your search criteria." 
-                : "You haven't added any patients yet."
-              }
-            </p>
-            <Button 
-              className="bg-[#4caf96] hover:bg-[#3d9d86] text-white"
-            >
-              Add New Patient
-            </Button>
+            <div className="mt-4 flex justify-end space-x-2">
+              <button className="px-4 py-2 text-sm font-medium text-blue-600 hover:bg-blue-50 rounded-md">
+                View Profile
+              </button>
+              <button className="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-md">
+                Schedule Appointment
+              </button>
+            </div>
           </div>
-        )}
+        ))}
       </div>
     </div>
   );

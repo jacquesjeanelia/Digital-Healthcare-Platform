@@ -1,4 +1,13 @@
 {
+  "name": "sehaty",
+  "version": "1.0.0",
+  "description": "Sehaty Digital Healthcare Platform",
+  "scripts": {
+    "dev": "cd frontend && npm run dev",
+    "build": "cd frontend && npm install && npm run build",
+    "start": "cd frontend && npm run preview",
+    "install-all": "npm install && cd frontend && npm install && cd ../backend && npm install"
+  },
   "devDependencies": {
     "@types/node": "^22.15.17",
     "@types/react": "^19.1.4",

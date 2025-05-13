@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "../../components/ui/button";
 import { Card, CardContent } from "../../components/ui/card";
@@ -10,36 +10,106 @@ import { DoctorAnalytics } from "./DoctorAnalytics";
 import { DoctorSettings } from "./DoctorSettings";
 import { DoctorVerification } from "./DoctorVerification";
 import { DoctorReview } from "../../components/DoctorReview";
+import type { User } from '../../lib/AuthContext';
+
+interface DashboardData {
+  appointments: {
+    total: number;
+    upcoming: number;
+    list: Array<{
+      patientId?: { name: string; age: number; gender: string };
+      doctorId?: { name: string; specialty: string };
+      date: string;
+      time: string;
+      status: string;
+      type?: string;
+      notes?: string;
+    }>;
+  };
+  patients?: {
+    total: number;
+    active: number;
+    list: Array<{
+      id: string;
+      name: string;
+      age: number;
+      gender: string;
+      lastVisit: string;
+      nextAppointment: string;
+      status: string;
+    }>;
+  };
+  prescriptions: {
+    total: number;
+    active: number;
+    list: Array<{
+      patientId?: { name: string; age: number };
+      doctorId?: { name: string; specialty: string };
+      medication: string;
+      dosage: string;
+      frequency: string;
+      startDate: string;
+      endDate: string;
+      status: string;
+      notes?: string;
+    }>;
+  };
+  analytics?: {
+    monthlyStats: {
+      totalAppointments: number;
+      completedAppointments: number;
+      newPatients: number;
+      prescriptionsIssued: number;
+      averageRating: number;
+    };
+    weeklySchedule: {
+      monday: number;
+      tuesday: number;
+      wednesday: number;
+      thursday: number;
+      friday: number;
+    };
+  };
+  recentActivities: Array<{
+    type: string;
+    description: string;
+    date: string;
+    relatedId: string;
+  }>;
+}
 
 export const DoctorDashboard = (): JSX.Element => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState("appointments");
+  const [activeTab, setActiveTab] = useState("overview");
+  const [dashboardData, setDashboardData] = useState<DashboardData | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
-  // Mock data for reviews
-  const [reviews] = useState([
-    {
-      id: "1",
-      userId: "user1",
-      userName: "John Doe",
-      rating: 5,
-      comment: "Great doctor! Very professional and caring.",
-      date: "2024-03-28",
-    },
-    {
-      id: "2",
-      userId: "user2",
-      userName: "Jane Smith",
-      rating: 4,
-      comment: "Good experience overall. Would recommend.",
-      date: "2024-03-27",
-    },
-  ]);
+  useEffect(() => {
+    const fetchDashboardData = async () => {
+      try {
+        if (user?.email === 'test.doctor@sehaty.com') {
+          setDashboardData(user.dashboardData as DashboardData);
+        } else {
+          const response = await fetch('/api/doctor/dashboard');
+          if (!response.ok) throw new Error('Failed to fetch dashboard data');
+          const data = await response.json();
+          setDashboardData(data);
+        }
+      } catch (error) {
+        console.error('Error fetching dashboard data:', error);
+        setDashboardData({
+          appointments: { total: 0, upcoming: 0, list: [] },
+          prescriptions: { total: 0, active: 0, list: [] },
+          recentActivities: []
+        });
+      } finally {
+        setIsLoading(false);
+      }
+    };
 
-  const handleReviewSubmit = async (rating: number, comment: string) => {
-    // TODO: Implement API call to submit review
-    console.log("Submitting review:", { rating, comment });
-  };
+    fetchDashboardData();
+  }, [user]);
 
   // Redirect if not authenticated
   React.useEffect(() => {
@@ -51,6 +121,19 @@ export const DoctorDashboard = (): JSX.Element => {
   if (!user) {
     return <div>Loading...</div>;
   }
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#4caf96]"></div>
+      </div>
+    );
+  }
+
+  const handleReviewSubmit = async (rating: number, comment: string): Promise<void> => {
+    // TODO: Implement review submission
+    console.log('Submitting review:', { rating, comment });
+  };
 
   return (
     <div className="bg-[#f8f5f2] dark:bg-gray-900 flex flex-row justify-center w-full min-h-screen">
@@ -92,8 +175,8 @@ export const DoctorDashboard = (): JSX.Element => {
           <DoctorVerification />
 
           {/* Doctor Dashboard Summary Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            <Card className="bg-white dark:bg-gray-800 border-none shadow-sm transform transition-transform hover:scale-105">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+            <Card className="bg-white dark:bg-gray-800 border-none shadow-sm">
               <CardContent className="p-6">
                 <div className="w-12 h-12 bg-[#4caf9620] dark:bg-[#4caf9640] rounded-full flex items-center justify-center mb-4 text-[#4caf96]">
                   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -106,9 +189,11 @@ export const DoctorDashboard = (): JSX.Element => {
                 <h3 className="font-['Montserrat',Helvetica] font-semibold text-[#1f4156] dark:text-white text-lg">
                   Today's Appointments
                 </h3>
-                <p className="text-3xl font-bold mt-2 text-[#4caf96]">8</p>
+                <p className="text-3xl font-bold mt-2 text-[#4caf96]">
+                  {dashboardData?.appointments.upcoming || 0}
+                </p>
                 <p className="text-gray-600 dark:text-gray-400 mt-1">
-                  3 pending, 2 completed
+                  {dashboardData?.appointments.total || 0} total appointments
                 </p>
               </CardContent>
             </Card>
@@ -124,11 +209,13 @@ export const DoctorDashboard = (): JSX.Element => {
                   </svg>
                 </div>
                 <h3 className="font-['Montserrat',Helvetica] font-semibold text-[#1f4156] dark:text-white text-lg">
-                  Total Patients
+                  Active Patients
                 </h3>
-                <p className="text-3xl font-bold mt-2 text-[#4caf96]">126</p>
+                <p className="text-3xl font-bold mt-2 text-[#4caf96]">
+                  {dashboardData?.patients?.active || 0}
+                </p>
                 <p className="text-gray-600 dark:text-gray-400 mt-1">
-                  12 new this month
+                  {dashboardData?.patients?.total || 0} total patients
                 </p>
               </CardContent>
             </Card>
@@ -137,15 +224,18 @@ export const DoctorDashboard = (): JSX.Element => {
               <CardContent className="p-6">
                 <div className="w-12 h-12 bg-[#4caf9620] dark:bg-[#4caf9640] rounded-full flex items-center justify-center mb-4 text-[#4caf96]">
                   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M22 12h-4l-3 9L9 3l-3 9H2"></path>
+                    <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"></path>
+                    <line x1="4" y1="22" x2="4" y2="15"></line>
                   </svg>
                 </div>
                 <h3 className="font-['Montserrat',Helvetica] font-semibold text-[#1f4156] dark:text-white text-lg">
-                  Avg. Wait Time
+                  Active Prescriptions
                 </h3>
-                <p className="text-3xl font-bold mt-2 text-[#4caf96]">14<span className="text-lg">min</span></p>
+                <p className="text-3xl font-bold mt-2 text-[#4caf96]">
+                  {dashboardData?.prescriptions.active || 0}
+                </p>
                 <p className="text-gray-600 dark:text-gray-400 mt-1">
-                  Down 3 min from last week
+                  {dashboardData?.prescriptions.total || 0} total prescriptions
                 </p>
               </CardContent>
             </Card>
@@ -154,31 +244,37 @@ export const DoctorDashboard = (): JSX.Element => {
               <CardContent className="p-6">
                 <div className="w-12 h-12 bg-[#4caf9620] dark:bg-[#4caf9640] rounded-full flex items-center justify-center mb-4 text-[#4caf96]">
                   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <rect x="1" y="3" width="15" height="13"></rect>
-                    <polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon>
-                    <circle cx="5.5" cy="18.5" r="2.5"></circle>
-                    <circle cx="18.5" cy="18.5" r="2.5"></circle>
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="12" cy="7" r="4"></circle>
                   </svg>
                 </div>
                 <h3 className="font-['Montserrat',Helvetica] font-semibold text-[#1f4156] dark:text-white text-lg">
-                  Home Visits
+                  Monthly Stats
                 </h3>
-                <p className="text-3xl font-bold mt-2 text-[#4caf96]">4</p>
+                <p className="text-3xl font-bold mt-2 text-[#4caf96]">
+                  {dashboardData?.analytics?.monthlyStats.completedAppointments || 0}
+                </p>
                 <p className="text-gray-600 dark:text-gray-400 mt-1">
-                  Scheduled for this week
+                  Completed appointments this month
                 </p>
               </CardContent>
             </Card>
           </div>
 
-          {/* Main Dashboard Content */}
+          {/* Main Content Tabs */}
           <Tabs
-            defaultValue="appointments" 
+            defaultValue="overview" 
             value={activeTab}
             onValueChange={setActiveTab}
             className="w-full"
           >
             <TabsList className="grid grid-cols-5 gap-2 bg-[#4caf9615] dark:bg-gray-800 p-1 rounded-xl mb-6">
+              <TabsTrigger 
+                value="overview" 
+                className={`${activeTab === "overview" ? "bg-white dark:bg-gray-700 shadow-sm" : "hover:bg-[#4caf9620] dark:hover:bg-gray-700/70"} rounded-lg transition-all data-[state=active]:text-[#4caf96] data-[state=active]:font-medium`}
+              >
+                Overview
+              </TabsTrigger>
               <TabsTrigger 
                 value="appointments" 
                 className={`${activeTab === "appointments" ? "bg-white dark:bg-gray-700 shadow-sm" : "hover:bg-[#4caf9620] dark:hover:bg-gray-700/70"} rounded-lg transition-all data-[state=active]:text-[#4caf96] data-[state=active]:font-medium`}
@@ -211,22 +307,45 @@ export const DoctorDashboard = (): JSX.Element => {
               </TabsTrigger>
             </TabsList>
             
+            <TabsContent value="overview" className="mt-0">
+              <div>
+                <h2 className="text-xl font-semibold mb-4">Recent Activity</h2>
+                <div className="space-y-4">
+                  {dashboardData?.recentActivities.map((activity, index) => (
+                    <div key={index} className="flex items-start space-x-4">
+                      <div className="flex-shrink-0 w-2 h-2 mt-2 rounded-full bg-blue-600"></div>
+                      <div>
+                        <p className="text-sm text-gray-600">{activity.date}</p>
+                        <p className="font-medium">{activity.description}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </TabsContent>
+            
             <TabsContent value="appointments" className="mt-0">
-              <DoctorAppointments />
+              <DoctorAppointments appointments={dashboardData?.appointments.list || []} />
             </TabsContent>
             
             <TabsContent value="patients" className="mt-0">
-              <DoctorPatients />
+              <DoctorPatients patients={dashboardData?.patients?.list || []} />
             </TabsContent>
             
-            <TabsContent value="analytics" className="mt-0">
-              <DoctorAnalytics />
+            <TabsContent value="analytics">
+              {dashboardData?.analytics ? (
+                <DoctorAnalytics analytics={dashboardData.analytics} />
+              ) : (
+                <div className="text-center py-8">
+                  <p className="text-gray-600">No analytics data available</p>
+                </div>
+              )}
             </TabsContent>
 
             <TabsContent value="reviews" className="mt-0">
               <DoctorReview
                 doctorId={user.id}
-                reviews={reviews}
+                reviews={[]}
                 onReviewSubmit={handleReviewSubmit}
               />
             </TabsContent>

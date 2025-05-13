@@ -4,30 +4,41 @@ import { Button } from "../../components/ui/button";
 import { Card, CardContent } from "../../components/ui/card";
 import { useAuth } from "../../lib/AuthContext";
 import axiosInstance from "../../lib/axios";
+import type { User } from '../../lib/AuthContext';
 
 interface DashboardData {
   appointments: {
     total: number;
     upcoming: number;
     list: Array<{
-      doctorId: {
-        name: string;
-        specialty: string;
-      };
+      patientId?: { name: string; age: number; gender: string };
+      doctorId?: { name: string; specialty: string };
       date: string;
       time: string;
       status: string;
+      type?: string;
       notes?: string;
+    }>;
+  };
+  patients?: {
+    total: number;
+    active: number;
+    list: Array<{
+      id: string;
+      name: string;
+      age: number;
+      gender: string;
+      lastVisit: string;
+      nextAppointment: string;
+      status: string;
     }>;
   };
   prescriptions: {
     total: number;
     active: number;
     list: Array<{
-      doctorId: {
-        name: string;
-        specialty: string;
-      };
+      patientId?: { name: string; age: number };
+      doctorId?: { name: string; specialty: string };
       medication: string;
       dosage: string;
       frequency: string;
@@ -37,7 +48,7 @@ interface DashboardData {
       notes?: string;
     }>;
   };
-  healthRecords: {
+  healthRecords?: {
     total: number;
     recent: Array<{
       type: string;
@@ -46,6 +57,22 @@ interface DashboardData {
       description: string;
       attachments: string[];
     }>;
+  };
+  analytics?: {
+    monthlyStats: {
+      totalAppointments: number;
+      completedAppointments: number;
+      newPatients: number;
+      prescriptionsIssued: number;
+      averageRating: number;
+    };
+    weeklySchedule: {
+      monday: number;
+      tuesday: number;
+      wednesday: number;
+      thursday: number;
+      friday: number;
+    };
   };
   recentActivities: Array<{
     type: string;
@@ -109,9 +136,10 @@ const healthTips: HealthTip[] = [
   }
 ];
 
-export const Dashboard = (): JSX.Element => {
+const Dashboard: React.FC = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const [activeTab, setActiveTab] = useState('overview');
   const [dashboardData, setDashboardData] = useState<DashboardData | null>(null);
   const [topClinics, setTopClinics] = useState<TopClinic[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -120,39 +148,27 @@ export const Dashboard = (): JSX.Element => {
   useEffect(() => {
     const fetchDashboardData = async () => {
       try {
-        setIsLoading(true);
-        
-        const [dashboardResponse, clinicsResponse] = await Promise.all([
-          axiosInstance.get<DashboardData>('/api/user/dashboard'),
-          axiosInstance.get<TopClinic[]>('/api/user/top-clinics')
-        ]);
-
-        setDashboardData(dashboardResponse.data || {
-          appointments: { total: 0, upcoming: 0, list: [] },
-          prescriptions: { total: 0, active: 0, list: [] },
-          healthRecords: { total: 0, recent: [] },
-          recentActivities: []
-        });
-        
-        setTopClinics(clinicsResponse.data || []);
-      } catch (err: any) {
-        console.error("Error fetching dashboard data:", err);
-        // Set default empty data instead of showing error
+        if (user?.email === 'test.doctor@sehaty.com' || user?.email === 'test.patient@sehaty.com') {
+          setDashboardData(user.dashboardData as DashboardData);
+        } else {
+          const response = await fetch('/api/user/dashboard');
+          if (!response.ok) throw new Error('Failed to fetch dashboard data');
+          const data = await response.json();
+          setDashboardData(data);
+        }
+      } catch (error) {
+        console.error('Error fetching dashboard data:', error);
         setDashboardData({
           appointments: { total: 0, upcoming: 0, list: [] },
           prescriptions: { total: 0, active: 0, list: [] },
-          healthRecords: { total: 0, recent: [] },
           recentActivities: []
         });
-        setTopClinics([]);
       } finally {
         setIsLoading(false);
       }
     };
 
-    if (user) {
-      fetchDashboardData();
-    }
+    fetchDashboardData();
   }, [user]);
 
   // Rotate health tips every 2 hours
@@ -186,152 +202,237 @@ export const Dashboard = (): JSX.Element => {
   }
 
   return (
-    <div className="w-full max-w-[1280px] mx-auto px-4 md:px-6 py-8">
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <Card className="bg-white dark:bg-gray-800 border-none shadow-sm">
-          <CardContent className="p-6">
-            <div className="w-12 h-12 bg-[#4caf9620] dark:bg-[#4caf9640] rounded-full flex items-center justify-center mb-4 text-[#4caf96]">
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
-                <line x1="16" y1="2" x2="16" y2="6"></line>
-                <line x1="8" y1="2" x2="8" y2="6"></line>
-                <line x1="3" y1="10" x2="21" y2="10"></line>
-              </svg>
-            </div>
-            <h3 className="font-['Montserrat',Helvetica] font-semibold text-[#1f4156] dark:text-white text-lg">
-              Appointments
-            </h3>
-            <p className="text-3xl font-bold mt-2 text-[#4caf96]">
-              {dashboardData?.appointments.total || 0}
-            </p>
-            <p className="text-gray-600 dark:text-gray-400 mt-1">
-              {dashboardData?.appointments.upcoming || 0} upcoming appointments
-            </p>
-            <Button
-              variant="ghost"
-              className="w-full mt-4 bg-[#4caf9620] text-[#4caf96] font-medium hover:bg-[#4caf9630]"
-              onClick={() => navigate('/appointments')}
-            >
-              {dashboardData?.appointments.total ? 'View All' : 'Schedule Appointment'}
-            </Button>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-white dark:bg-gray-800 border-none shadow-sm">
-          <CardContent className="p-6">
-            <div className="w-12 h-12 bg-[#4caf9620] dark:bg-[#4caf9640] rounded-full flex items-center justify-center mb-4 text-[#4caf96]">
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z" />
-                <line x1="4" y1="22" x2="4" y2="15" />
-              </svg>
-            </div>
-            <h3 className="font-['Montserrat',Helvetica] font-semibold text-[#1f4156] dark:text-white text-lg">
-              Prescriptions
-            </h3>
-            <p className="text-3xl font-bold mt-2 text-[#4caf96]">
-              {dashboardData?.prescriptions.total || 0}
-            </p>
-            <p className="text-gray-600 dark:text-gray-400 mt-1">
-              {dashboardData?.prescriptions.active || 0} active prescriptions
-            </p>
-            <Button
-              variant="ghost"
-              className="w-full mt-4 bg-[#4caf9620] text-[#4caf96] font-medium hover:bg-[#4caf9630]"
-              onClick={() => navigate('/prescriptions')}
-            >
-              {dashboardData?.prescriptions.total ? 'View All' : 'Add Prescription'}
-            </Button>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-white dark:bg-gray-800 border-none shadow-sm">
-          <CardContent className="p-6">
-            <div className="w-12 h-12 bg-[#4caf9620] dark:bg-[#4caf9640] rounded-full flex items-center justify-center mb-4 text-[#4caf96]">
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-                <path d="M14 2v6h6" />
-                <path d="M16 13H8" />
-                <path d="M16 17H8" />
-                <path d="M10 9H8" />
-              </svg>
-            </div>
-            <h3 className="font-['Montserrat',Helvetica] font-semibold text-[#1f4156] dark:text-white text-lg">
-              Health Records
-            </h3>
-            <p className="text-3xl font-bold mt-2 text-[#4caf96]">
-              {dashboardData?.healthRecords.total || 0}
-            </p>
-            <p className="text-gray-600 dark:text-gray-400 mt-1">
-              Last updated: {dashboardData?.healthRecords.recent[0]?.date 
-                ? new Date(dashboardData.healthRecords.recent[0].date).toLocaleDateString()
-                : 'No records yet'}
-            </p>
-            <Button
-              variant="ghost"
-              className="w-full mt-4 bg-[#4caf9620] text-[#4caf96] font-medium hover:bg-[#4caf9630]"
-              onClick={() => navigate('/records')}
-            >
-              {dashboardData?.healthRecords.total ? 'View All' : 'Add Health Record'}
-            </Button>
-          </CardContent>
-        </Card>
+    <div className="container mx-auto px-4 py-8">
+      <h1 className="text-3xl font-bold mb-8">Dashboard</h1>
+      
+      {/* Summary Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div className="bg-white rounded-lg shadow p-6">
+          <h3 className="text-lg font-semibold mb-2">Appointments</h3>
+          <p className="text-3xl font-bold">{dashboardData?.appointments.total || 0}</p>
+          <p className="text-sm text-gray-600">{dashboardData?.appointments.upcoming || 0} upcoming</p>
+        </div>
+        
+        {user.role === 'doctor' && dashboardData?.patients && (
+          <div className="bg-white rounded-lg shadow p-6">
+            <h3 className="text-lg font-semibold mb-2">Patients</h3>
+            <p className="text-3xl font-bold">{dashboardData.patients.total}</p>
+            <p className="text-sm text-gray-600">{dashboardData.patients.active} active</p>
+          </div>
+        )}
+        
+        <div className="bg-white rounded-lg shadow p-6">
+          <h3 className="text-lg font-semibold mb-2">Prescriptions</h3>
+          <p className="text-3xl font-bold">{dashboardData?.prescriptions.total || 0}</p>
+          <p className="text-sm text-gray-600">{dashboardData?.prescriptions.active || 0} active</p>
+        </div>
+        
+        {user.role === 'doctor' && dashboardData?.analytics && (
+          <div className="bg-white rounded-lg shadow p-6">
+            <h3 className="text-lg font-semibold mb-2">Monthly Stats</h3>
+            <p className="text-3xl font-bold">{dashboardData.analytics.monthlyStats.totalAppointments}</p>
+            <p className="text-sm text-gray-600">{dashboardData.analytics.monthlyStats.newPatients} new patients</p>
+          </div>
+        )}
       </div>
 
-      {/* Recent Activities */}
-      <div className="mt-8">
-        <h2 className="font-['Montserrat',Helvetica] font-bold text-[#1f4156] dark:text-white text-xl mb-4">
-          Recent Activities
-        </h2>
-        <Card className="bg-white dark:bg-gray-800 border-none shadow-sm">
-          <CardContent className="p-0">
-            {dashboardData?.recentActivities.length ? (
-              <div className="divide-y divide-gray-100 dark:divide-gray-700">
-                {dashboardData.recentActivities.map((activity, index) => (
-                  <div key={index} className="p-4 flex items-start gap-4">
-                    <div className="w-10 h-10 bg-[#4caf9620] dark:bg-[#4caf9640] rounded-full flex items-center justify-center text-[#4caf96]">
-                      {activity.type === 'appointment' && (
-                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                          <rect width="18" height="18" x="3" y="4" rx="2" ry="2" />
-                          <line x1="16" x2="16" y1="2" y2="6" />
-                          <line x1="8" x2="8" y1="2" y2="6" />
-                          <line x1="3" x2="21" y1="10" y2="10" />
-                          <path d="m9 16 2 2 4-4" />
-                        </svg>
-                      )}
-                      {activity.type === 'prescription' && (
-                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                          <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z" />
-                          <line x1="4" y1="22" x2="4" y2="15" />
-                        </svg>
-                      )}
-                      {activity.type === 'record' && (
-                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-                          <path d="M14 2v6h6" />
-                          <path d="M16 13H8" />
-                          <path d="M16 17H8" />
-                          <path d="M10 9H8" />
-                        </svg>
-                      )}
-                    </div>
+      {/* Tabs */}
+      <div className="bg-white rounded-lg shadow mb-8">
+        <div className="border-b">
+          <nav className="flex">
+            <button
+              className={`px-6 py-3 font-medium ${
+                activeTab === 'overview' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-600'
+              }`}
+              onClick={() => setActiveTab('overview')}
+            >
+              Overview
+            </button>
+            <button
+              className={`px-6 py-3 font-medium ${
+                activeTab === 'appointments' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-600'
+              }`}
+              onClick={() => setActiveTab('appointments')}
+            >
+              Appointments
+            </button>
+            {user.role === 'doctor' && (
+              <button
+                className={`px-6 py-3 font-medium ${
+                  activeTab === 'patients' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-600'
+                }`}
+                onClick={() => setActiveTab('patients')}
+              >
+                Patients
+              </button>
+            )}
+            <button
+              className={`px-6 py-3 font-medium ${
+                activeTab === 'prescriptions' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-600'
+              }`}
+              onClick={() => setActiveTab('prescriptions')}
+            >
+              Prescriptions
+            </button>
+            {user.role === 'patient' && (
+              <button
+                className={`px-6 py-3 font-medium ${
+                  activeTab === 'health-records' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-600'
+                }`}
+                onClick={() => setActiveTab('health-records')}
+              >
+                Health Records
+              </button>
+            )}
+          </nav>
+        </div>
+
+        {/* Tab Content */}
+        <div className="p-6">
+          {activeTab === 'overview' && (
+            <div>
+              <h2 className="text-xl font-semibold mb-4">Recent Activity</h2>
+              <div className="space-y-4">
+                {dashboardData?.recentActivities.map((activity, index) => (
+                  <div key={index} className="flex items-start space-x-4">
+                    <div className="flex-shrink-0 w-2 h-2 mt-2 rounded-full bg-blue-600"></div>
                     <div>
-                      <h3 className="font-medium text-[#1f4156] dark:text-white">
-                        {activity.description}
-                      </h3>
-                      <p className="text-sm text-gray-600 dark:text-gray-400">
-                        {new Date(activity.date).toLocaleDateString()}
-                      </p>
+                      <p className="text-sm text-gray-600">{activity.date}</p>
+                      <p className="font-medium">{activity.description}</p>
                     </div>
                   </div>
                 ))}
               </div>
-            ) : (
-              <div className="p-8 text-center text-gray-500 dark:text-gray-400">
-                No recent activities. Your activities will appear here.
+            </div>
+          )}
+
+          {activeTab === 'appointments' && (
+            <div>
+              <h2 className="text-xl font-semibold mb-4">Upcoming Appointments</h2>
+              <div className="space-y-4">
+                {dashboardData?.appointments.list.map((appointment, index) => (
+                  <div key={index} className="border rounded-lg p-4">
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <h3 className="font-medium">
+                          {user.role === 'doctor' ? appointment.patientId?.name : appointment.doctorId?.name}
+                        </h3>
+                        <p className="text-sm text-gray-600">
+                          {appointment.date} at {appointment.time}
+                        </p>
+                        <p className="text-sm text-gray-600">
+                          {user.role === 'doctor' ? 'Patient' : 'Doctor'}: {user.role === 'doctor' ? appointment.patientId?.name : appointment.doctorId?.name}
+                        </p>
+                      </div>
+                      <span className={`px-2 py-1 rounded text-sm ${
+                        appointment.status === 'scheduled' ? 'bg-blue-100 text-blue-800' :
+                        appointment.status === 'completed' ? 'bg-green-100 text-green-800' :
+                        'bg-gray-100 text-gray-800'
+                      }`}>
+                        {appointment.status}
+                      </span>
+                    </div>
+                  </div>
+                ))}
               </div>
-            )}
-          </CardContent>
-        </Card>
+            </div>
+          )}
+
+          {activeTab === 'patients' && user.role === 'doctor' && dashboardData?.patients && (
+            <div>
+              <h2 className="text-xl font-semibold mb-4">Active Patients</h2>
+              <div className="space-y-4">
+                {dashboardData.patients.list.map((patient) => (
+                  <div key={patient.id} className="border rounded-lg p-4">
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <h3 className="font-medium">{patient.name}</h3>
+                        <p className="text-sm text-gray-600">
+                          Age: {patient.age} | Gender: {patient.gender}
+                        </p>
+                        <p className="text-sm text-gray-600">
+                          Last Visit: {patient.lastVisit}
+                        </p>
+                        <p className="text-sm text-gray-600">
+                          Next Appointment: {patient.nextAppointment}
+                        </p>
+                      </div>
+                      <span className={`px-2 py-1 rounded text-sm ${
+                        patient.status === 'active' ? 'bg-green-100 text-green-800' :
+                        'bg-gray-100 text-gray-800'
+                      }`}>
+                        {patient.status}
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {activeTab === 'prescriptions' && (
+            <div>
+              <h2 className="text-xl font-semibold mb-4">Active Prescriptions</h2>
+              <div className="space-y-4">
+                {dashboardData?.prescriptions.list.map((prescription, index) => (
+                  <div key={index} className="border rounded-lg p-4">
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <h3 className="font-medium">{prescription.medication}</h3>
+                        <p className="text-sm text-gray-600">
+                          Dosage: {prescription.dosage} | Frequency: {prescription.frequency}
+                        </p>
+                        <p className="text-sm text-gray-600">
+                          Start Date: {prescription.startDate} | End Date: {prescription.endDate}
+                        </p>
+                        {prescription.notes && (
+                          <p className="text-sm text-gray-600 mt-2">Notes: {prescription.notes}</p>
+                        )}
+                      </div>
+                      <span className={`px-2 py-1 rounded text-sm ${
+                        prescription.status === 'active' ? 'bg-green-100 text-green-800' :
+                        'bg-gray-100 text-gray-800'
+                      }`}>
+                        {prescription.status}
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {activeTab === 'health-records' && user.role === 'patient' && dashboardData?.healthRecords && (
+            <div>
+              <h2 className="text-xl font-semibold mb-4">Recent Health Records</h2>
+              <div className="space-y-4">
+                {dashboardData.healthRecords.recent.map((record, index) => (
+                  <div key={index} className="border rounded-lg p-4">
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <h3 className="font-medium">{record.type}</h3>
+                        <p className="text-sm text-gray-600">
+                          Date: {record.date} | Provider: {record.provider}
+                        </p>
+                        <p className="text-sm text-gray-600 mt-2">{record.description}</p>
+                        {record.attachments.length > 0 && (
+                          <div className="mt-2">
+                            <p className="text-sm font-medium">Attachments:</p>
+                            <ul className="list-disc list-inside text-sm text-gray-600">
+                              {record.attachments.map((attachment, i) => (
+                                <li key={i}>{attachment}</li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Health Tips */}
@@ -364,4 +465,6 @@ export const Dashboard = (): JSX.Element => {
       </div>
     </div>
   );
-}; 
+};
+
+export default Dashboard; 
