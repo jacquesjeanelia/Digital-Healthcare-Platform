@@ -1,109 +1,152 @@
-# Sehaty - Modern Healthcare Platform
+# Sehaty - Digital Healthcare Platform
 
-Sehaty is a comprehensive digital healthcare solution that connects patients with healthcare providers seamlessly. The platform enables appointment scheduling, medical record management, telemedicine consultations, and more.
+Sehaty is a modern, user-friendly digital healthcare platform that connects patients with healthcare providers, facilitating seamless appointment scheduling, medical record management, and healthcare service delivery.
 
-## Features
+## 🌟 Features
 
-- **User Authentication**: Secure login and registration for patients, doctors, and administrators
-- **Appointment Management**: Schedule, view, update, and cancel medical appointments
-- **Doctor Discovery**: Find healthcare providers by specialization, location, or availability
-- **Medical Records**: Access and manage electronic health records securely
-- **Telemedicine**: Virtual consultations through integrated video conferencing
-- **Notifications**: Reminders for upcoming appointments and medication schedules
+### For Patients
+- User-friendly appointment scheduling
+- Secure medical records management
+- Real-time appointment tracking
+- Doctor search and filtering
+- Insurance information management
+- Secure messaging with healthcare providers
 
-## Technology Stack
+### For Healthcare Providers
+- Appointment management dashboard
+- Patient records access
+- Schedule management
+- Professional profile customization
+- Verification system
+- Consultation fee management
 
-- **Frontend**: React, TypeScript, Vite, Tailwind CSS
-- **Backend**: Node.js, Express
-- **Database**: MongoDB
-- **Authentication**: JWT (JSON Web Tokens)
-- **Deployment**: Vercel
+### For Administrators
+- User management
+- Provider verification
+- System monitoring
+- Content management
 
-## Getting Started
+## 🚀 Tech Stack
 
-### Prerequisites
+### Frontend
+- React 18
+- TypeScript
+- Vite
+- Tailwind CSS
+- Radix UI Components
+- React Router DOM
+- Axios
+- Framer Motion
+
+### Backend
+- Node.js
+- Express.js
+- MongoDB
+- JWT Authentication
+- Bcrypt for password hashing
+
+## 📋 Prerequisites
 
 - Node.js (v14 or higher)
+- MongoDB
 - npm or yarn
-- MongoDB connection
 
-### Installation
+## 🛠️ Installation
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/your-username/sehaty.git
+git clone https://github.com/yourusername/sehaty.git
 cd sehaty
 ```
 
-2. Install frontend dependencies:
+2. Install dependencies for both frontend and backend:
 ```bash
-cd sehaty-frontend
+# Install backend dependencies
+cd backend
+npm install
+
+# Install frontend dependencies
+cd ../frontend
 npm install
 ```
 
-3. Install backend dependencies:
+3. Set up environment variables:
+
+Create a `.env` file in the backend directory:
+```env
+MONGODB_URI=your_mongodb_connection_string (Should be requested from the owner of the project)
+JWT_SECRET=your_jwt_secret (Should be requested from the owner of the project)
+PORT=5000
+```
+
+Create a `.env` file in the frontend directory:
+```env
+VITE_API_URL=http://localhost:5000/api
+```
+
+## 🚀 Running the Application
+
+1. Start the backend server:
 ```bash
-cd ../sehaty-backend
-npm install
-```
-
-4. Set up environment variables:
-Create a `.env` file in the sehaty-backend directory with the following content:
-```
-MONGODB_URI=your_mongodb_connection_string
-JWT_SECRET=your_jwt_secret
-PORT=3000
-```
-
-5. Run the development servers:
-
-Frontend:
-```bash
-cd sehaty-frontend
+cd backend
 npm run dev
 ```
 
-Backend:
+2. Start the frontend development server:
 ```bash
-cd sehaty-backend
+cd frontend
 npm run dev
 ```
 
-6. Open [http://localhost:5173](http://localhost:5173) to see the frontend application in your browser.
+3. Access the application:
+- Frontend: http://localhost:5173
+- Backend API: http://localhost:5000
 
-## Project Structure
+## 🧪 Test Accounts
 
+For testing purposes, you can use the following accounts:
+
+### Test Patient
+- Email: test@patient.com
+- Password: test123
+
+### Test Doctor
+- Email: test@doctor.com
+- Password: test123
+
+## 📁 Project Structure
 ```
 sehaty/
-├── sehaty-frontend/          # Frontend application
-│   ├── src/                 # Source code
-│   │   ├── components/      # React components
-│   │   ├── pages/          # Page components
-│   │   ├── styles/         # CSS styles
-│   │   └── utils/          # Utility functions
-│   ├── public/             # Static assets
-│   └── package.json        # Frontend dependencies
+├── frontend/ # Frontend React application
+│ ├── src/
+│ │ ├── components/ # Reusable UI components
+│ │ ├── screens/ # Page components
+│ │ ├── lib/ # Utility functions and contexts
+│ │ └── routes/ # Route definitions
+│ └── public/ # Static assets
 │
-├── sehaty-backend/          # Backend application
-│   ├── src/                # Source code
-│   │   ├── routes/         # API routes
-│   │   ├── models/         # Database models
-│   │   ├── services/       # Business logic
-│   │   └── server.js       # Main server file
-│   └── package.json        # Backend dependencies
+├── backend/ # Backend Node.js application
+│ ├── src/
+│ │ ├── models/ # Database models
+│ │ ├── routes/ # API routes
+│ │ ├── middleware/ # Custom middleware
+│ │ └── scripts/ # Utility scripts
+│ └── config/ # Configuration files
 │
-├── docs/                   # Documentation
-└── README.md              # Project documentation
+└── docs/ # Documentation
 ```
 
-## Contributing
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+## 🔒 Security Features
 
-## License
+- JWT-based authentication
+- Password hashing with bcrypt
+- Protected routes
+- Input validation
+- CORS configuration
+- Environment variable protection
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+## 👥 Authors
 
----
-
-Sehaty - Your health companion
+- Ahmed Elzahaby
+- Karim Abolghar
